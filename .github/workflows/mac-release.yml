@@ -1,7 +1,7 @@
 name: Mac release
 
-# Builds Fluent-mac.zip, uploads it and a one-line installer to catbox.moe (public links, no
-# account; this repo is private so GitHub links would need a login), then tests the exact install
+# Builds Fluent-mac.zip, publishes it and a one-line installer as a GitHub Release of this public
+# repo (catbox.moe is tried first but refuses anonymous uploads), then tests the exact install
 # command on a fresh runner. Runs only for the `mac` branch: when mac/RELEASE changes, or by hand.
 on:
   push:
@@ -45,23 +45,32 @@ jobs:
       - name: Upload the zip and the installer
         id: upload
         working-directory: mac
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
-          upload() {  # file -> prints URL; catbox first, litterbox (72 h) if catbox fails
-            local f="$1" url=""
-            for i in 1 2 3; do
-              url="$(curl -fsS --max-time 300 -F reqtype=fileupload -F "fileToUpload=@$f" https://catbox.moe/user/api.php || true)"
-              case "$url" in https://*) echo "$url"; return 0;; esac
-              sleep $((i * 10))
-            done
-            url="$(curl -fsS --max-time 300 -F reqtype=fileupload -F time=72h -F "fileToUpload=@$f" https://litterbox.catbox.moe/resources/internals/api.php || true)"
-            case "$url" in https://*) echo "$url"; echo "LITTERBOX" >> "$OUT/host.txt"; return 0;; esac
-            return 1
-          }
-          ZIP_URL="$(upload dist/Fluent-mac.zip)" || { echo "zip upload failed"; exit 1; }
+          # catbox.moe was the plan, but it now refuses anonymous uploads ("Invalid uploader",
+          # HTTP 412) and litterbox fails too, so it is tried once and the answer recorded. The
+          # files are published as a GitHub Release of this public repository instead: permanent
+          # links that anyone can download without logging in.
+          CATBOX="$(curl -sS --max-time 120 -F reqtype=fileupload -F "fileToUpload=@dist/Fluent-mac.zip" https://catbox.moe/user/api.php 2>&1 || true)"
+          echo "catbox answered: $CATBOX" | tee "$OUT/catbox.txt"
+
+          TAG="v$VERSION"
+          BASE="https://github.com/$GITHUB_REPOSITORY/releases"
+          ZIP_URL="$BASE/download/$TAG/Fluent-mac.zip"
+          INSTALL_URL="$BASE/latest/download/install.sh"
           sed -e "s|__ZIP_URL__|$ZIP_URL|" -e "s|__VERSION__|$VERSION|" scripts/install.sh.template > dist/install.sh
           bash -n dist/install.sh
-          INSTALL_URL="$(upload dist/install.sh)" || { echo "installer upload failed"; exit 1; }
+          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag >/dev/null 2>&1 || true
+          gh release create "$TAG" dist/Fluent-mac.zip dist/install.sh --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" --latest --title "Fluent for Mac $VERSION" \
+            --notes "Install on a Mac (macOS 14 or later): open Terminal and run
+          \`curl -fsSL $INSTALL_URL | bash\`"
+          # The download must work for anyone, with no GitHub login.
+          sleep 5
+          curl -fsSIL -o /dev/null -w "zip: HTTP %{http_code}\n" "$ZIP_URL"
+          curl -fsSL "$INSTALL_URL" | cmp - dist/install.sh && echo "installer link serves this build's install.sh"
           cp dist/install.sh "$OUT/install.sh"
           {
             echo "# Fluent for Mac $VERSION"
@@ -73,9 +82,10 @@ jobs:
             echo '```'
             echo
             echo "- Zip: $ZIP_URL"
-            echo "- Installer: $INSTALL_URL"
+            echo "- Installer: $INSTALL_URL (always the latest release)"
             echo "- SHA-256: $(cut -d' ' -f1 "$OUT/sha256.txt")"
-            if [ -f "$OUT/host.txt" ]; then echo "- Hosted on litterbox.catbox.moe: these links expire 72 hours after $(date -u +%FT%TZ)."; else echo "- Hosted on catbox.moe (no expiry)."; fi
+            echo "- Hosted as a GitHub Release of the public repo $GITHUB_REPOSITORY (no expiry, no login needed)."
+            echo "- catbox.moe: $(head -c 200 "$OUT/catbox.txt")"
           } > "$OUT/RELEASE.md"
           cat "$OUT/RELEASE.md"
           echo "install_url=$INSTALL_URL" >> "$GITHUB_OUTPUT"

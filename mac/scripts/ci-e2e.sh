@@ -226,6 +226,18 @@ demo capsule-listening lagoon "Listening"
 # ---------------------------------------------------------------- 6. Speech to text: mock server, then Gemini
 say -o /tmp/fluent-say.aiff "Hey team, the Mac build is ready. Let's ship it on Friday."
 afconvert -f WAVE -d LEI16@16000 -c 1 /tmp/fluent-say.aiff /tmp/fluent-say.wav
+SAY_BYTES=$(stat -f %z /tmp/fluent-say.wav)
+if [ "$SAY_BYTES" -lt 32000 ]; then
+    # Some runner images ship without a usable default voice; try the named ones.
+    for v in Samantha Alex Daniel Karen; do
+        say -v "$v" -o /tmp/fluent-say.aiff "Hey team, the Mac build is ready. Let's ship it on Friday." 2>/dev/null || continue
+        afconvert -f WAVE -d LEI16@16000 -c 1 /tmp/fluent-say.aiff /tmp/fluent-say.wav
+        SAY_BYTES=$(stat -f %z /tmp/fluent-say.wav)
+        [ "$SAY_BYTES" -ge 32000 ] && break
+    done
+fi
+note "\`say\` produced a $SAY_BYTES-byte 16 kHz WAV ($(( SAY_BYTES / 32000 )) s of speech)"
+say -v '?' 2>/dev/null | head -5 > "$OUT/reports/say-voices.txt"
 python3 scripts/mock_gemini.py 8765 "$OUT/reports/mock-requests.jsonl" &
 MOCK=$!
 sleep 1

@@ -69,6 +69,10 @@ jobs:
         working-directory: mac
         run: scripts/ci-grant-tcc.sh /Applications/Fluent.app 2>&1 | tee "$OUT/tcc.txt"
 
+      - name: Largest screen mode for screenshots
+        working-directory: mac
+        run: swift scripts/ci-display.swift 2>&1 | tee "$OUT/display.txt" | tail -3 || true
+
       - name: End-to-end tests and screenshots
         working-directory: mac
         env:

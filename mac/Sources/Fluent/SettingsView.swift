@@ -25,7 +25,9 @@ struct SettingsView: View {
                 }
                 LabeledContent("Custom vocabulary") {
                     HStack {
-                        TextField("Add a name or word", text: $newWord)
+                        TextField("Word", text: $newWord, prompt: Text("Add a name or word"))
+                            .labelsHidden()
+                            .textFieldStyle(.roundedBorder)
                             .frame(width: 200)
                             .onSubmit(addWord)
                         Button("Add", action: addWord)

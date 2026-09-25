@@ -31,7 +31,22 @@ enum SelfTest {
                 "frontmost": NSWorkspace.shared.frontmostApplication?.bundleIdentifier ?? "",
             ]
             try? await Task.sleep(nanoseconds: 400_000_000)
-            let field = FieldFinder.frontmost()
+            // Chromium and Electron build their tree only after Fluent asks (the first lookup sends
+            // the nudge), so look again a few times, as the running app's 4-per-second watcher would.
+            var field = FieldFinder.frontmost()
+            var attempts = 1
+            while field?.kind != .editable && attempts < 8 && mode != "windows" && mode != "dump" && mode != "click" {
+                try? await Task.sleep(nanoseconds: 500_000_000)
+                field = FieldFinder.frontmost()
+                attempts += 1
+            }
+            report["lookups"] = attempts
+            if let app = NSWorkspace.shared.frontmostApplication {
+                let el = AXUIElementCreateApplication(app.processIdentifier)
+                report["appFocusedRole"] = el.element("AXFocusedUIElement")?.string("AXRole") ?? NSNull()
+                report["focusedWindowRole"] = el.element("AXFocusedWindow")?.string("AXRole") ?? NSNull()
+                report["systemFocusedRole"] = AXUIElement.systemWide.element("AXFocusedUIElement")?.string("AXRole") ?? NSNull()
+            }
             report["field"] = describe(field)
 
             switch mode {
