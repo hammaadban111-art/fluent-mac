@@ -1,0 +1,32 @@
+name: Mac teaser upload
+
+# Publishes the Instagram teaser MP4s (rendered from marketing/mac-teaser, staged in the teaser/
+# folder of the mac-ci-results branch) as the "mac-teaser" GitHub Release: public download links,
+# no account needed. catbox.moe refuses anonymous uploads, so it is not used. Runs only by hand.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: mac-ci-results
+          sparse-checkout: teaser
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la teaser
+          gh release delete mac-teaser --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag >/dev/null 2>&1 || true
+          gh release create mac-teaser teaser/*.mp4 --repo "$GITHUB_REPOSITORY" --target mac --latest=false \
+            --title "Fluent for Mac: Instagram teaser" \
+            --notes "1080x1920, 30 fps, 21 s. NoMusic: add \"Blinding Lights\" (The Weeknd, 171 BPM) in Instagram from 0:00. Music: original track, about -14 LUFS."
+          for f in teaser/*.mp4; do
+            curl -fsSL -o /dev/null -w "$(basename "$f"): HTTP %{http_code}, %{size_download} bytes\n" \
+              "https://github.com/$GITHUB_REPOSITORY/releases/download/mac-teaser/$(basename "$f")"
+          done

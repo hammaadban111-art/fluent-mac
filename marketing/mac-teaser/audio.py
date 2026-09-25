@@ -274,8 +274,8 @@ def master(stereo, target_lufs):
     for _ in range(4):
         loud = meter.integrated_loudness(stereo)
         stereo = stereo * 10 ** ((target_lufs - loud) / 20)
-        # Soft limiter: keeps sample peaks under about -1 dBFS.
-        ceiling = 10 ** (-1.2 / 20)
+        # Soft limiter: keeps sample peaks under about -2.5 dBFS, leaving room for AAC overshoot.
+        ceiling = 10 ** (-2.5 / 20)
         stereo = np.tanh(stereo / ceiling) * ceiling
     return stereo, meter.integrated_loudness(stereo)
 

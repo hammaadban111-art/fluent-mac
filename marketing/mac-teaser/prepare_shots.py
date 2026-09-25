@@ -68,7 +68,7 @@ def main(ci):
             scale = 1   # runner displays are 1x: window bounds (points) equal screenshot pixels
             bx = (bubble["X"] + bubble["Width"] / 2) * scale
             by = (bubble["Y"] + bubble["Height"] / 2) * scale
-            w, h = 380 * scale, 300 * scale
+            w, h = 330 * scale, 250 * scale
             left = max(0, min(screen.size[0] - w, bx - w * 0.72))
             top = max(0, min(screen.size[1] - h, by - h * 0.5))
             crop = screen.crop((int(left), int(top), int(left + w), int(top + h)))

@@ -8,6 +8,7 @@ A 21-second vertical reel (1080×1920, 30 fps, H.264 + AAC) cut on the beat at *
 | `teaser.html` | The edit: every scene, caption and animation as a deterministic `render(t)`. |
 | `render.py` | Playwright screenshots each frame, ffmpeg encodes, then muxes both soundtracks. |
 | `audio.py` | Synthesises the sound effects (`sfx.wav`) and an original 171 BPM track mixed with them (`music.wav`, about −14 LUFS). |
+| `check_safe_zones.py` | Measures every visible text box every 5th frame: none may sit above 250 px or below 1520 px. |
 | `prepare_shots.py` | Crops the real Mac screenshots from CI (`mac-ci-results` branch, `ci/shots/`) into `shots/`. |
 | `styles.json` | The Slack / Mail / Notes / Messages examples, produced by Fluent's own `StyleFormatter`. |
 | `shots/` | Real screenshots of Fluent for Mac taken on a macOS runner. No mocked-up Fluent UI. |
@@ -36,3 +37,10 @@ version and add the song from Instagram's own music library, or post the **Music
 uses an original track synthesised in `audio.py`.
 
 Keep captions out of Instagram's UI: all text sits between y = 250 px and y = 1520 px.
+
+## Where the videos are
+
+catbox.moe now refuses anonymous uploads ("Invalid uploader", HTTP 412) and litterbox failed too,
+so both MP4s are published as the `mac-teaser` GitHub Release of the public
+`hammaadban111-art/fluent-mac` repository (`.github/workflows/mac-teaser.yml`): permanent links,
+no login needed.
