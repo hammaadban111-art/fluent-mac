@@ -67,7 +67,12 @@ enum Demo {
             MainActor.assumeIsolated {
                 guard let dir = LaunchOptions.current.snapDir else { return }
                 try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-                if let v = view(), let rep = v.bitmapImageRepForCachingDisplay(in: v.bounds) {
+                // Drawn at 2x whatever the screen is, so the pictures stay sharp in the reel.
+                if let v = view(), let rep = NSBitmapImageRep(
+                    bitmapDataPlanes: nil, pixelsWide: Int(v.bounds.width * 2), pixelsHigh: Int(v.bounds.height * 2),
+                    bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false,
+                    colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) {
+                    rep.size = v.bounds.size
                     v.cacheDisplay(in: v.bounds, to: rep)
                     try? rep.representation(using: .png, properties: [:])?
                         .write(to: dir.appendingPathComponent("app-\(screen).png"))

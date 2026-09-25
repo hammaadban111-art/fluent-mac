@@ -11,10 +11,13 @@ S="$OUT/SUMMARY.md"
 mkdir -p "$OUT/shots/demo" "$OUT/reports"
 FAILED=0
 
+# Runs a command but gives up after N seconds, so one stuck dialog cannot hang the job.
+tmo() { local secs="$1"; shift; perl -e 'alarm shift; exec @ARGV' "$secs" "$@"; }
+
 pass() { echo "- ✅ $*" | tee -a "$S"; }
 fail() { echo "- ❌ $*" | tee -a "$S"; FAILED=1; }
 note() { echo "- ℹ️ $*" | tee -a "$S"; }
-shot() { screencapture -x "$OUT/shots/$1.png" 2>/dev/null && [ -s "$OUT/shots/$1.png" ] || note "screencapture could not save $1"; }
+shot() { tmo 15 screencapture -x "$OUT/shots/$1.png" 2>/dev/null && [ -s "$OUT/shots/$1.png" ] || note "screencapture could not save $1"; }
 # json <file> <python subscript, e.g. "['outcome']">
 json() { python3 - "$1" "$2" <<'PY' 2>/dev/null
 import json, sys
@@ -30,7 +33,7 @@ selftest() {
     local name="$1"; shift
     local report="$OUT/reports/$name.json"
     rm -f "${report:?}"
-    open -g -n -a "$APP" --args --self-test "$@" --out "$report"
+    tmo 15 open -g -n -a "$APP" --args --self-test "$@" --out "$report"
     for _ in $(seq 1 60); do [ -s "$report" ] && break; sleep 0.5; done
     [ -s "$report" ] || echo '{"error":"no report (timed out)"}' > "$report"
     sleep 0.3
@@ -49,7 +52,7 @@ fi
 # ---------------------------------------------------------------- 1. TextEdit, Accessibility route
 TE_FILE=/tmp/fluent-e2e.txt
 : > "$TE_FILE"
-open -a TextEdit "$TE_FILE"
+tmo 15 open -a TextEdit "$TE_FILE"
 sleep 4
 selftest probe-textedit probe
 echo "- TextEdit field as Fluent sees it: \`$(json "$OUT/reports/probe-textedit.json" "['field']")\`" >> "$S"
@@ -109,9 +112,12 @@ kill "$HOST_PID" 2>/dev/null
 # ---------------------------------------------------------------- 3. Chrome (its tree needs AXEnhancedUserInterface)
 CHROME="/Applications/Google Chrome.app"
 if [ -d "$CHROME" ]; then
-    open -na "$CHROME" --args --no-first-run --no-default-browser-check --disable-search-engine-choice-screen \
-        --user-data-dir=/tmp/chrome-e2e "data:text/html,<title>Fluent</title><textarea id=t autofocus style='width:90%;height:300px;font-size:20px'></textarea>"
+    "$CHROME/Contents/MacOS/Google Chrome" --no-first-run --no-default-browser-check --disable-search-engine-choice-screen \
+        --user-data-dir=/tmp/chrome-e2e "data:text/html,<title>Fluent</title><textarea id=t autofocus style='width:90%;height:300px;font-size:20px'></textarea>" \
+        >/dev/null 2>&1 &
+    CHROME_PID=$!
     sleep 10
+    tmo 10 osascript -e 'tell application "System Events" to set frontmost of (first process whose unix id is '"$CHROME_PID"') to true' >/dev/null 2>&1
     selftest probe-chrome probe
     CH_TEXT="Hello from Fluent inside Chrome."
     selftest insert-chrome insert --text "$CH_TEXT"
@@ -124,7 +130,7 @@ if [ -d "$CHROME" ]; then
     else
         note "Chrome textarea (best effort): outcome=$CH_OUT, read back \"$CH_READ\" (reports/*chrome*.json, shots/chrome-inserted.png)"
     fi
-    osascript -e 'quit app "Google Chrome"' >/dev/null 2>&1
+    kill "$CHROME_PID" 2>/dev/null
     pkill -f chrome-e2e 2>/dev/null
 else
     note "Google Chrome is not installed on this runner image, so the Chromium check was skipped"
@@ -134,12 +140,12 @@ fi
 defaults write com.hammaad.fluent.mac terms_accepted_version -string "2026-09-24"
 defaults write com.hammaad.fluent.mac setup_complete -bool true
 printf 'Meeting notes\n\n' > /tmp/fluent-bubble.txt
-open -a TextEdit /tmp/fluent-bubble.txt
+tmo 15 open -a TextEdit /tmp/fluent-bubble.txt
 sleep 2
-open -a "$APP"
+tmo 15 open -a "$APP"
 sleep 5
 shot app-main-window
-open -a TextEdit
+tmo 15 open -a TextEdit
 sleep 3
 selftest windows-bubble windows
 shot bubble-textedit
@@ -184,7 +190,7 @@ DEMO_DIR="$OUT/shots/demo"
 demo() {  # screen theme expected-text
     local screen="$1" theme="$2" want="$3"
     rm -f "${DEMO_DIR:?}/${screen:?}.ready"
-    open -n -a "$APP" --args --demo "$screen" --theme "$theme" --snap-dir "$DEMO_DIR"
+    tmo 15 open -n -a "$APP" --args --demo "$screen" --theme "$theme" --snap-dir "$DEMO_DIR"
     for _ in $(seq 1 40); do [ -f "$DEMO_DIR/$screen.ready" ] && break; sleep 0.5; done
     sleep 0.5
     local pid
@@ -208,7 +214,7 @@ demo style aurora "Match my style"
 demo settings aurora "Gemini API key"
 for t in porcelain obsidian ember lagoon; do demo dictate "$t" "Ready when you are."; done
 demo settings porcelain "Gemini API key"
-open -a TextEdit /tmp/fluent-notes.txt
+tmo 15 open -a TextEdit /tmp/fluent-notes.txt
 sleep 2
 demo capsule-listening aurora "Listening"
 demo capsule-writing aurora "Writing it up"
