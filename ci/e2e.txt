@@ -1,0 +1,32 @@
+- ✅ Fluent is trusted for Accessibility on the runner (TCC rows written by ci-grant-tcc.sh)
+- ✅ TextEdit: inserted via **accessibility**; read back through Accessibility by a fresh process, and saved to disk as exactly "Fluent typed this into TextEdit on a Mac runner."
+- ✅ TextEdit: a second dictation got exactly one separating space: "Fluent typed this into TextEdit on a Mac runner. Second sentence."
+- ✅ Paste-only field: the Accessibility write was refused, Fluent fell back to ⌘V; the app's own text is exactly "Pasted: and this arrived by paste."
+- ✅ The paste fallback put the previous clipboard contents back afterwards
+scripts/ci-e2e.sh: line 137:  6753 Terminated: 15          "$HOST_BIN" "$PO_FILE"
+- ✅ Chrome textarea: inserted via **pasted** and read back exactly
+scripts/ci-e2e.sh: line 140:  7055 Terminated: 15          "$CHROME/Contents/MacOS/Google Chrome" --no-first-run --no-default-browser-check --disable-search-engine-choice-screen --user-data-dir=/tmp/chrome-e2e "data:text/html,<title>Fluent</title><textarea id=t autofocus style='width:90%;height:300px;font-size:20px'></textarea>" > /dev/null 2>&1
+- ✅ Bubble: shown next to the focused TextEdit document (centre at 721,458); see shots/bubble-textedit.png
+- ✅ Clicking the bubble opened the recording capsule; see shots/capsule-after-click.png
+- ✅ TextEdit stayed the active app when the bubble was clicked (the bubble does not steal focus)
+- ✅ Screen **terms** (aurora) rendered; its Accessibility tree contains "Welcome to Fluent"
+- ✅ Screen **onboarding** (aurora) rendered; its Accessibility tree contains "Set up Fluent"
+- ✅ Screen **dictate** (aurora) rendered; its Accessibility tree contains "Ready when you are."
+- ✅ Screen **history** (aurora) rendered; its Accessibility tree contains "History"
+- ✅ Screen **style** (aurora) rendered; its Accessibility tree contains "Match my style"
+- ✅ Screen **settings** (aurora) rendered; its Accessibility tree contains "Gemini API key"
+- ✅ Screen **dictate** (porcelain) rendered; its Accessibility tree contains "Ready when you are."
+- ✅ Screen **dictate** (obsidian) rendered; its Accessibility tree contains "Ready when you are."
+- ✅ Screen **dictate** (ember) rendered; its Accessibility tree contains "Ready when you are."
+- ✅ Screen **dictate** (lagoon) rendered; its Accessibility tree contains "Ready when you are."
+- ✅ Screen **settings** (porcelain) rendered; its Accessibility tree contains "Gemini API key"
+- ✅ Screen **capsule-listening** (aurora) rendered; its Accessibility tree contains "Listening"
+- ✅ Screen **capsule-writing** (aurora) rendered; its Accessibility tree contains "Writing it up"
+- ✅ Screen **capsule-inserted** (aurora) rendered; its Accessibility tree contains "Inserted"
+- ✅ Screen **capsule-error** (aurora) rendered; its Accessibility tree contains "Add your Gemini API key in Settings first."
+- ✅ Screen **capsule-listening** (ember) rendered; its Accessibility tree contains "Listening"
+- ✅ Screen **capsule-listening** (lagoon) rendered; its Accessibility tree contains "Listening"
+- ℹ️ `say` produced a 119136-byte 16 kHz WAV (3 s of speech)
+- ✅ Mock Gemini server accepted the request from a `say` WAV ({"path": "/v1beta/interactions", "wav_bytes": 119136, "sample_rate": 16000, "transcription_config": {"language_codes": [], "mode": "smart"}, "problems": []}) and the transcript came back through the Messages (Personal, Casual) style: "Hey the mock server heard you"
+scripts/ci-e2e.sh: line 17: 12793 Terminated: 15          python3 scripts/mock_gemini.py 8765 "$OUT/reports/mock-requests.jsonl"
+- ℹ️ No GEMINI_API_KEY repository secret, so the real Gemini transcription test was skipped

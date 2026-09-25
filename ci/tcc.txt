@@ -1,0 +1,23 @@
+SIP: System Integrity Protection status: disabled.
+Designated requirement: 
+granted kTCCServiceAccessibility to com.hammaad.fluent.mac (TCC.db)
+granted kTCCServiceAccessibility to /Applications/Fluent.app/Contents/MacOS/Fluent (TCC.db)
+granted kTCCServicePostEvent to com.hammaad.fluent.mac (TCC.db)
+granted kTCCServicePostEvent to /Applications/Fluent.app/Contents/MacOS/Fluent (TCC.db)
+granted kTCCServiceListenEvent to com.hammaad.fluent.mac (TCC.db)
+granted kTCCServiceListenEvent to /Applications/Fluent.app/Contents/MacOS/Fluent (TCC.db)
+granted kTCCServiceScreenCapture to com.hammaad.fluent.mac (TCC.db)
+granted kTCCServiceScreenCapture to /Applications/Fluent.app/Contents/MacOS/Fluent (TCC.db)
+granted kTCCServiceScreenCapture to /usr/sbin/screencapture (TCC.db)
+granted kTCCServiceScreenCapture to /bin/bash (TCC.db)
+granted kTCCServiceScreenCapture to /bin/zsh (TCC.db)
+granted kTCCServiceMicrophone to com.hammaad.fluent.mac (TCC.db)
+Rows for Fluent now:
+kTCCServiceAccessibility|com.hammaad.fluent.mac|2
+kTCCServiceAccessibility|/Applications/Fluent.app/Contents/MacOS/Fluent|2
+kTCCServicePostEvent|com.hammaad.fluent.mac|2
+kTCCServicePostEvent|/Applications/Fluent.app/Contents/MacOS/Fluent|2
+kTCCServiceListenEvent|com.hammaad.fluent.mac|2
+kTCCServiceListenEvent|/Applications/Fluent.app/Contents/MacOS/Fluent|2
+kTCCServiceScreenCapture|com.hammaad.fluent.mac|2
+kTCCServiceScreenCapture|/Applications/Fluent.app/Contents/MacOS/Fluent|2

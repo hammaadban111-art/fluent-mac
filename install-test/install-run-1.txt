@@ -1,0 +1,14 @@
+==> Downloading Fluent 1.0.2
+#=#=#                                                                          #####################################################                     74.1%######################################################################## 100.0%
+==> Installed in /Applications/Fluent.app
+
+Fluent is open. Four quick steps:
+  1. Tick "I agree" and click Continue.
+  2. Microphone: click "Allow microphone", then Allow.
+  3. Accessibility: click "Open System Settings" and switch Fluent on
+     (Privacy & Security > Accessibility). Fluent notices by itself.
+  4. Paste a free Gemini API key from https://aistudio.google.com/apikey and click Save key.
+
+Then click into any text box and click the Fluent bubble, or hold Right Option and talk.
+To update later, run the same command again.
+exit code 0

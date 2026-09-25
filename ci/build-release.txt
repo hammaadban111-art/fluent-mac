@@ -1,0 +1,54 @@
+Building for production...
+[0/6] Write sources
+[3/6] Write swift-version-7974D3F7F03D5E95.txt
+[5/7] Compiling FluentCore Constants.swift
+[6/8] Compiling FluentMacKit AppCategories.swift
+[7/9] Compiling Fluent AX.swift
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:138:17: warning: no 'async' operations occur within 'await' expression
+136 |             // Live first: most of the transcript already arrived while the user was talking.
+137 |             if let client, let text = await client.finish() {
+138 |                 await self?.noteRoute("live", since: stoppedAt)
+    |                 `- warning: no 'async' operations occur within 'await' expression
+139 |                 await self?.finish(.success(text), duration: duration)
+140 |                 return
+
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:146:13: warning: no 'async' operations occur within 'await' expression
+144 |             let result = await GeminiClient(apiKey: key).transcribe(
+145 |                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+146 |             await self?.noteRoute("batch", since: stoppedAt)
+    |             `- warning: no 'async' operations occur within 'await' expression
+147 |             await self?.finish(result, duration: duration)
+148 |         }
+[7/9] Write Objects.LinkFileList
+[8/9] Linking Fluent
+Build of product 'Fluent' complete! (39.78s)
+Building for production...
+[0/6] Write sources
+[3/6] Write swift-version-7974D3F7F03D5E95.txt
+[5/7] Compiling FluentCore Constants.swift
+[6/8] Compiling FluentMacKit AppCategories.swift
+[7/9] Compiling Fluent AX.swift
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:138:17: warning: no 'async' operations occur within 'await' expression
+136 |             // Live first: most of the transcript already arrived while the user was talking.
+137 |             if let client, let text = await client.finish() {
+138 |                 await self?.noteRoute("live", since: stoppedAt)
+    |                 `- warning: no 'async' operations occur within 'await' expression
+139 |                 await self?.finish(.success(text), duration: duration)
+140 |                 return
+
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:146:13: warning: no 'async' operations occur within 'await' expression
+144 |             let result = await GeminiClient(apiKey: key).transcribe(
+145 |                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+146 |             await self?.noteRoute("batch", since: stoppedAt)
+    |             `- warning: no 'async' operations occur within 'await' expression
+147 |             await self?.finish(result, duration: duration)
+148 |         }
+[7/9] Write Objects.LinkFileList
+[8/9] Linking Fluent
+Build of product 'Fluent' complete! (39.45s)
+/Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app/Contents/Info.plist: OK
+/Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app: replacing existing signature
+/Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app: valid on disk
+/Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app: satisfies its Designated Requirement
+Architectures: x86_64 arm64
+Built /Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app (1.0.0 build 10) and /Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent-mac.zip

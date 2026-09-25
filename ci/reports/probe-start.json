@@ -1,0 +1,24 @@
+{
+  "appFocusedRole" : "AXGroup",
+  "field" : {
+    "app" : "Finder",
+    "bundleID" : "com.apple.finder",
+    "frame" : [
+      0,
+      0,
+      1024,
+      768
+    ],
+    "kind" : "notEditable",
+    "role" : "AXGroup",
+    "selectedTextSettable" : false,
+    "subrole" : "",
+    "valueSettable" : false
+  },
+  "focusedWindowRole" : "AXScrollArea",
+  "frontmost" : "com.apple.finder",
+  "lookups" : 8,
+  "mode" : "probe",
+  "systemFocusedRole" : "AXGroup",
+  "trusted" : true
+}

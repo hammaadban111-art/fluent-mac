@@ -1,0 +1,34 @@
+{
+  "appFocusedRole" : "AXTextArea",
+  "clipboardAfter" : "clipboard-sentinel",
+  "field" : {
+    "app" : "Google Chrome",
+    "bundleID" : "com.google.Chrome",
+    "frame" : [
+      30,
+      148,
+      868,
+      300
+    ],
+    "kind" : "editable",
+    "role" : "AXTextArea",
+    "selectedTextSettable" : true,
+    "subrole" : "",
+    "valueSettable" : true
+  },
+  "focusedWindowRole" : "AXWindow",
+  "frontmost" : "com.google.Chrome",
+  "log" : [
+    "AXSelectedText set -> 0",
+    "field did not change after the Accessibility write",
+    "⌘V posted: true (target frontmost: true)"
+  ],
+  "lookups" : 1,
+  "mode" : "insert",
+  "outcome" : "pasted",
+  "piece" : "Hello from Fluent inside Chrome.",
+  "systemFocusedRole" : "AXTextArea",
+  "trusted" : true,
+  "valueAfter" : "Hello from Fluent inside Chrome.",
+  "valueBefore" : ""
+}

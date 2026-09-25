@@ -1,0 +1,32 @@
+{
+  "appFocusedRole" : "AXTextArea",
+  "clipboardAfter" : "clipboard-sentinel",
+  "field" : {
+    "app" : "TextEdit",
+    "bundleID" : "com.apple.TextEdit",
+    "frame" : [
+      79,
+      88,
+      656,
+      384
+    ],
+    "kind" : "editable",
+    "role" : "AXTextArea",
+    "selectedTextSettable" : true,
+    "subrole" : "",
+    "valueSettable" : true
+  },
+  "focusedWindowRole" : "AXWindow",
+  "frontmost" : "com.apple.TextEdit",
+  "log" : [
+    "AXSelectedText set -> 0"
+  ],
+  "lookups" : 1,
+  "mode" : "insert",
+  "outcome" : "accessibility",
+  "piece" : "Fluent typed this into TextEdit on a Mac runner.",
+  "systemFocusedRole" : "AXTextArea",
+  "trusted" : true,
+  "valueAfter" : "Fluent typed this into TextEdit on a Mac runner.",
+  "valueBefore" : ""
+}

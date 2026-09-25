@@ -1,0 +1,24 @@
+{
+  "appFocusedRole" : "AXTextArea",
+  "field" : {
+    "app" : "Google Chrome",
+    "bundleID" : "com.google.Chrome",
+    "frame" : [
+      30,
+      148,
+      868,
+      300
+    ],
+    "kind" : "editable",
+    "role" : "AXTextArea",
+    "selectedTextSettable" : true,
+    "subrole" : "",
+    "valueSettable" : true
+  },
+  "focusedWindowRole" : "AXWindow",
+  "frontmost" : "com.google.Chrome",
+  "lookups" : 5,
+  "mode" : "probe",
+  "systemFocusedRole" : "AXTextArea",
+  "trusted" : true
+}

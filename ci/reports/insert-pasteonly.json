@@ -1,0 +1,34 @@
+{
+  "appFocusedRole" : "AXTextArea",
+  "clipboardAfter" : "clipboard-sentinel",
+  "field" : {
+    "app" : "PasteOnlyHost",
+    "bundleID" : "",
+    "frame" : [
+      216,
+      224,
+      528,
+      228
+    ],
+    "kind" : "editable",
+    "role" : "AXTextArea",
+    "selectedTextSettable" : true,
+    "subrole" : "",
+    "valueSettable" : true
+  },
+  "focusedWindowRole" : "AXWindow",
+  "frontmost" : "",
+  "log" : [
+    "AXSelectedText set -> 0",
+    "field did not change after the Accessibility write",
+    "⌘V posted: true (target frontmost: true)"
+  ],
+  "lookups" : 1,
+  "mode" : "insert",
+  "outcome" : "pasted",
+  "piece" : " and this arrived by paste.",
+  "systemFocusedRole" : "AXTextArea",
+  "trusted" : true,
+  "valueAfter" : "Pasted: and this arrived by paste.",
+  "valueBefore" : "Pasted:"
+}

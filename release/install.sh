@@ -1,0 +1,69 @@
+#!/bin/bash
+# Fluent for Mac installer. Usage:  curl -fsSL <this file's URL> | bash
+# Downloads Fluent, puts it in /Applications (or ~/Applications), clears the download quarantine
+# and opens it. Safe to run again: it replaces the installed copy with this version.
+set -euo pipefail
+
+ZIP_URL="https://github.com/hammaadban111-art/fluent-mac/releases/download/v1.0.2/Fluent-mac.zip"
+VERSION="1.0.2"
+BUNDLE_ID="com.hammaad.fluent.mac"
+
+main() {
+    if [ "$(uname -s)" != "Darwin" ]; then echo "Fluent for Mac needs a Mac."; exit 1; fi
+    local major
+    major="$(sw_vers -productVersion | cut -d. -f1)"
+    if [ "$major" -lt 14 ]; then echo "Fluent needs macOS 14 (Sonoma) or later. This Mac has $(sw_vers -productVersion)."; exit 1; fi
+
+    TMP_DIR="$(mktemp -d)"
+    trap 'rm -rf "${TMP_DIR:?}"' EXIT
+    local tmp="$TMP_DIR"
+
+    echo "==> Downloading Fluent $VERSION"
+    curl -fL --retry 3 --progress-bar -o "$tmp/Fluent-mac.zip" "$ZIP_URL"
+    ditto -x -k "$tmp/Fluent-mac.zip" "$tmp/unzipped"
+    if [ ! -d "$tmp/unzipped/Fluent.app" ]; then echo "The download did not contain Fluent.app."; exit 1; fi
+
+    local updating=0
+    if pgrep -x Fluent >/dev/null 2>&1; then
+        echo "==> Closing the running copy of Fluent"
+        osascript -e 'tell application id "com.hammaad.fluent.mac" to quit' >/dev/null 2>&1 || true
+        sleep 2
+        pkill -x Fluent >/dev/null 2>&1 || true
+    fi
+
+    local dest="/Applications"
+    if [ -d "$dest/Fluent.app" ] || [ -d "$HOME/Applications/Fluent.app" ]; then updating=1; fi
+    if ! { rm -rf "$dest/Fluent.app" && ditto "$tmp/unzipped/Fluent.app" "$dest/Fluent.app"; } 2>/dev/null; then
+        dest="$HOME/Applications"
+        mkdir -p "$dest"
+        rm -rf "$dest/Fluent.app"
+        ditto "$tmp/unzipped/Fluent.app" "$dest/Fluent.app"
+    fi
+    echo "==> Installed in $dest/Fluent.app"
+
+    # Downloaded outside the App Store and not notarized: remove the quarantine flag so macOS opens it.
+    xattr -dr com.apple.quarantine "$dest/Fluent.app" 2>/dev/null || true
+
+    if [ "$updating" = 1 ]; then
+        # A new build has a new signature, so the old Accessibility switch no longer applies.
+        # Clear it so Fluent can ask again cleanly.
+        tccutil reset Accessibility "$BUNDLE_ID" >/dev/null 2>&1 || true
+    fi
+
+    open "$dest/Fluent.app"
+
+    cat <<'MSG'
+
+Fluent is open. Four quick steps:
+  1. Tick "I agree" and click Continue.
+  2. Microphone: click "Allow microphone", then Allow.
+  3. Accessibility: click "Open System Settings" and switch Fluent on
+     (Privacy & Security > Accessibility). Fluent notices by itself.
+  4. Paste a free Gemini API key from https://aistudio.google.com/apikey and click Save key.
+
+Then click into any text box and click the Fluent bubble, or hold Right Option and talk.
+To update later, run the same command again.
+MSG
+}
+
+main "$@"

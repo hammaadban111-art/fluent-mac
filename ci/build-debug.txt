@@ -1,0 +1,147 @@
+Building for debugging...
+[0/18] Write sources
+[1/18] Write fluent-cli-entitlement.plist
+[1/18] Write sources
+[3/18] Write PasteOnlyHost-entitlement.plist
+[3/18] Write sources
+[7/18] Write Fluent-entitlement.plist
+[8/18] Write swift-version-7974D3F7F03D5E95.txt
+[10/27] Compiling FluentCore Constants.swift
+[11/27] Compiling FluentCore GeminiClient.swift
+[12/27] Compiling FluentCore GeminiLiveClient.swift
+[13/27] Compiling FluentCore Handoff.swift
+[14/27] Compiling FluentCore HistoryStore.swift
+[15/27] Compiling FluentCore Settings.swift
+[16/27] Emitting module FluentCore
+[17/30] Compiling FluentCore TypingRules.swift
+[18/30] Compiling FluentCore WAV.swift
+[19/30] Compiling FluentCore WritingStyle.swift
+[20/35] Compiling FluentMacKit AppCategories.swift
+[21/35] Compiling FluentMacKit BubblePlacement.swift
+[22/35] Emitting module FluentMacKit
+[23/35] Compiling FluentMacKit FieldClassifier.swift
+[24/35] Compiling FluentMacKit InsertionRules.swift
+[25/37] Compiling FluentMacKit MacSettings.swift
+[26/37] Compiling FluentMacKit Shortcuts.swift
+[27/52] Emitting module fluent_cli
+[28/52] Compiling fluent_cli main.swift
+[28/52] Write Objects.LinkFileList
+[30/52] Compiling PasteOnlyHost main.swift
+[31/52] Emitting module PasteOnlyHost
+[31/52] Write Objects.LinkFileList
+[32/52] Linking fluent-cli
+[33/52] Applying fluent-cli
+[34/52] Linking PasteOnlyHost
+[35/52] Applying PasteOnlyHost
+[37/52] Emitting module Fluent
+[38/57] Compiling Fluent Services.swift
+[39/57] Compiling Fluent SettingsView.swift
+[40/57] Compiling Fluent TextInserter.swift
+[41/57] Compiling Fluent Theme.swift
+[42/57] Compiling Fluent main.swift
+[43/57] Compiling Fluent OverlayViews.swift
+[44/57] Compiling Fluent Overlays.swift
+[45/57] Compiling Fluent Recorder.swift
+[46/57] Compiling Fluent RootViews.swift
+[47/57] Compiling Fluent ScreenViews.swift
+[48/57] Compiling Fluent SelfTest.swift
+[49/57] Compiling Fluent AX.swift
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:138:17: warning: no 'async' operations occur within 'await' expression
+136 |             // Live first: most of the transcript already arrived while the user was talking.
+137 |             if let client, let text = await client.finish() {
+138 |                 await self?.noteRoute("live", since: stoppedAt)
+    |                 `- warning: no 'async' operations occur within 'await' expression
+139 |                 await self?.finish(.success(text), duration: duration)
+140 |                 return
+
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:146:13: warning: no 'async' operations occur within 'await' expression
+144 |             let result = await GeminiClient(apiKey: key).transcribe(
+145 |                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+146 |             await self?.noteRoute("batch", since: stoppedAt)
+    |             `- warning: no 'async' operations occur within 'await' expression
+147 |             await self?.finish(result, duration: duration)
+148 |         }
+[50/57] Compiling Fluent App.swift
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:138:17: warning: no 'async' operations occur within 'await' expression
+136 |             // Live first: most of the transcript already arrived while the user was talking.
+137 |             if let client, let text = await client.finish() {
+138 |                 await self?.noteRoute("live", since: stoppedAt)
+    |                 `- warning: no 'async' operations occur within 'await' expression
+139 |                 await self?.finish(.success(text), duration: duration)
+140 |                 return
+
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:146:13: warning: no 'async' operations occur within 'await' expression
+144 |             let result = await GeminiClient(apiKey: key).transcribe(
+145 |                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+146 |             await self?.noteRoute("batch", since: stoppedAt)
+    |             `- warning: no 'async' operations occur within 'await' expression
+147 |             await self?.finish(result, duration: duration)
+148 |         }
+[51/57] Compiling Fluent AppModel.swift
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:138:17: warning: no 'async' operations occur within 'await' expression
+136 |             // Live first: most of the transcript already arrived while the user was talking.
+137 |             if let client, let text = await client.finish() {
+138 |                 await self?.noteRoute("live", since: stoppedAt)
+    |                 `- warning: no 'async' operations occur within 'await' expression
+139 |                 await self?.finish(.success(text), duration: duration)
+140 |                 return
+
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:146:13: warning: no 'async' operations occur within 'await' expression
+144 |             let result = await GeminiClient(apiKey: key).transcribe(
+145 |                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+146 |             await self?.noteRoute("batch", since: stoppedAt)
+    |             `- warning: no 'async' operations occur within 'await' expression
+147 |             await self?.finish(result, duration: duration)
+148 |         }
+[52/57] Compiling Fluent Components.swift
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:138:17: warning: no 'async' operations occur within 'await' expression
+136 |             // Live first: most of the transcript already arrived while the user was talking.
+137 |             if let client, let text = await client.finish() {
+138 |                 await self?.noteRoute("live", since: stoppedAt)
+    |                 `- warning: no 'async' operations occur within 'await' expression
+139 |                 await self?.finish(.success(text), duration: duration)
+140 |                 return
+
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:146:13: warning: no 'async' operations occur within 'await' expression
+144 |             let result = await GeminiClient(apiKey: key).transcribe(
+145 |                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+146 |             await self?.noteRoute("batch", since: stoppedAt)
+    |             `- warning: no 'async' operations occur within 'await' expression
+147 |             await self?.finish(result, duration: duration)
+148 |         }
+[53/57] Compiling Fluent Demo.swift
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:138:17: warning: no 'async' operations occur within 'await' expression
+136 |             // Live first: most of the transcript already arrived while the user was talking.
+137 |             if let client, let text = await client.finish() {
+138 |                 await self?.noteRoute("live", since: stoppedAt)
+    |                 `- warning: no 'async' operations occur within 'await' expression
+139 |                 await self?.finish(.success(text), duration: duration)
+140 |                 return
+
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:146:13: warning: no 'async' operations occur within 'await' expression
+144 |             let result = await GeminiClient(apiKey: key).transcribe(
+145 |                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+146 |             await self?.noteRoute("batch", since: stoppedAt)
+    |             `- warning: no 'async' operations occur within 'await' expression
+147 |             await self?.finish(result, duration: duration)
+148 |         }
+[54/57] Compiling Fluent DictationController.swift
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:138:17: warning: no 'async' operations occur within 'await' expression
+136 |             // Live first: most of the transcript already arrived while the user was talking.
+137 |             if let client, let text = await client.finish() {
+138 |                 await self?.noteRoute("live", since: stoppedAt)
+    |                 `- warning: no 'async' operations occur within 'await' expression
+139 |                 await self?.finish(.success(text), duration: duration)
+140 |                 return
+
+/Users/runner/work/fluent-mac/fluent-mac/mac/Sources/Fluent/DictationController.swift:146:13: warning: no 'async' operations occur within 'await' expression
+144 |             let result = await GeminiClient(apiKey: key).transcribe(
+145 |                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+146 |             await self?.noteRoute("batch", since: stoppedAt)
+    |             `- warning: no 'async' operations occur within 'await' expression
+147 |             await self?.finish(result, duration: duration)
+148 |         }
+[54/57] Write Objects.LinkFileList
+[55/57] Linking Fluent
+[56/57] Applying Fluent
+Build complete! (28.14s)
