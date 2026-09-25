@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Fluent for Mac teaser</title>
+<style>
+@font-face{font-family:Archivo;src:url(fonts/archivo.ttf);font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:Outfit;src:url(fonts/outfit_semibold.ttf);font-weight:600}
+@font-face{font-family:Outfit;src:url(fonts/outfit_regular.ttf);font-weight:400}
+@font-face{font-family:Mono;src:url(fonts/space_mono_bold.ttf);font-weight:700}
+:root{--bg:#07070B;--ink:#F5F5F7;--dim:rgba(235,235,245,.66);--accent:#8B8CFF;--accent2:#B46CFF;--voice:#FFB27A;--pink:#FF7AB6;--green:#34D399}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Archivo,sans-serif}
+#stage{position:absolute;inset:0;overflow:hidden}
+.glow{position:absolute;border-radius:50%;filter:blur(120px);opacity:.55}
+.layer{position:absolute;inset:0;opacity:0}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.big{font-weight:850;font-stretch:112%;letter-spacing:-2px;line-height:.98;text-align:center}
+.grad{background:linear-gradient(90deg,var(--accent),var(--accent2) 45%,var(--pink) 70%,var(--voice));-webkit-background-clip:text;background-clip:text;color:transparent}
+.cap{position:absolute;left:0;right:0;top:300px;text-align:center;font-weight:800;font-stretch:108%;font-size:84px;letter-spacing:-1.5px;line-height:1.02}
+.num{display:inline-flex;width:84px;height:84px;border-radius:50%;align-items:center;justify-content:center;font-size:50px;margin-right:18px;vertical-align:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.sub{font-family:Outfit;font-weight:400;font-size:40px;color:var(--dim);letter-spacing:0}
+.shot{position:absolute;border-radius:28px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.08)}
+.shot img{display:block;width:100%}
+.mono{font-family:Mono;font-weight:700}
+.word{display:inline-block;margin:0 10px}
+.card{position:absolute;left:90px;right:90px;border-radius:36px;padding:44px 50px;background:rgba(28,27,38,.92);box-shadow:0 30px 100px rgba(0,0,0,.55),inset 0 0 0 2px rgba(255,255,255,.07)}
+.chip{display:inline-block;font-family:Outfit;font-weight:600;font-size:34px;padding:10px 26px;border-radius:40px;background:rgba(139,140,255,.18);color:#C9CAFF;margin-bottom:26px}
+.msg{font-family:Outfit;font-weight:400;font-size:48px;line-height:1.3;white-space:pre-wrap;color:var(--ink)}
+.key{display:inline-flex;flex-direction:column;align-items:flex-end;justify-content:space-between;width:250px;height:250px;border-radius:44px;padding:30px 34px;background:linear-gradient(#2a2938,#1b1a24);box-shadow:0 18px 0 #0e0d14,0 30px 60px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.12);font-family:Outfit;font-weight:600;color:#ECECF6}
+.cursor{position:absolute;width:56px;height:80px;z-index:20}
+.ripple{position:absolute;width:160px;height:160px;margin:-80px 0 0 -80px;border-radius:50%;border:6px solid var(--accent);opacity:0}
+.pill{display:inline-block;font-family:Outfit;font-weight:600;font-size:44px;padding:18px 44px;border-radius:60px;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="glow" id="g1" style="width:900px;height:900px;background:#5B4BFF"></div>
+  <div class="glow" id="g2" style="width:800px;height:800px;background:#B04BFF"></div>
+  <div class="glow" id="g3" style="width:700px;height:700px;background:#FF7AB6;opacity:.25"></div>
+
+  <!-- 1. hook -->
+  <div class="layer center" id="hook">
+    <div class="big" style="font-size:190px">
+      <div id="h0">Still</div><div id="h1">typing</div><div id="h2">every</div><div id="h3" class="grad">message?</div>
+    </div>
+  </div>
+
+  <!-- 2. slow typing -->
+  <div class="layer" id="slow">
+    <div class="cap" style="top:330px"><span class="mono" style="font-size:44px;color:var(--voice);letter-spacing:4px">TYPING · 40 WPM</span></div>
+    <div style="position:absolute;left:90px;right:90px;top:620px;height:520px;border-radius:30px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 2px rgba(255,255,255,.08);padding:56px">
+      <div class="msg" style="font-size:66px"><span id="slowText"></span><span id="caret" style="color:var(--accent)">|</span></div>
+    </div>
+  </div>
+
+  <!-- 3. faster -->
+  <div class="layer center" id="faster">
+    <div class="big" style="font-size:150px"><div id="f0">There's a</div><div id="f1" class="grad">faster way.</div></div>
+  </div>
+
+  <!-- 4. logo -->
+  <div class="layer center" id="logo">
+    <img id="logoIcon" src="shots/icon.png" style="width:420px;height:420px">
+    <div class="big" style="font-size:190px;margin-top:10px" id="logoWord">Fluent</div>
+    <div id="logoFor" style="margin-top:26px"><span class="pill">for Mac</span></div>
+  </div>
+
+  <!-- 5. click the bubble -->
+  <div class="layer" id="click">
+    <div class="cap"><span class="num">1</span>Click any<br>text box.</div>
+    <div class="shot" id="clickShot" style="left:40px;right:40px;top:640px"><img src="shots/bubble-crop.png"></div>
+    <svg class="cursor" id="cursor" viewBox="0 0 28 40"><path d="M2 2 L2 32 L10 25 L15 37 L20 35 L15 23 L25 23 Z" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/></svg>
+    <div class="ripple" id="ripple"></div>
+  </div>
+
+  <!-- 6. talk -->
+  <div class="layer" id="talk">
+    <div class="cap"><span class="num">2</span>Just talk.</div>
+    <div id="capsuleWrap" style="position:absolute;left:0;right:0;top:560px;display:flex;justify-content:center">
+      <img id="capListen" src="shots/capsule-listening.png" style="width:1000px">
+      <img id="capWrite" src="shots/capsule-writing.png" style="width:1000px;position:absolute;opacity:0">
+    </div>
+    <div id="spoken" class="msg" style="position:absolute;left:80px;right:80px;top:880px;text-align:center;font-size:72px;font-family:Archivo;font-weight:700;line-height:1.2"></div>
+    <div id="writingCap" class="sub" style="position:absolute;left:0;right:0;top:1330px;text-align:center;font-size:46px;opacity:0">Gemini cleans it up while you blink.</div>
+  </div>
+
+  <!-- 7. typed -->
+  <div class="layer" id="typed">
+    <div class="cap"><span class="num">3</span>Typed for you.</div>
+    <div style="position:absolute;left:0;right:0;top:540px;display:flex;justify-content:center"><img id="capDone" src="shots/capsule-inserted.png" style="width:900px"></div>
+    <div class="shot" id="typedShot" style="left:40px;right:40px;top:800px"><img src="shots/textedit-crop.png"></div>
+  </div>
+
+  <!-- 8. hotkey -->
+  <div class="layer center" id="hotkey">
+    <div class="cap">Or hold <span class="grad">⌥</span><br>and talk.</div>
+    <div id="keycap" class="key" style="margin-top:160px"><span style="font-size:70px">⌥</span><span style="font-size:40px">option</span></div>
+    <div class="sub" id="hotSub" style="margin-top:90px;font-size:46px">Let go and it's typed.</div>
+  </div>
+
+  <!-- 9. apps -->
+  <div class="layer" id="apps">
+    <div class="cap">In every app<br><span class="grad" id="appName">Slack</span></div>
+    <div class="card" id="appCard" style="top:720px"><div class="chip" id="appChip"></div><div class="msg" id="appMsg"></div></div>
+  </div>
+
+  <!-- 10. style screen -->
+  <div class="layer" id="style">
+    <div class="cap">Matches how<br>you write, <span class="grad">per app.</span></div>
+    <div class="shot" id="styleShot" style="left:40px;right:40px;top:660px"><img src="shots/style.png"></div>
+  </div>
+
+  <!-- 11. themes -->
+  <div class="layer" id="themes">
+    <div class="cap" id="themeCap">Five themes.</div>
+    <div class="shot" style="left:40px;right:40px;top:640px" id="themeShot"><img id="themeImg" src="shots/dictate-aurora.png"></div>
+    <div class="sub" id="themeName" style="position:absolute;left:0;right:0;top:1400px;text-align:center;font-size:48px">Aurora</div>
+  </div>
+
+  <!-- 12. end -->
+  <div class="layer center" id="end">
+    <img id="endIcon" src="shots/icon.png" style="width:360px;height:360px">
+    <div class="big" style="font-size:150px;margin-top:10px">Fluent <span class="grad">for Mac</span></div>
+    <div id="soon" style="margin-top:48px"><span class="pill" style="font-size:52px;padding:22px 56px">Coming soon</span></div>
+    <div class="sub" id="endSub" style="margin-top:40px">Stop typing. Start talking.</div>
+  </div>
+</div>
+
+<script>
+let G, S;
+const $ = id => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = x => 1 - Math.pow(1 - clamp(x), 3);
+const back = x => { x = clamp(x); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const STYLES = [
+  {app: "Slack", chip: "Work · Casual", text: "Hey team, the Mac build is ready. Let's ship it on Friday"},
+  {app: "Mail", chip: "Email · Formal", text: "Hi Sam,\n\nThanks for the notes today. I'll send the new deck tomorrow morning.\n\nBest regards,\nHammaad"},
+  {app: "Notes", chip: "Other · Formal", text: "Ideas for the launch: a teaser reel, a waitlist page and a demo for the team."},
+  {app: "Messages", chip: "Personal · very casual", text: "omw I'll be there in ten minutes save me a seat"},
+];
+const THEMES = ["aurora", "porcelain", "obsidian", "ember", "lagoon"];
+const SLOW = "Hey team, the Mac bu";
+const SPOKEN = ["Hey team,", "the Mac build", "is ready.", "Let's ship it", "on Friday."];
+
+function setup(grid) { G = grid; S = grid.scenes; }
+function beat(n) { return n * G.beat; }
+
+// Show one layer between [a, b) with a quick cut-in: returns local time or -1.
+function layer(id, a, b, t) {
+  const el = $(id);
+  const on = t >= a && t < b;
+  el.style.opacity = on ? 1 : 0;
+  el.style.visibility = on ? "visible" : "hidden";
+  return on ? t - a : -1;
+}
+// Pop an element in at local time `at` (scale + blur), used for the beat-synced captions.
+function pop(el, lt, at, from = 1.35) {
+  const k = clamp((lt - at) / 0.16);
+  el.style.opacity = k;
+  el.style.transform = `scale(${from + (1 - from) * back(k)})`;
+  el.style.filter = `blur(${(1 - k) * 12}px)`;
+}
+// Slide-up entrance for screenshots.
+function rise(el, lt, at = 0, dist = 120) {
+  const k = ease((lt - at) / 0.3);
+  el.style.opacity = clamp((lt - at) / 0.15);
+  el.style.transform = `translateY(${(1 - k) * dist}px) scale(${0.96 + 0.04 * k})`;
+}
+
+function render(t) {
+  // Ambient light drifting behind everything, pulsing on each beat.
+  const pulse = Math.exp(-((t % G.beat) / G.beat) * 4);
+  $("g1").style.transform = `translate(${-200 + 160 * Math.sin(t * 0.5)}px, ${1200 + 120 * Math.cos(t * 0.4)}px) scale(${1 + 0.05 * pulse})`;
+  $("g2").style.transform = `translate(${480 + 140 * Math.cos(t * 0.45)}px, ${-150 + 160 * Math.sin(t * 0.35)}px)`;
+  $("g3").style.transform = `translate(${300 + 200 * Math.sin(t * 0.3)}px, ${700 + 200 * Math.cos(t * 0.5)}px)`;
+
+  let lt;
+  if ((lt = layer("hook", 0, S.slow, t)) >= 0) {
+    ["h0", "h1", "h2", "h3"].forEach((id, i) => pop($(id), lt, beat(i) - 0.02));
+  }
+  if ((lt = layer("slow", S.slow, S.faster, t)) >= 0) {
+    const n = Math.min(SLOW.length, Math.floor(lt / 0.066));
+    $("slowText").textContent = SLOW.slice(0, n);
+    $("caret").style.opacity = (Math.floor(t * 3) % 2) ? 1 : 0.2;
+  }
+  if ((lt = layer("faster", S.faster, S.logo, t)) >= 0) {
+    pop($("f0"), lt, 0); pop($("f1"), lt, beat(1));
+    $("faster").style.transform = `scale(${1 + 0.25 * Math.pow(clamp((lt - beat(1.5)) / beat(0.5)), 2)})`;
+    $("faster").style.filter = `blur(${12 * Math.pow(clamp((lt - beat(1.6)) / beat(0.4)), 2)}px)`;
+  }
+  if ((lt = layer("logo", S.logo, S.click, t)) >= 0) {
+    pop($("logoIcon"), lt, 0, 0.4);
+    pop($("logoWord"), lt, beat(1), 1.3);
+    pop($("logoFor"), lt, beat(2), 1.3);
+    $("logoIcon").style.transform += ` rotate(${(1 - ease(lt / 0.5)) * -12}deg)`;
+  }
+  if ((lt = layer("click", S.click, S.talk, t)) >= 0) {
+    pop(document.querySelector("#click .cap"), lt, 0, 1.2);
+    rise($("clickShot"), lt, 0.05);
+    // cursor glides to the bubble and clicks on beat 3
+    const shot = $("clickShot").getBoundingClientRect();
+    const bx = shot.left + shot.width * BUBBLE.x, by = shot.top + shot.height * BUBBLE.y;
+    const k = ease((lt - 0.2) / (beat(2) - 0.25));
+    const cx = 900 + (bx - 900) * k, cy = 1600 + (by - 1600) * k;
+    const c = $("cursor");
+    c.style.left = (cx - 6) + "px"; c.style.top = (cy - 4) + "px";
+    c.style.opacity = clamp((lt - 0.15) / 0.1);
+    c.style.transform = `scale(${lt > beat(2) && lt < beat(2) + 0.12 ? 0.85 : 1})`;
+    const r = $("ripple"), rk = clamp((lt - beat(2)) / 0.45);
+    r.style.left = bx + "px"; r.style.top = by + "px";
+    r.style.opacity = lt > beat(2) ? (1 - rk) : 0;
+    r.style.transform = `scale(${0.3 + 1.2 * rk})`;
+  }
+  if ((lt = layer("talk", S.talk, S.typed, t)) >= 0) {
+    pop(document.querySelector("#talk .cap"), lt, 0, 1.2);
+    rise($("capsuleWrap"), lt, 0.02, -80);
+    const writing = t >= S.writing;
+    $("capWrite").style.opacity = writing ? 1 : 0;
+    $("capListen").style.opacity = writing ? 0 : 1;
+    const shown = SPOKEN.filter((_, i) => lt >= beat(1 + i * 0.9));
+    $("spoken").innerHTML = shown.map((w, i) => {
+      const age = lt - beat(1 + i * 0.9);
+      return `<span class="word" style="opacity:${clamp(age / 0.12)};color:${writing ? "var(--ink)" : "rgba(245,245,247," + (0.55 + 0.45 * clamp(age / 0.3)) + ")"}">${w}</span>`;
+    }).join(" ");
+    $("writingCap").style.opacity = writing ? clamp((t - S.writing) / 0.2) : 0;
+  }
+  if ((lt = layer("typed", S.typed, S.hotkey, t)) >= 0) {
+    pop(document.querySelector("#typed .cap"), lt, 0, 1.2);
+    pop($("capDone"), lt, 0.05, 0.8);
+    rise($("typedShot"), lt, beat(1));
+  }
+  if ((lt = layer("hotkey", S.hotkey, S.apps, t)) >= 0) {
+    pop(document.querySelector("#hotkey .cap"), lt, 0, 1.2);
+    const down = lt >= beat(1) && lt < beat(3);
+    $("keycap").style.transform = `translateY(${down ? 16 : 0}px)`;
+    $("keycap").style.boxShadow = down ? "0 2px 0 #0e0d14,0 10px 30px rgba(139,140,255,.6),inset 0 0 0 3px rgba(139,140,255,.8)" : "";
+    $("hotSub").style.opacity = clamp((lt - beat(3)) / 0.12);
+  }
+  if ((lt = layer("apps", S.apps, S.style, t)) >= 0) {
+    const i = Math.min(3, Math.floor(lt / beat(2)));
+    const s = STYLES[i], local = lt - i * beat(2);
+    $("appName").textContent = s.app;
+    $("appChip").textContent = s.chip;
+    $("appMsg").textContent = s.text;
+    pop($("appName"), local, 0, 1.3);
+    const k = ease(local / 0.22);
+    $("appCard").style.transform = `translateX(${(1 - k) * 260}px) rotate(${(1 - k) * 4}deg)`;
+    $("appCard").style.opacity = clamp(local / 0.1);
+  }
+  if ((lt = layer("style", S.style, S.themes, t)) >= 0) {
+    pop(document.querySelector("#style .cap"), lt, 0, 1.2);
+    rise($("styleShot"), lt, 0.05);
+  }
+  if ((lt = layer("themes", S.themes, S.end, t)) >= 0) {
+    const i = Math.min(4, Math.floor(lt / beat(1)));
+    const name = THEMES[i];
+    const img = $("themeImg");
+    if (!img.src.endsWith(`dictate-${name}.png`)) img.src = `shots/dictate-${name}.png`;
+    $("themeName").textContent = name[0].toUpperCase() + name.slice(1);
+    const local = lt - i * beat(1);
+    $("themeShot").style.transform = `scale(${1.04 - 0.04 * ease(local / 0.2)})`;
+    $("themeCap").textContent = lt < beat(5) ? "Five themes." : "Your Mac. Your voice.";
+    pop($("themeCap"), lt < beat(5) ? lt : lt - beat(5), 0, 1.15);
+  }
+  if ((lt = layer("end", S.end, 1e9, t)) >= 0) {
+    pop($("endIcon"), lt, 0, 0.5);
+    pop(document.querySelector("#end .big"), lt, beat(1), 1.3);
+    pop($("soon"), lt, beat(2), 1.3);
+    $("endSub").style.opacity = clamp((lt - beat(3)) / 0.2);
+  }
+}
+// Where the bubble sits inside shots/bubble-crop.png (fractions), filled in by prepare_shots.py.
+let BUBBLE = {x: 0.8, y: 0.5};
+</script>
+</body>
+</html>

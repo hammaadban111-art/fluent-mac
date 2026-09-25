@@ -1,0 +1,30 @@
+[
+  {
+    "style" : "Casual",
+    "app" : "Slack",
+    "styled" : "Hey team, the Mac build is ready. Let's ship it on Friday",
+    "spoken" : "Hey team, the Mac build is ready. Let's ship it on Friday.",
+    "category" : "Work"
+  },
+  {
+    "style" : "Formal.",
+    "app" : "Mail",
+    "styled" : "Hi Sam,\n\nThanks for the notes today. I'll send the new deck tomorrow morning.\n\nBest regards,\nHammaad",
+    "spoken" : "Hi Sam, thanks for the notes today. I'll send the new deck tomorrow morning. Best regards, Hammaad.",
+    "category" : "Email"
+  },
+  {
+    "style" : "Formal.",
+    "app" : "Notes",
+    "styled" : "Ideas for the launch: a teaser reel, a waitlist page and a demo for the team.",
+    "spoken" : "Ideas for the launch: a teaser reel, a waitlist page and a demo for the team.",
+    "category" : "Other"
+  },
+  {
+    "style" : "very casual",
+    "app" : "Messages",
+    "styled" : "omw I'll be there in ten minutes save me a seat",
+    "spoken" : "Omw, I'll be there in ten minutes. Save me a seat!",
+    "category" : "Personal"
+  }
+]

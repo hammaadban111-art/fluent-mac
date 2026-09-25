@@ -9,7 +9,7 @@ SYS_DB="/Library/Application Support/com.apple.TCC/TCC.db"
 USER_DB="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
 
 echo "SIP: $(csrutil status 2>&1)"
-codesign -d -r- "$APP" 2>/dev/null | sed -n 's/^designated => //p' > /tmp/fluent-req.txt
+codesign -d -r- "$APP" 2>&1 | sed -n 's/^designated => //p' > /tmp/fluent-req.txt
 echo "Designated requirement: $(cat /tmp/fluent-req.txt)"
 if csreq -r /tmp/fluent-req.txt -b /tmp/fluent-req.bin 2>/dev/null; then
     REQ="X'$(xxd -p /tmp/fluent-req.bin | tr -d '\n')'"
