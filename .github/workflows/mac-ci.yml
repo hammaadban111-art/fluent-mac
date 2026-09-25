@@ -1,0 +1,90 @@
+name: Mac build and test
+
+# Fluent for Mac. Runs only for the `mac` branch, never for `main` (the iOS workflow owns main).
+on:
+  push:
+    branches: [mac]
+    paths:
+      - "mac/**"
+      - "!mac/RELEASE"
+      - ".github/workflows/mac-ci.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: mac-ci
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: macos-26
+    timeout-minutes: 40
+    env:
+      OUT: ${{ github.workspace }}/ci-out
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use the newest Xcode
+        run: |
+          X=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
+          sudo xcode-select -s "$X"
+          mkdir -p "$OUT"
+          { echo "# Fluent for Mac — CI run ${{ github.run_id }}"; echo;
+            echo "- Commit: \`${{ github.sha }}\`"; echo "- $(xcodebuild -version | head -1), $(swift --version 2>&1 | head -1)";
+            echo "- Runner: $(sw_vers -productName) $(sw_vers -productVersion), $(uname -m), $(sysctl -n hw.ncpu) CPUs"; echo; } > "$OUT/SUMMARY.md"
+
+      - name: Build every target (debug)
+        working-directory: mac
+        run: |
+          set -o pipefail
+          swift build 2>&1 | tee "$OUT/build-debug.txt" | grep -E "error|warning: unre|Compiling|Build" | tail -80
+
+      - name: Unit tests
+        working-directory: mac
+        run: |
+          set -o pipefail
+          if swift test 2>&1 | tee "$OUT/unit-tests.txt" | tail -30; then
+            echo "## Unit tests" >> "$OUT/SUMMARY.md"
+            echo "- ✅ $(grep -E 'Test run with' "$OUT/unit-tests.txt" | tail -1)" >> "$OUT/SUMMARY.md"
+          else
+            echo "## Unit tests" >> "$OUT/SUMMARY.md"
+            echo "- ❌ swift test failed (unit-tests.txt)" >> "$OUT/SUMMARY.md"
+            grep -E "✘|recorded an issue" "$OUT/unit-tests.txt" | head -30 | sed 's/^/    /' >> "$OUT/SUMMARY.md"
+          fi
+
+      - name: Build Fluent.app (universal, ad-hoc signed)
+        working-directory: mac
+        run: |
+          set -o pipefail
+          OUT="$PWD/dist" scripts/build-app.sh 1.0.0 ${{ github.run_number }} 2>&1 | tee "$OUT/build-release.txt" | tail -20
+          echo "## Build" >> "$OUT/SUMMARY.md"
+          echo "- ✅ Fluent.app 1.0.0 ($(lipo -archs dist/Fluent.app/Contents/MacOS/Fluent)), zip $(du -h dist/Fluent-mac.zip | cut -f1)" >> "$OUT/SUMMARY.md"
+          sudo rm -rf /Applications/Fluent.app
+          sudo ditto dist/Fluent.app /Applications/Fluent.app
+          sudo chown -R "$(whoami)" /Applications/Fluent.app
+
+      - name: Grant permissions on the runner
+        working-directory: mac
+        run: scripts/ci-grant-tcc.sh /Applications/Fluent.app 2>&1 | tee "$OUT/tcc.txt"
+
+      - name: End-to-end tests and screenshots
+        working-directory: mac
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          export HOST_BIN="$PWD/.build/debug/PasteOnlyHost" CLI_BIN="$PWD/.build/debug/fluent-cli"
+          scripts/ci-e2e.sh 2>&1 | tee "$OUT/e2e.txt"
+
+      - name: Logs
+        if: always()
+        run: |
+          log show --last 20m --style compact --predicate 'process == "Fluent"' 2>/dev/null | tail -300 > "$OUT/fluent-log.txt" || true
+          cp mac/dist/Fluent.app/Contents/Info.plist "$OUT/" 2>/dev/null || true
+
+      - name: Publish results to the mac-ci-results branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mac/scripts/publish-results.sh ci "$OUT"

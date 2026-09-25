@@ -1,0 +1,148 @@
+name: Mac release
+
+# Builds Fluent-mac.zip, uploads it and a one-line installer to catbox.moe (public links, no
+# account; this repo is private so GitHub links would need a login), then tests the exact install
+# command on a fresh runner. Runs only for the `mac` branch: when mac/RELEASE changes, or by hand.
+on:
+  push:
+    branches: [mac]
+    paths: ["mac/RELEASE"]
+  workflow_dispatch:
+
+concurrency:
+  group: mac-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-26
+    timeout-minutes: 30
+    outputs:
+      install_url: ${{ steps.upload.outputs.install_url }}
+    env:
+      OUT: ${{ github.workspace }}/release-out
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use the newest Xcode
+        run: |
+          X=$(ls -d /Applications/Xcode_*.app | grep -v beta | sort -V | tail -1)
+          sudo xcode-select -s "$X"
+          mkdir -p "$OUT"
+
+      - name: Build Fluent-mac.zip
+        working-directory: mac
+        run: |
+          set -o pipefail
+          VERSION="$(sed -n 's/^RELEASE //p' RELEASE)"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          OUT="$PWD/dist" scripts/build-app.sh "$VERSION" ${{ github.run_number }} 2>&1 | tee "$OUT/build.txt" | tail -15
+          shasum -a 256 dist/Fluent-mac.zip | tee "$OUT/sha256.txt"
+
+      - name: Upload the zip and the installer
+        id: upload
+        working-directory: mac
+        run: |
+          set -uo pipefail
+          upload() {  # file -> prints URL; catbox first, litterbox (72 h) if catbox fails
+            local f="$1" url=""
+            for i in 1 2 3; do
+              url="$(curl -fsS --max-time 300 -F reqtype=fileupload -F "fileToUpload=@$f" https://catbox.moe/user/api.php || true)"
+              case "$url" in https://*) echo "$url"; return 0;; esac
+              sleep $((i * 10))
+            done
+            url="$(curl -fsS --max-time 300 -F reqtype=fileupload -F time=72h -F "fileToUpload=@$f" https://litterbox.catbox.moe/resources/internals/api.php || true)"
+            case "$url" in https://*) echo "$url"; echo "LITTERBOX" >> "$OUT/host.txt"; return 0;; esac
+            return 1
+          }
+          ZIP_URL="$(upload dist/Fluent-mac.zip)" || { echo "zip upload failed"; exit 1; }
+          sed -e "s|__ZIP_URL__|$ZIP_URL|" -e "s|__VERSION__|$VERSION|" scripts/install.sh.template > dist/install.sh
+          bash -n dist/install.sh
+          INSTALL_URL="$(upload dist/install.sh)" || { echo "installer upload failed"; exit 1; }
+          cp dist/install.sh "$OUT/install.sh"
+          {
+            echo "# Fluent for Mac $VERSION"
+            echo
+            echo "Install (paste into Terminal):"
+            echo
+            echo '```'
+            echo "curl -fsSL $INSTALL_URL | bash"
+            echo '```'
+            echo
+            echo "- Zip: $ZIP_URL"
+            echo "- Installer: $INSTALL_URL"
+            echo "- SHA-256: $(cut -d' ' -f1 "$OUT/sha256.txt")"
+            if [ -f "$OUT/host.txt" ]; then echo "- Hosted on litterbox.catbox.moe: these links expire 72 hours after $(date -u +%FT%TZ)."; else echo "- Hosted on catbox.moe (no expiry)."; fi
+          } > "$OUT/RELEASE.md"
+          cat "$OUT/RELEASE.md"
+          echo "install_url=$INSTALL_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Publish to the mac-ci-results branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mac/scripts/publish-results.sh release "$OUT"
+
+  install-test:
+    needs: release
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      OUT: ${{ github.workspace }}/install-out
+    steps:
+      - name: Run the tester's one-line install command on a fresh Mac
+        env:
+          INSTALL_URL: ${{ needs.release.outputs.install_url }}
+        run: |
+          set -uo pipefail
+          mkdir -p "$OUT"
+          S="$OUT/SUMMARY.md"
+          echo "# Install test on a fresh $(sw_vers -productName) $(sw_vers -productVersion) ($(uname -m)) runner" > "$S"
+          echo "" >> "$S"
+          echo "Command: \`curl -fsSL $INSTALL_URL | bash\`" >> "$S"
+          echo "" >> "$S"
+          ok() { echo "- ✅ $*" >> "$S"; }
+          bad() { echo "- ❌ $*" >> "$S"; FAIL=1; }
+          FAIL=0
+          [ ! -e /Applications/Fluent.app ] && ok "Fluent was not installed before the test"
+
+          curl -fsSL "$INSTALL_URL" | bash > "$OUT/install-run-1.txt" 2>&1
+          echo "exit code $?" >> "$OUT/install-run-1.txt"
+          sleep 8
+          screencapture -x "$OUT/after-install.png" || true
+          [ -d /Applications/Fluent.app ] && ok "/Applications/Fluent.app exists" || bad "/Applications/Fluent.app is missing"
+          if xattr -p com.apple.quarantine /Applications/Fluent.app >/dev/null 2>&1; then bad "quarantine flag still set"; else ok "no quarantine flag"; fi
+          codesign --verify --verbose=2 /Applications/Fluent.app > "$OUT/codesign.txt" 2>&1 && ok "ad-hoc signature verifies" || bad "codesign --verify failed"
+          ARCHS="$(lipo -archs /Applications/Fluent.app/Contents/MacOS/Fluent)"; ok "architectures: $ARCHS"
+          VERSION="$(defaults read /Applications/Fluent.app/Contents/Info.plist CFBundleShortVersionString)"; ok "version $VERSION"
+          PID="$(pgrep -x Fluent || true)"
+          [ -n "$PID" ] && ok "Fluent is running (pid $PID) after the installer opened it" || bad "Fluent is not running"
+          WINDOWS="$(osascript -e 'tell application "System Events" to get name of every window of process "Fluent"' 2>&1 || true)"
+          echo "- ℹ️ Fluent windows (System Events): $WINDOWS" >> "$S"
+
+          # Idempotent: running it again replaces the app and opens it again.
+          curl -fsSL "$INSTALL_URL" | bash > "$OUT/install-run-2.txt" 2>&1
+          RC=$?
+          sleep 8
+          PID2="$(pgrep -x Fluent || true)"
+          [ "$RC" = 0 ] && [ -d /Applications/Fluent.app ] && [ -n "$PID2" ] \
+            && ok "second run (update) succeeded; Fluent running again (pid $PID2)" || bad "second run failed (exit $RC)"
+          screencapture -x "$OUT/after-second-install.png" || true
+          echo "" >> "$S"
+          [ "$FAIL" = 0 ] && echo "**Install test passed.**" >> "$S" || echo "**Install test FAILED.**" >> "$S"
+          cat "$S"
+          exit $FAIL
+
+      - uses: actions/checkout@v4
+        if: always()
+        with:
+          sparse-checkout: mac/scripts
+
+      - name: Publish to the mac-ci-results branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: mac/scripts/publish-results.sh install-test "$OUT"
