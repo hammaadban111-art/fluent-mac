@@ -24,7 +24,7 @@ final class AppModel {
         }
     }
 
-    let store: Settings
+    let store: FluentCore.Settings
     let mac: MacSettings
     let historyStore: HistoryStore
     let dictation: DictationController
@@ -75,7 +75,7 @@ final class AppModel {
 
     init(defaults: UserDefaults = .standard, demo: String? = nil) {
         self.demo = demo
-        store = Settings(defaults: defaults)
+        store = FluentCore.Settings(defaults: defaults)
         mac = MacSettings(defaults: defaults)
         let support = demo == nil
             ? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Fluent")

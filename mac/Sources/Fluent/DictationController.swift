@@ -30,7 +30,7 @@ final class DictationController {
     private(set) var targetAppName: String?
 
     weak var model: AppModel?
-    private let settings: Settings
+    private let settings: FluentCore.Settings
     private let recorder = Recorder()
     private var target: FocusedField?
     private var category: StyleCategory = .other
@@ -40,7 +40,7 @@ final class DictationController {
     private var endTask: Task<Void, Never>?
     private var work: Task<Void, Never>?
 
-    init(settings: Settings) {
+    init(settings: FluentCore.Settings) {
         self.settings = settings
         recorder.onLevel = { [weak self] level in
             guard let owner = self else { return }

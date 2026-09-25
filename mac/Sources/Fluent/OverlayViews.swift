@@ -168,9 +168,7 @@ struct CapsuleContent: View {
             let bars = Array(dictation.levels.suffix(9))
             HStack(alignment: .center, spacing: 3.5) {
                 ForEach(0..<bars.count, id: \.self) { i in
-                    let idle = CGFloat(0.14 + 0.1 * (sin((t * 0.5 * 2 + Double(i) / 9) * 2 * .pi) + 1) / 2)
-                    let writing = CGFloat(0.2 + 0.45 * (sin((t * 0.75 * 2 - Double(i) / 9) * 2 * .pi) + 1) / 2)
-                    let v: CGFloat = phase == .recording ? max(bars[i], idle) : phase == .paused ? 0.1 : writing
+                    let v = barHeight(i, t: t, level: bars[i])
                     Capsule()
                         .fill(LinearGradient(colors: [palette.accent, palette.accent2, palette.voice],
                                              startPoint: .leading, endPoint: .trailing))
@@ -179,6 +177,22 @@ struct CapsuleContent: View {
                 }
             }
             .frame(maxHeight: .infinity)
+        }
+    }
+
+    /// Height (0…1) of waveform bar `i`: the live level with a gentle idle ripple while
+    /// listening, flat while paused, a travelling wave while Gemini writes the text up.
+    private func barHeight(_ i: Int, t: Double, level: CGFloat) -> CGFloat {
+        let offset = Double(i) / 9
+        switch phase {
+        case .recording:
+            let ripple: Double = 0.14 + 0.1 * (sin((t - offset) * 2 * Double.pi) + 1) / 2
+            return max(level, CGFloat(ripple))
+        case .paused:
+            return 0.1
+        default:
+            let wave: Double = 0.2 + 0.45 * (sin((t * 1.5 - offset) * 2 * Double.pi) + 1) / 2
+            return CGFloat(wave)
         }
     }
 
