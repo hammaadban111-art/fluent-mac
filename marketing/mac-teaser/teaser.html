@@ -127,6 +127,7 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:
   </div>
 </div>
 
+<script src="shots/meta.js"></script>
 <script>
 let G, S;
 const $ = id => document.getElementById(id);
@@ -271,7 +272,7 @@ function render(t) {
   }
 }
 // Where the bubble sits inside shots/bubble-crop.png (fractions), filled in by prepare_shots.py.
-let BUBBLE = {x: 0.8, y: 0.5};
+let BUBBLE = (window.SHOT_META && window.SHOT_META.bubble) || {x: 0.8, y: 0.5};
 </script>
 </body>
 </html>
