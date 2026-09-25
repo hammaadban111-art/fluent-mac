@@ -1,5 +1,8 @@
 import FluentCore
 import Foundation
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 #if canImport(FoundationNetworking)
 import FoundationNetworking
 #endif

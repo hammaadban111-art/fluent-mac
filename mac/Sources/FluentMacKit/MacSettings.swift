@@ -1,5 +1,8 @@
 import FluentCore
 import Foundation
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 /// Snooze choices, as Android's `SnoozeDuration`. `untilRestart` lasts until Fluent quits.
 public enum SnoozeChoice: Int, CaseIterable, Sendable {

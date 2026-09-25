@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(CoreGraphics)
+import CoreGraphics
+#endif
 
 /// Where the bubble sits next to a text box. All rectangles are in Accessibility coordinates:
 /// origin at the top-left of the main display, y growing downwards.
