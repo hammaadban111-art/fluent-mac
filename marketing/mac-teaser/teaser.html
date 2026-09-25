@@ -22,6 +22,8 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:
 .sub{font-family:Outfit;font-weight:400;font-size:40px;color:var(--dim);letter-spacing:0}
 .shot{position:absolute;border-radius:28px;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.08)}
 .shot img{display:block;width:100%}
+.zoom{height:860px}
+.zoom img{position:absolute;width:auto;height:auto}
 .mono{font-family:Mono;font-weight:700}
 .word{display:inline-block;margin:0 10px}
 .card{position:absolute;left:90px;right:90px;border-radius:36px;padding:44px 50px;background:rgba(28,27,38,.92);box-shadow:0 30px 100px rgba(0,0,0,.55),inset 0 0 0 2px rgba(255,255,255,.07)}
@@ -108,14 +110,14 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg);color:
   <!-- 10. style screen -->
   <div class="layer" id="style">
     <div class="cap">Matches how<br>you write, <span class="grad">per app.</span></div>
-    <div class="shot" id="styleShot" style="left:40px;right:40px;top:660px"><img src="shots/style.png"></div>
+    <div class="shot zoom" id="styleShot" style="left:40px;right:40px;top:620px"><img src="shots/style.png" style="width:1450px;left:-430px;top:-10px"></div>
   </div>
 
   <!-- 11. themes -->
   <div class="layer" id="themes">
     <div class="cap" id="themeCap">Five themes.</div>
-    <div class="shot" style="left:40px;right:40px;top:640px" id="themeShot"><img id="themeImg" src="shots/dictate-aurora.png"></div>
-    <div class="sub" id="themeName" style="position:absolute;left:0;right:0;top:1400px;text-align:center;font-size:48px">Aurora</div>
+    <div class="shot zoom" style="left:40px;right:40px;top:600px;height:760px" id="themeShot"><img id="themeImg" src="shots/dictate-aurora.png" style="width:1480px;left:-430px;top:-10px"></div>
+    <div class="sub" id="themeName" style="position:absolute;left:0;right:0;top:1400px;text-align:center;font-size:52px">Aurora</div>
   </div>
 
   <!-- 12. end -->

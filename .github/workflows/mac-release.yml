@@ -101,9 +101,10 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 20
     env:
-      OUT: ${{ github.workspace }}/install-out
+      OUT: /tmp/fluent-install-out
     steps:
       - name: Run the tester's one-line install command on a fresh Mac
+        shell: bash {0}
         env:
           INSTALL_URL: ${{ needs.release.outputs.install_url }}
         run: |
