@@ -1,0 +1,199 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Fluent for Mac: out now</title>
+<link rel="stylesheet" href="paper.css">
+<style>
+.head{position:absolute;left:40px;right:40px;top:300px;text-align:center;font-size:96px}
+.note{position:absolute;font-size:44px;transform:rotate(-4deg)}
+.said{font-family:Plex;font-weight:500;font-size:46px;line-height:2.25;color:var(--ink2)}
+.said .x{position:relative;display:inline-block}
+.said .x svg{position:absolute;left:-6px;right:-6px;top:44%;width:calc(100% + 12px);height:24px;overflow:visible}
+.said .x .tag{position:absolute;left:50%;top:-40px;transform:translateX(-50%) rotate(-3deg);white-space:nowrap;font-family:Kalam;font-weight:700;font-size:34px;color:var(--pen)}
+.typed{font-family:Archivo;font-weight:640;font-size:58px;line-height:1.25;color:var(--ink)}
+.label{font-family:Plex;font-weight:500;font-size:28px;letter-spacing:.12em;color:var(--ink3);text-transform:uppercase}
+.shot{position:absolute;border-radius:20px;overflow:hidden;box-shadow:0 30px 80px rgba(40,34,20,.25)}
+.shot img{display:block;width:100%}
+.sticky{position:absolute;width:300px;height:250px;padding:34px 30px;font-family:Kalam;font-weight:700;font-size:58px;color:#1d1c25;
+  box-shadow:0 18px 30px rgba(40,34,20,.18);display:flex;align-items:flex-end}
+.tick{display:flex;align-items:center;gap:22px;font-family:Kalam;font-weight:700;font-size:60px;color:var(--ink)}
+.tick b{display:inline-flex;width:64px;height:64px;border:4px solid var(--ink);border-radius:12px;align-items:center;justify-content:center;color:var(--pen);font-size:56px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- 1. hook -->
+  <div class="layer center" id="hook">
+    <div class="hand" id="psst" style="font-size:70px;transform:rotate(-5deg);margin-bottom:30px">psst.</div>
+    <div class="big" id="h1" style="font-size:150px">Mac people.</div>
+    <div class="big" id="h2" style="font-size:210px;margin-top:40px;position:relative">It's out.
+      <svg style="position:absolute;left:-10px;right:-10px;bottom:-34px;width:calc(100% + 20px);height:40px" viewBox="0 0 600 40" preserveAspectRatio="none"><path id="h2line" d="M6 26C110 12 220 32 330 18S520 8 594 20" fill="none" stroke="#2f3bd1" stroke-width="9" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <!-- 2. stamp -->
+  <div class="layer center" id="stamp">
+    <div class="sheet center" id="card" style="width:820px;padding:70px 0 80px;position:relative">
+      <img src="shots/icon.png" style="width:320px;height:320px">
+      <div class="big" style="font-size:150px;margin-top:10px">Fluent</div>
+      <div class="hand" style="font-size:84px;margin-top:6px;transform:rotate(-3deg)">for Mac</div>
+      <div id="st1" style="margin-top:46px"><span class="stampbox" style="font-size:96px">Out now</span></div>
+    </div>
+  </div>
+
+  <!-- 3. talk messy, types clean -->
+  <div class="layer" id="proof">
+    <div class="big head" id="pHead">Talk messy.</div>
+    <div class="sheet" style="position:absolute;left:70px;right:70px;top:500px;padding:50px 54px 56px">
+      <div class="label">what you said</div>
+      <div class="said" style="margin-top:34px">
+        <span class="x" id="x0">um so<svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M2 14C30 8 60 16 98 9" fill="none" stroke="#2f3bd1" stroke-width="5" stroke-linecap="round"/></svg><span class="tag">filler</span></span>
+        i think we should
+        <span class="x" id="x1">like<svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M2 14C30 8 60 16 98 9" fill="none" stroke="#2f3bd1" stroke-width="5" stroke-linecap="round"/></svg></span>
+        meet at
+        <span class="x" id="x2">five no wait<svg viewBox="0 0 100 24" preserveAspectRatio="none"><path d="M2 14C30 8 60 16 98 9" fill="none" stroke="#2f3bd1" stroke-width="5" stroke-linecap="round"/></svg><span class="tag">changed mind</span></span>
+        six
+      </div>
+      <div style="border-top:2px dashed var(--rule);margin:40px 0 34px"></div>
+      <div class="label">what Fluent typed</div>
+      <div class="typed" id="typed" style="margin-top:22px;min-height:146px"></div>
+    </div>
+  </div>
+
+  <!-- 4. the real app -->
+  <div class="layer" id="real">
+    <div class="big head" id="rHead" style="font-size:88px">The real thing.</div>
+    <div class="shot" id="rBubble" style="left:60px;right:60px;top:500px"><img src="shots/bubble-crop.png"></div>
+    <div class="hand note" id="rN1" style="left:640px;top:1260px">click the bubble ↑</div>
+    <div id="rCaps" style="position:absolute;left:40px;right:40px;top:640px">
+      <img id="rListen" src="shots/capsule-listening.png" style="position:absolute;left:0;width:1000px">
+      <img id="rDone" src="shots/capsule-inserted.png" style="position:absolute;left:100px;width:800px;opacity:0">
+    </div>
+    <div class="hand note" id="rN2" style="left:0;right:0;text-align:center;top:880px;font-size:64px">just talk…</div>
+    <div class="shot" id="rText" style="left:40px;right:40px;top:900px"><img src="shots/textedit-crop.png"></div>
+    <div class="hand note" id="rN3" style="left:0;right:0;text-align:center;top:1210px;font-size:64px">…and it's typed.</div>
+  </div>
+
+  <!-- 5. anywhere -->
+  <div class="layer" id="notes">
+    <div class="big head" id="nHead">Anywhere<br>you type.</div>
+    <div class="sticky" id="s0" style="left:90px;top:640px;background:#fff1a8">emails</div>
+    <div class="sticky" id="s1" style="left:420px;top:600px;background:#ffd6c9">chats</div>
+    <div class="sticky" id="s2" style="left:720px;top:660px;background:#d9e4ff;width:280px">docs</div>
+    <div class="sticky" id="s3" style="left:110px;top:950px;background:#d8f3dc">notes</div>
+    <div class="sticky" id="s4" style="left:430px;top:930px;background:#ead9ff">prompts</div>
+    <div class="sticky" id="s5" style="left:740px;top:970px;background:#fff1a8;width:260px">search<br>bars</div>
+  </div>
+
+  <!-- 6. get it -->
+  <div class="layer" id="get">
+    <div class="big head" id="gHead">Free. Takes<br>a minute.</div>
+    <div id="gWin" style="position:absolute;left:40px;top:560px;width:1000px;height:757px">
+      <img src="shots/dmg.png" style="width:1000px">
+      <div id="gGhost" style="position:absolute;width:117px;height:117px;background:url(shots/dmg.png) -228px -339px / 1000px auto;border-radius:24px;filter:drop-shadow(0 12px 18px rgba(0,0,0,.35))"></div>
+    </div>
+    <svg class="cursor" id="gCursor" viewBox="0 0 28 40"><path d="M2 2 L2 32 L10 25 L15 37 L20 35 L15 23 L25 23 Z" fill="#fff" stroke="#000" stroke-width="2" stroke-linejoin="round"/></svg>
+  </div>
+
+  <!-- 7. end -->
+  <div class="layer center" id="end">
+    <div class="sheet center" id="ticket" style="width:900px;padding:56px 0 60px;position:relative;margin-top:-60px">
+      <img id="eIcon" src="shots/icon.png" style="width:220px;height:220px">
+      <div class="big" id="eWord" style="font-size:124px;margin-top:4px">Fluent</div>
+      <div class="hand" id="eFor" style="font-size:76px;transform:rotate(-3deg)">for Mac</div>
+      <div id="st2" style="margin-top:30px"><span class="stampbox" style="font-size:76px">Out now</span></div>
+      <div class="mono" id="eMeta" style="font-size:32px;color:var(--ink3);margin-top:34px">free · macOS 14 or newer</div>
+      <div class="mono" id="eUrl" style="font-size:42px;margin-top:40px;padding:18px 34px;border:3px solid var(--ink);border-radius:14px">fluent-voice-v2.vercel.app</div>
+      <div class="hand" id="eBio" style="font-size:60px;margin-top:30px">link in bio ↑</div>
+    </div>
+    <div class="mono" id="eNext" style="font-size:32px;margin-top:40px;color:var(--ink2)">setup guide in the next post →</div>
+  </div>
+</div>
+
+<script src="lib.js"></script>
+<script>
+let S;
+const SAID_CLEAN = "I think we should meet at six.";
+function setup(grid) { G = grid; S = grid.scenes; }
+function render(t) {
+  let l;
+  if ((l = layer("hook", 0, S.stamp, t)) >= 0) {
+    pop($("psst"), l, -0.2, 1.2); pop($("h1"), l, beats(0.5), 1.2); pop($("h2"), l, beats(2), 1.5, 0.12);
+    draw($("h2line"), l, beats(2.6), 0.35);
+  }
+  if ((l = layer("stamp", S.stamp, S.proof, t)) >= 0) {
+    const k = ease(l / 0.3);
+    $("card").style.transform = `translateY(${(1 - k) * 220}px) rotate(${(1 - k) * 4 - 1.5}deg)`;
+    stamp($("st1"), l, beats(2), -6);
+    if (l >= beats(2) && l < beats(2) + 0.12) $("card").style.transform += ` translate(${Math.sin(l * 200) * 6}px, 4px)`;
+  }
+  if ((l = layer("proof", S.proof, S.real, t)) >= 0) {
+    $("pHead").textContent = l < beats(3.5) ? "Talk messy." : "It types clean.";
+    pop($("pHead"), l < beats(3.5) ? l : l - beats(3.5), 0, 1.15);
+    ["x0", "x1", "x2"].forEach((id, i) => {
+      const at = beats(0.8 + i * 0.9);
+      draw($(id).querySelector("path"), l, at, 0.18);
+      const tag = $(id).querySelector(".tag");
+      if (tag) tag.style.opacity = clamp((l - at - 0.12) / 0.12);
+      $(id).style.opacity = l > at + 0.2 ? 0.45 : 1;
+    });
+    const n = Math.floor(SAID_CLEAN.length * clamp((l - beats(3.6)) / beats(1.6)));
+    $("typed").innerHTML = SAID_CLEAN.slice(0, n) + (l > beats(3.5) && n < SAID_CLEAN.length ? '<span style="color:var(--pen)">|</span>' : "");
+  }
+  if ((l = layer("real", S.real, S.notes, t)) >= 0) {
+    pop($("rHead"), l, 0, 1.15);
+    const phase = l < beats(2) ? 0 : l < beats(4) ? 1 : 2;
+    rise($("rBubble"), l, 0.02, 120);
+    if (phase !== 0) $("rBubble").style.opacity = 0;
+    $("rN1").style.opacity = phase === 0 ? clamp((l - beats(1)) / 0.15) : 0;
+    $("rCaps").style.opacity = phase > 0 ? 1 : 0;
+    $("rListen").style.opacity = phase === 1 ? 1 : 0;
+    $("rDone").style.opacity = phase === 2 ? 1 : 0;
+    if (phase === 1) pop($("rListen"), l, beats(2), 0.85);
+    if (phase === 2) pop($("rDone"), l, beats(4), 0.85);
+    $("rN2").style.opacity = phase === 1 ? clamp((l - beats(2.5)) / 0.15) : 0;
+    $("rText").style.opacity = phase === 2 ? 1 : 0;
+    if (phase === 2) rise($("rText"), l, beats(4.3), 80);
+    $("rN3").style.opacity = phase === 2 ? clamp((l - beats(4.8)) / 0.15) : 0;
+  }
+  if ((l = layer("notes", S.notes, S.get, t)) >= 0) {
+    pop($("nHead"), l, 0, 1.15);
+    for (let i = 0; i < 6; i++) {
+      const at = beats(0.6 + i * 0.5), el = $("s" + i);
+      const k = clamp((l - at) / 0.14);
+      el.style.opacity = k;
+      el.style.transform = `rotate(${[-4, 3, -2, 2, -3, 4][i]}deg) scale(${1.4 - 0.4 * back(k)})`;
+    }
+  }
+  if ((l = layer("get", S.get, S.end, t)) >= 0) {
+    pop($("gHead"), l, 0, 1.15);
+    rise($("gWin"), l, 0.05, 140);
+    // drag the Fluent icon onto Applications (image px in dmg.png x 1.295 = page px)
+    const sc = 1000 / 772, a = beats(1.4), d = beats(2.6);
+    const k = inout((l - a) / d);
+    const fx = 221 * sc, tx = 551 * sc, y = 305 * sc;
+    const x = fx + (tx - fx) * k;
+    const gh = $("gGhost");
+    gh.style.left = (x - 58) + "px"; gh.style.top = (y - 58) + "px";
+    gh.style.opacity = l < a ? 0 : l < a + d ? 0.95 : 0.95 * (1 - clamp((l - a - d) / 0.3));
+    const c = $("gCursor"), cx0 = 900, cy0 = 1650;
+    let px, py;
+    if (l < a) { const m = inout((l - beats(0.3)) / (a - beats(0.3))); px = cx0 + (40 + fx - cx0) * m; py = cy0 + (560 + y - cy0) * m; }
+    else { px = 40 + x; py = 560 + y; }
+    c.style.left = (px - 5) + "px"; c.style.top = (py - 3 + (1 - ease(l / 0.3)) * 140) + "px";
+    c.style.opacity = clamp((l - 0.1) / 0.2);
+    c.style.transform = `scale(${l >= a && l < a + d ? 0.86 : 1})`;
+  }
+  if ((l = layer("end", S.end, 1e9, t)) >= 0) {
+    const k = ease(l / 0.35);
+    $("ticket").style.transform = `translateY(${(1 - k) * 260}px) rotate(${(1 - k) * -5 + 1}deg)`;
+    stamp($("st2"), l, beats(1), -5);
+    pop($("eUrl"), l, beats(3), 1.2);
+    $("eBio").style.opacity = clamp((l - beats(5)) / 0.2);
+    $("eNext").style.opacity = clamp((l - beats(7)) / 0.3);
+  }
+}
+</script>
+</body>
+</html>
