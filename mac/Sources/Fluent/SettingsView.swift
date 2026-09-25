@@ -16,6 +16,33 @@ struct SettingsView: View {
         @Bindable var model = model
         Form {
             Section {
+                howToRow(1, done: model.hasApiKey,
+                         title: model.hasApiKey ? "Your Gemini key is saved" : "Add your free Gemini key",
+                         detail: model.hasApiKey
+                            ? "You're ready to talk. Replace or test it under Gemini API key below."
+                            : "Get one from Google AI Studio (free, about a minute), copy it, and paste it under Gemini API key below.") {
+                    if !model.hasApiKey { Link("Get a free key", destination: Constants.apiKeyURL) }
+                }
+                howToRow(2, done: model.bubbleEnabled && model.axTrusted,
+                         title: "Click into any text box, then click the Fluent bubble",
+                         detail: model.bubbleEnabled
+                            ? (model.axTrusted ? "Talk, then click stop. Your words appear where you were typing."
+                                               : "The bubble needs Accessibility. Allow it under Permissions below.")
+                            : "The bubble is off. Turn it on under Floating bubble below.") { EmptyView() }
+                if model.holdKey != .off {
+                    howToRow(3, done: true, title: "Or hold \(model.holdKey.label) and talk",
+                             detail: "Let go and it's typed. Esc cancels.") { EmptyView() }
+                }
+                if model.toggleShortcut != .off {
+                    howToRow(model.holdKey != .off ? 4 : 3, done: true,
+                             title: "Or press \(model.toggleShortcut.label) to start, and again to stop",
+                             detail: "Handy for long dictations.") { EmptyView() }
+                }
+            } header: {
+                Text("How to talk")
+            }
+
+            Section {
                 Picker("Mode", selection: $model.mode) {
                     ForEach(TranscriptionMode.allCases, id: \.self) { Text($0.label).tag($0) }
                 }
@@ -142,7 +169,7 @@ struct SettingsView: View {
             } header: {
                 Text("Gemini API key")
             } footer: {
-                Text("Stored in your Mac's Keychain. Model: \(Constants.batchModel).")
+                Text("Stored in your Mac's Keychain. Streams to \(Constants.liveModel) while you talk.")
             }
 
             Section {
@@ -202,6 +229,27 @@ struct SettingsView: View {
                 if !granted { Button("Allow…", action: action) }
             }
         }
+    }
+
+    private func howToRow<Extra: View>(_ n: Int, done: Bool, title: String, detail: String,
+                                        @ViewBuilder extra: () -> Extra) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            ZStack {
+                Circle().fill(done ? p.success.opacity(0.18) : p.accent.opacity(0.16)).frame(width: 26, height: 26)
+                if done && n == 1 {
+                    Image(systemName: "checkmark").font(.system(size: 12, weight: .bold)).foregroundStyle(p.success)
+                } else {
+                    Text("\(n)").font(FluentFont.title(13)).foregroundStyle(p.accent)
+                }
+            }
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(FluentFont.title(14)).foregroundStyle(p.ink)
+                Text(detail).font(FluentFont.body(12)).foregroundStyle(p.dim).fixedSize(horizontal: false, vertical: true)
+                extra()
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 2)
     }
 
     private func addWord() {

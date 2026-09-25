@@ -1,0 +1,6 @@
+# screenshot copies and raw captures (raw ones show the owner's Mac)
+shots/
+fonts/
+*.mp4
+*.wav
+stills/

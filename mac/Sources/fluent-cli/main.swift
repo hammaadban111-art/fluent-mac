@@ -16,6 +16,49 @@ func fail(_ message: String, _ code: Int32 = 2) -> Never {
 }
 
 var args = Array(CommandLine.arguments.dropFirst())
+
+#if !canImport(FoundationNetworking)
+// fluent-cli live <file.wav> [--url wss://…] [--pace 1] [--verbatim] [--language CODE]
+// Streams a 16 kHz mono PCM16 WAV through GeminiLiveClient in 100 ms chunks, paced like a person
+// talking (--pace 1 = real time), then stops and prints how long the transcript took after stop.
+if args.first == "live", args.count >= 2 {
+    func opt(_ name: String) -> String? {
+        guard let i = args.firstIndex(of: name), i + 1 < args.count else { return nil }
+        return args[i + 1]
+    }
+    guard let wav = FileManager.default.contents(atPath: args[1]), wav.count > 44 else { fail("cannot read \(args[1])") }
+    let pcm: [Int16] = wav.dropFirst(44).withUnsafeBytes { Array($0.bindMemory(to: Int16.self)) }
+    let key = ProcessInfo.processInfo.environment["FLUENT_GEMINI_KEY"] ?? ""
+    let url = opt("--url").flatMap(URL.init(string:)) ?? Constants.liveURL
+    let pace = Double(opt("--pace") ?? "1") ?? 1
+    let client = GeminiLiveClient(apiKey: key, mode: args.contains("--verbatim") ? .verbatim : .smart,
+                                  languageCodes: opt("--language").map { [$0] } ?? [], vocabulary: [], url: url)
+    let done = DispatchSemaphore(value: 0)
+    nonisolated(unsafe) var report: [String: Any] = [:]
+    Task {
+        client.connect()
+        let chunk = Int(Constants.sampleRate / 10)
+        var i = 0
+        while i < pcm.count {
+            client.send(pcm: Array(pcm[i..<min(pcm.count, i + chunk)]))
+            i += chunk
+            if pace > 0 { try? await Task.sleep(nanoseconds: UInt64(0.1 / pace * 1_000_000_000)) }
+        }
+        let stopped = Date()
+        let text = await client.finish()
+        report = ["route": text == nil ? "fallback-needed" : "live", "text": text ?? "",
+                  "stop_to_text_ms": Int(Date().timeIntervalSince(stopped) * 1000),
+                  "audio_seconds": Double(pcm.count) / Constants.sampleRate,
+                  "failure": client.failure.map { "\($0)" } ?? ""]
+        done.signal()
+    }
+    done.wait()
+    let data = try! JSONSerialization.data(withJSONObject: report, options: [.sortedKeys])
+    print(String(data: data, encoding: .utf8)!)
+    exit(report["route"] as? String == "live" ? 0 : 1)
+}
+#endif
+
 guard args.first == "transcribe", args.count >= 2 else {
     fail("usage: fluent-cli transcribe <file.wav> [--endpoint URL] [--verbatim] [--language CODE] [--vocab a,b] [--app BUNDLE_ID]")
 }

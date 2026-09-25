@@ -39,6 +39,11 @@ final class DictationController {
     private var ticker: Timer?
     private var endTask: Task<Void, Never>?
     private var work: Task<Void, Never>?
+    /// The Gemini Live socket for the current turn: audio streams while the user talks.
+    private var live: GeminiLiveClient?
+    /// How the last transcript arrived and how long it took after stop, for diagnostics.
+    private(set) var lastRoute: String?
+    private(set) var lastLatency: TimeInterval?
 
     init(settings: FluentCore.Settings) {
         self.settings = settings
@@ -67,7 +72,14 @@ final class DictationController {
             fail(.noApiKey)
             return
         }
-        _ = key
+        // Open the live socket first so it is coming up while the microphone starts. Audio captured
+        // before it is ready is queued inside the client and sent in order.
+        let client = GeminiLiveClient(apiKey: key, mode: settings.mode,
+                                      languageCodes: settings.languageCodes, vocabulary: settings.vocabulary)
+        live?.close()
+        live = client
+        recorder.onChunk = { [client] pcm in client.send(pcm: pcm) }
+        client.connect()
         do {
             try recorder.start()
         } catch Recorder.StartError.permission {
@@ -115,12 +127,23 @@ final class DictationController {
             return
         }
         phase = .transcribing
-        let wav = WAV.encode(pcm16: samples)
+        let client = live
+        live = nil
         let key = KeychainStore.load() ?? ""
         let mode = settings.mode, languages = settings.languageCodes, vocabulary = settings.vocabulary
+        let stoppedAt = Date()
         work = Task { [weak self] in
+            // Live first: most of the transcript already arrived while the user was talking.
+            if let client, let text = await client.finish() {
+                await self?.noteRoute("live", since: stoppedAt)
+                await self?.finish(.success(text), duration: duration)
+                return
+            }
+            // The socket never came up or failed: send the whole recording in one request.
+            let wav = WAV.encode(pcm16: samples)
             let result = await GeminiClient(apiKey: key).transcribe(
                 wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
+            await self?.noteRoute("batch", since: stoppedAt)
             await self?.finish(result, duration: duration)
         }
     }
@@ -129,6 +152,8 @@ final class DictationController {
         ticker?.invalidate()
         work?.cancel()
         recorder.stop()
+        live?.close()
+        live = nil
         phase = .idle
     }
 
@@ -173,9 +198,17 @@ final class DictationController {
         }
     }
 
+    private func noteRoute(_ route: String, since: Date) {
+        lastRoute = route
+        lastLatency = Date().timeIntervalSince(since)
+        NSLog("Fluent: transcript via %@ %.0f ms after stop", route, (lastLatency ?? 0) * 1000)
+    }
+
     private func fail(_ error: TranscriptionError) {
         ticker?.invalidate()
         recorder.stop()
+        live?.close()
+        live = nil
         lastError = error
         phase = .error(error.userMessage)
         endAfter(2.6)

@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The Fluent themes, the same values as Android's `FluentPalette` (copied from the iPhone app).
-/// The Mac offers five: Aurora (default), Porcelain, Obsidian, Ember and Lagoon.
+/// The Mac offers all six Android themes: Aurora (default), Porcelain, Obsidian, Ember, Lagoon and Classic.
 struct Palette: Identifiable, Equatable {
     let id: String
     let name: String
@@ -26,7 +26,7 @@ struct Palette: Identifiable, Equatable {
     /// Paper themes drop the glass: flat sheets, no ambient light, an ink orb circled in pen.
     let paper: Bool
 
-    static let all: [Palette] = [aurora, porcelain, obsidian, ember, lagoon]
+    static let all: [Palette] = [aurora, porcelain, obsidian, ember, lagoon, classic]
     static func byID(_ id: String?) -> Palette { all.first { $0.id == id } ?? aurora }
 
     static let aurora = Palette(
@@ -77,6 +77,17 @@ struct Palette: Identifiable, Equatable {
         accent: Color(argb: 0xFF3EE6C8), accent2: Color(argb: 0xFF3B9BFF), onAccent: Color(argb: 0xFF03201B),
         voice: Color(argb: 0xFF9CF6E5), success: Color(argb: 0xFF5EE0A8), danger: Color(argb: 0xFFFF6B5E),
         orb: [Color(argb: 0xFF0FB5A6), Color(argb: 0xFF3B9BFF), Color(argb: 0xFF7CF2DA), Color(argb: 0xFF1E7BFF)], paper: false
+    )
+
+    /// Paper, ink and a blue proofreading pen: the look of the Fluent website.
+    static let classic = Palette(
+        id: "classic", name: "Classic", tagline: "Paper and ink", isLight: true,
+        background: Color(argb: 0xFFF4F2EC), ambient: [Color(argb: 0xFFF4F2EC), Color(argb: 0xFFF4F2EC), Color(argb: 0xFFF4F2EC)],
+        surface: Color(argb: 0xFFFFFDF8), surfaceStrong: Color(argb: 0xFFFFFDF8), border: Color(argb: 0xFFDCD8CD),
+        ink: Color(argb: 0xFF16161A), dim: Color(argb: 0xFF4A4843), faint: Color(argb: 0xFF6E6B64),
+        accent: Color(argb: 0xFF2F3BD1), accent2: Color(argb: 0xFF2F3BD1), onAccent: Color(argb: 0xFFFFFFFF),
+        voice: Color(argb: 0xFFC2621A), success: Color(argb: 0xFF1E7A4C), danger: Color(argb: 0xFFB42318),
+        orb: [Color(argb: 0xFF16161A), Color(argb: 0xFF2F3BD1), Color(argb: 0xFFC2621A), Color(argb: 0xFF16161A)], paper: true
     )
 
 }

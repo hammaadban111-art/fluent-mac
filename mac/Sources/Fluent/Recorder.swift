@@ -17,6 +17,9 @@ final class Recorder {
 
     /// Called on the audio thread with a 0...1 loudness for each buffer.
     var onLevel: ((Float) -> Void)?
+    /// Called on the audio thread with each converted 16 kHz chunk while capturing (not while
+    /// paused), in recording order: this is what streams to Gemini Live.
+    var onChunk: (([Int16]) -> Void)?
 
     static var permission: AVAuthorizationStatus { AVCaptureDevice.authorizationStatus(for: .audio) }
 
@@ -90,6 +93,7 @@ final class Recorder {
         }
         guard error == nil, let data = out.int16ChannelData?[0] else { return }
         let chunk = Array(UnsafeBufferPointer(start: data, count: Int(out.frameLength)))
-        lock.lock(); if capturing { samples.append(contentsOf: chunk) }; lock.unlock()
+        lock.lock(); let stillCapturing = capturing; if stillCapturing { samples.append(contentsOf: chunk) }; lock.unlock()
+        if stillCapturing { onChunk?(chunk) }
     }
 }

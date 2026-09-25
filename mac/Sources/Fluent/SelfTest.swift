@@ -1,4 +1,6 @@
 import AppKit
+import CryptoKit
+import FluentCore
 import ApplicationServices
 import FluentMacKit
 
@@ -11,6 +13,9 @@ import FluentMacKit
 ///   Fluent --self-test click --at x,y --out r.json     clicks a screen point (the bubble)
 ///   Fluent --self-test key --key s --out r.json        presses ⌘<key> (⌘S saves the TextEdit file)
 ///   Fluent --self-test dump --pid N --out r.json       every text in app N's windows (UI checks)
+///   Fluent --self-test stream --live-url ws://… --seconds 3 --out r.json
+///                                                     records the real microphone and streams it
+///                                                     through GeminiLiveClient (a mock server in tests)
 ///
 /// Each writes a JSON report and exits 0; the CI script decides pass or fail from the report.
 enum SelfTest {
@@ -97,6 +102,31 @@ enum SelfTest {
                 }
                 report["texts"] = texts
                 report["visited"] = visited
+            case "stream":
+                let url = value("--live-url").flatMap(URL.init(string:)) ?? Constants.liveURL
+                let seconds = Double(value("--seconds") ?? "3") ?? 3
+                let client = GeminiLiveClient(apiKey: "self-test", mode: .smart, languageCodes: [], vocabulary: [], url: url)
+                let recorder = Recorder()
+                let chunks = ChunkCounter()
+                recorder.onChunk = { [client] pcm in chunks.add(); client.send(pcm: pcm) }
+                if Recorder.permission == .notDetermined { _ = await Recorder.requestPermission() }
+                client.connect()
+                do {
+                    try recorder.start()
+                    try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                    let samples = recorder.stop()
+                    let stopped = Date()
+                    let text = await client.finish()
+                    report["route"] = text == nil ? "fallback-needed" : "live"
+                    report["text"] = text ?? ""
+                    report["stopToTextMs"] = Int(Date().timeIntervalSince(stopped) * 1000)
+                    report["samples"] = samples.count
+                    report["chunks"] = chunks.count
+                    let bytes = samples.withUnsafeBufferPointer { Data(buffer: $0) }
+                    report["pcmSha256"] = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+                } catch {
+                    report["error"] = "\(error)"
+                }
             case "read":
                 report["value"] = field?.element.string("AXValue") ?? NSNull()
             case "windows":
@@ -128,4 +158,12 @@ enum SelfTest {
         if let r = f.frame { d["frame"] = [r.minX, r.minY, r.width, r.height] }
         return d
     }
+}
+
+/// Counts audio chunks from the audio thread (stream self-test).
+private final class ChunkCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var n = 0
+    func add() { lock.withLock { n += 1 } }
+    var count: Int { lock.withLock { n } }
 }

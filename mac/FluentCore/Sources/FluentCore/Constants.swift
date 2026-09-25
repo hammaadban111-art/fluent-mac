@@ -17,6 +17,11 @@ public enum Constants {
     public static let modelsURL = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/")!
     public static let apiRevision = "2026-05-20"
     public static let batchTimeout: TimeInterval = 60
+    public static let liveURL = URL(string: "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent")!
+    /// Give the socket 6 s to come up and 6 s to finalise after stop (normally well under a second);
+    /// past either, the whole recording goes through the batch request instead.
+    public static let liveConnectTimeout: TimeInterval = 6
+    public static let liveFinalizeTimeout: TimeInterval = 6
 
     // Legal. Bump termsVersion whenever the Terms change materially: everyone is asked to accept again.
     public static let termsVersion = "2026-09-24"
