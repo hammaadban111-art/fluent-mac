@@ -71,8 +71,13 @@ public class OverlayWindow : Window
     {
         EnsureHandle();
         if (!IsVisible) Show();
-        Native.SetWindowPos(Handle, Native.HWND_TOPMOST, (int)Math.Round(x), (int)Math.Round(y), 0, 0,
-            Native.SWP_NOSIZE | Native.SWP_NOACTIVATE | Native.SWP_SHOWWINDOW);
+        // Size in pixels from the laid-out content (DesiredSize includes its margin), so the window is exactly as big as what it shows.
+        var scale = Dpi.ScaleAt((int)x + 4, (int)y + 4);
+        UpdateLayout();
+        var w = (int)Math.Ceiling((Content as FrameworkElement)?.DesiredSize.Width * scale ?? 0);
+        var h = (int)Math.Ceiling((Content as FrameworkElement)?.DesiredSize.Height * scale ?? 0);
+        var flags = Native.SWP_NOACTIVATE | Native.SWP_SHOWWINDOW | (w > 0 && h > 0 ? 0 : Native.SWP_NOSIZE);
+        Native.SetWindowPos(Handle, Native.HWND_TOPMOST, (int)Math.Round(x), (int)Math.Round(y), w, h, flags);
     }
 
     public (int X, int Y, int W, int H) PixelRect()

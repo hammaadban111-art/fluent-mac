@@ -47,6 +47,12 @@ static class Native
     /// the text box the user was typing in focused (Android: FLAG_NOT_FOCUSABLE).</summary>
     public static void MakeNoActivate(IntPtr hWnd)
     {
+        // A plain popup: no caption or sizing frame, so Windows' minimum window size does not apply.
+        const long WS_POPUP = 0x80000000L, WS_CAPTION = 0x00C00000L, WS_THICKFRAME = 0x00040000L, WS_SYSMENU = 0x00080000L,
+            WS_MINIMIZEBOX = 0x00020000L, WS_MAXIMIZEBOX = 0x00010000L;
+        var style = (long)GetWindowLongPtr(hWnd, -16);
+        style = (style & ~(WS_CAPTION | WS_THICKFRAME | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX)) | WS_POPUP;
+        SetWindowLongPtr(hWnd, -16, new IntPtr(style));
         var ex = (long)GetWindowLongPtr(hWnd, GWL_EXSTYLE);
         SetWindowLongPtr(hWnd, GWL_EXSTYLE, new IntPtr(ex | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST));
     }
