@@ -44,8 +44,22 @@ public class OverlayWindow : Window
     static IntPtr Hook(IntPtr hwnd, int msg, IntPtr w, IntPtr l, ref bool handled)
     {
         if (msg == Native.WM_MOUSEACTIVATE) { handled = true; return new IntPtr(Native.MA_NOACTIVATE); }
+        if (msg == WM_GETMINMAXINFO)
+        {
+            // Windows keeps top-level windows at least ~136 px wide; the bubble is smaller than that.
+            var info = Marshal.PtrToStructure<MINMAXINFO>(l);
+            info.ptMinTrackSize.X = 1;
+            info.ptMinTrackSize.Y = 1;
+            Marshal.StructureToPtr(info, l, false);
+            handled = true;
+        }
         return IntPtr.Zero;
     }
+
+    const int WM_GETMINMAXINFO = 0x0024;
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct MINMAXINFO { public Native.POINT ptReserved, ptMaxSize, ptMaxPosition, ptMinTrackSize, ptMaxTrackSize; }
 
     public void EnsureHandle()
     {
