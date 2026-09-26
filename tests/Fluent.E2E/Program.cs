@@ -28,7 +28,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-static class E2E
+static partial class E2E
 {
     record Check(string Name, bool Pass, string Detail, bool Required);
     static readonly List<Check> Checks = [];
@@ -50,6 +50,7 @@ static class E2E
     static int Main(string[] args)
     {
         SetProcessDpiAwarenessContext(new IntPtr(-4));
+        if (args.Length > 0 && args[0] == "--capture") return RunCapture(args[1..]);
         var exe = args[0];
         Out = Directory.CreateDirectory(args[1]).FullName;
         var data = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "fluent-e2e-" + Guid.NewGuid().ToString("N")[..8])).FullName;
@@ -349,7 +350,7 @@ static class E2E
 /// audio, the rest plus turnComplete after audioStreamEnd) and the batch endpoint at /batch.</summary>
 sealed class Mock
 {
-    static readonly string[] W = "sounds good are you free for lunch tomorrow let's do twelve if that works".Split(' ');
+    public static string[] W = "sounds good are you free for lunch tomorrow let's do twelve if that works".Split(' ');
     public string LiveUrl { get; }
     public string BatchUrl { get; }
     public volatile bool RejectLive;

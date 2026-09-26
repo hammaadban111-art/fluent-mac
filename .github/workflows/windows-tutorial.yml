@@ -1,0 +1,43 @@
+name: Windows tutorial screenshots
+
+# Installs Fluent for Windows from the LIVE website on a clean Windows machine, exactly like a new
+# user, and screenshots every step for the install video (tests/Fluent.E2E/Capture.cs). Results go to
+# the windows-ci-results branch under tutorial/.
+on:
+  push:
+    branches: [windows]
+    paths:
+      - "tests/Fluent.E2E/Capture.cs"
+      - ".github/workflows/windows-tutorial.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Tidy the desktop (minimise the runner's console)
+        run: |
+          (New-Object -ComObject Shell.Application).MinimizeAll()
+          Start-Sleep 2
+      - name: Capture
+        run: |
+          dotnet build tests/Fluent.E2E -c Release -o e2e --nologo | Select-Object -Last 2
+          (New-Object -ComObject Shell.Application).MinimizeAll()
+          ./e2e/Fluent.E2E.exe --capture "${{ github.workspace }}\cap" 2>&1 | Tee-Object "${{ github.workspace }}\cap\run.txt"
+      - name: Publish to windows-ci-results/tutorial
+        if: always()
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: scripts/publish-results.sh tutorial "${{ github.workspace }}/cap"

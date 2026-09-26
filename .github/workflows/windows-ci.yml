@@ -6,6 +6,10 @@ name: Windows build and test
 on:
   push:
     branches: [windows]
+    paths-ignore:
+      - "tests/Fluent.E2E/Capture.cs"
+      - ".github/workflows/windows-tutorial.yml"
+      - "marketing/**"
   workflow_dispatch:
 
 concurrency:
