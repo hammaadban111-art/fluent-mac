@@ -171,7 +171,9 @@ static partial class E2E
             if (run is not null) { Mouse.MoveTo(run.GetClickablePoint()); Thread.Sleep(400); Shot("07b-run-anyway-hover"); run.Click(); }
         }
 
-        // 5. The installer.
+        // 5. The installer. (Older builds first asked "install for me only / all users".)
+        var mode = WaitForWindow(w => w.Name.Contains("Select Setup Install Mode"), 5000);
+        mode?.FindFirstDescendant(cf => cf.ByName("Install for me only (recommended)"))?.Click();
         var setup = WaitForWindow(w => w.Name.Contains("Setup - Fluent"), 30000);
         Note($"installer: {setup?.Name}");
         if (setup is null)
