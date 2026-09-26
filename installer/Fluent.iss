@@ -86,7 +86,7 @@ begin
   if CurUninstallStep = usPostUninstall then
   begin
     RegDeleteValue(HKCU, 'Software\Microsoft\Windows\CurrentVersion\Run', 'Fluent');
-    if MsgBox('Also delete your Fluent settings, history and saved Gemini key from this PC?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
+    if SuppressibleMsgBox('Also delete your Fluent settings, history and saved Gemini key from this PC?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2, IDNO) = IDYES then
       DelTree(ExpandConstant('{userappdata}\Fluent'), True, True, True);
   end;
 end;

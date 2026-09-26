@@ -95,7 +95,8 @@ jobs:
         run: |
           $u = "$env:LOCALAPPDATA\Programs\Fluent\unins000.exe"
           if (Test-Path $u) {
-            Start-Process $u -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
+            $p = Start-Process $u -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -PassThru
+            if (-not $p.WaitForExit(120000)) { Stop-Process -Id $p.Id -Force; "uninstaller hung" }
             Start-Sleep 3
             $gone = -not (Test-Path "$env:LOCALAPPDATA\Programs\Fluent\Fluent.exe")
             $run = (Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -ErrorAction SilentlyContinue).Fluent
