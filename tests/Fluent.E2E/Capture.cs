@@ -45,6 +45,17 @@ static partial class E2E
 
     static int RunCapture(string[] args)
     {
+        try { return Capture(args); }
+        finally
+        {
+            foreach (var n in new[] { "msedge", "notepad", "Fluent", "Fluent-Setup-1.0.0" })
+                foreach (var pr in Process.GetProcessesByName(n)) try { pr.Kill(); } catch { }
+            capLog?.Dispose();
+        }
+    }
+
+    static int Capture(string[] args)
+    {
         Out = Directory.CreateDirectory(args[0]).FullName;
         capLog = new StreamWriter(Path.Combine(Out, "capture.log"));
         TryResolution(1920, 1080);
@@ -59,7 +70,7 @@ static partial class E2E
         var edgeExe = new[] { @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", @"C:\Program Files\Microsoft\Edge\Application\msedge.exe" }.First(File.Exists);
         var profile = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "edge-cap")).FullName;
         Process.Start(new ProcessStartInfo(edgeExe, $"--user-data-dir=\"{profile}\" --no-first-run --no-default-browser-check --start-maximized " +
-            "--disable-features=msEdgeFRE,EdgeCollections,msUndersideButton,msHubApps https://fluent-voice-v2.vercel.app/") { UseShellExecute = false });
+            "--disable-features=msEdgeFRE,EdgeCollections,msUndersideButton,msHubApps https://fluent-voice-v2.vercel.app/") { UseShellExecute = true });
         var edge = WaitForWindow(w => w.Name.Contains("Fluent") && w.Name.Contains("Edge"), 40000);
         Note($"edge window: {edge?.Name}");
         if (edge is null) return 1;
@@ -83,15 +94,45 @@ static partial class E2E
         // 2. Edge's download list. Edge may first ask whether to keep an uncommon file.
         Thread.Sleep(2500);
         Shot("03-edge-downloading");
+        // Edge holds a new, rarely downloaded .exe back ("isn't commonly downloaded"): the real way through is
+        // hover the item, "More actions" (…), Keep, then "Show more" and "Keep anyway" in the dialog.
+        var warn = WaitForValue(() => edge.FindFirstDescendant(cf => cf.ByName("Downloads"))?.FindAllDescendants()
+            .FirstOrDefault(e => (e.Name ?? "").Contains("isn't commonly downloaded")), 20000);
+        Note($"edge warning: {warn?.Name}");
+        if (warn is not null)
+        {
+            Shot("03b-edge-warning");
+            Mouse.MoveTo(warn.GetClickablePoint()); Thread.Sleep(800);
+            var more = WaitForValue(() => edge.FindFirstDescendant(cf => cf.ByName("More actions")), 4000);
+            Note($"more actions: {more is not null}");
+            if (more is not null)
+            {
+                Mouse.MoveTo(more.GetClickablePoint()); Thread.Sleep(500);
+                Shot("03c-edge-more-hover");
+                more.Click(); Thread.Sleep(900);
+                Shot("03d-edge-menu");
+                var keep = WaitForValue(() => edge.FindFirstDescendant(cf => cf.ByName("Keep").And(cf.ByControlType(ControlType.MenuItem)))
+                                              ?? edge.FindFirstDescendant(cf => cf.ByName("Keep")), 4000);
+                Note($"keep: {keep is not null}");
+                if (keep is not null)
+                {
+                    Mouse.MoveTo(keep.GetClickablePoint()); Thread.Sleep(400); Shot("03e-edge-keep-hover");
+                    keep.Click(); Thread.Sleep(1500);
+                    Shot("03f-edge-keep-dialog");
+                    var show = WaitForValue(() => edge.FindFirstDescendant(cf => cf.ByName("Show more")), 4000);
+                    if (show is not null) { Mouse.MoveTo(show.GetClickablePoint()); Thread.Sleep(300); show.Click(); Thread.Sleep(900); Shot("03g-edge-show-more"); }
+                    var anyway = WaitForValue(() => edge.FindFirstDescendant(cf => cf.ByName("Keep anyway")), 4000);
+                    Note($"keep anyway: {anyway is not null}");
+                    if (anyway is not null) { Mouse.MoveTo(anyway.GetClickablePoint()); Thread.Sleep(400); Shot("03h-edge-keep-anyway-hover"); anyway.Click(); }
+                }
+            }
+        }
         var sw = Stopwatch.StartNew();
         string? file = null;
-        while (sw.ElapsedMilliseconds < 90000)
+        while (sw.ElapsedMilliseconds < 60000)
         {
             file = Directory.GetFiles(dl, "Fluent-Setup-1.0.0.exe").FirstOrDefault();
             if (file is not null && new FileInfo(file).Length == 70853757) break;
-            // Edge's "isn't commonly downloaded" prompt: Keep.
-            var keep = edge.FindFirstDescendant(cf => cf.ByName("Keep"));
-            if (keep is not null) { Shot("03b-edge-keep-prompt"); Note("edge asked to keep"); keep.Click(); Thread.Sleep(1500); }
             Thread.Sleep(500);
             file = null;
         }
@@ -226,7 +267,6 @@ static partial class E2E
         }
         Pipe("quit");
         Note("capture done");
-        capLog.Dispose();
         return 0;
     }
 }
