@@ -156,7 +156,7 @@ public sealed class BubbleWindow : OverlayWindow
     public void Update(Palette palette, double size, double opacity)
     {
         if (!ReferenceEquals(orb.Palette, palette)) orb.Palette = palette;
-        if (Math.Abs(orb.Width - size) > 0.1)
+        if (double.IsNaN(orb.Width) || Math.Abs(orb.Width - size) > 0.1)
         {
             orb.Width = orb.Height = size;
             root.Width = root.Height = size + 16;

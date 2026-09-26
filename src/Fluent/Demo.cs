@@ -86,7 +86,7 @@ static class Demo
                     using (var dc = dv.RenderOpen())
                     {
                         if (w is not OverlayWindow) dc.DrawRectangle((Brush)Application.Current.FindResource("FBg"), null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
-                        dc.DrawRectangle(new VisualBrush(root), null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
+                        dc.DrawRectangle(new VisualBrush(root) { ViewboxUnits = BrushMappingMode.Absolute, Viewbox = new Rect(0, 0, root.ActualWidth, root.ActualHeight), Stretch = Stretch.None, AlignmentX = AlignmentX.Left, AlignmentY = AlignmentY.Top }, null, new Rect(0, 0, root.ActualWidth, root.ActualHeight));
                     }
                     bmp.Render(dv);
                     var enc = new PngBitmapEncoder();

@@ -80,7 +80,8 @@ jobs:
       - name: Screenshots of every screen in every theme
         run: |
           ./scripts/screenshots.ps1 -Exe "$env:LOCALAPPDATA\Programs\Fluent\Fluent.exe" -Out "$env:OUT\screens" 2>&1 | Tee-Object "$env:OUT\screens.txt"
-          "## Screens`n- $(if ($LASTEXITCODE -eq 0) {'✅'} else {'❌'}) $(Get-Content "$env:OUT\screens.txt" | Select-Object -Last 1)`n" | Add-Content "$env:OUT\SUMMARY.md"
+          $ok = (Get-Content "$env:OUT\screens.txt" | Select-Object -Last 1) -match "missing: 0"
+          "## Screens`n- $(if ($ok) {'✅'} else {'❌'}) $(Get-Content "$env:OUT\screens.txt" | Select-Object -Last 1)`n" | Add-Content "$env:OUT\SUMMARY.md"
 
       - name: End-to-end (Notepad, Edge, shortcut, hold key, bubble, capsule)
         run: |

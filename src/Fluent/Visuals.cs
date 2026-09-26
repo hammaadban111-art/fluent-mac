@@ -207,6 +207,7 @@ public sealed class AmbientBackground : FrameworkElement
         Loaded += (_, _) => CompositionTarget.Rendering += OnFrame;
         Unloaded += (_, _) => CompositionTarget.Rendering -= OnFrame;
         IsHitTestVisible = false;
+        ClipToBounds = true;   // the glows reach past the window edge
     }
 
     public void SetPalette(Palette p) { palette = p; InvalidateVisual(); }

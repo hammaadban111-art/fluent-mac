@@ -112,6 +112,11 @@ static class E2E
         st = State();
         Record("bubble appears next to the text box", bubbleUp, $"bubble={st?["bubble"]?.ToJsonString()} field={st?["field"]?.ToJsonString()}");
         Shot("02-notepad-bubble");
+        if (st?["bubble"] is JsonArray bb)
+        {
+            int bw = bb[2]!.GetValue<int>(), bh = bb[3]!.GetValue<int>();
+            Record("bubble is round and bubble-sized", Math.Abs(bw - bh) <= 2 && bw is >= 40 and <= 130, $"{bw}x{bh} px");
+        }
 
         SetClipboard("ORIGINAL CLIPBOARD");
 
