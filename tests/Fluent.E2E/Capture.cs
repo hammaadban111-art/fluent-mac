@@ -119,8 +119,18 @@ static partial class E2E
                     Mouse.MoveTo(keep.GetClickablePoint()); Thread.Sleep(400); Shot("03e-edge-keep-hover");
                     keep.Click(); Thread.Sleep(1500);
                     Shot("03f-edge-keep-dialog");
-                    var show = WaitForValue(() => edge.FindFirstDescendant(cf => cf.ByName("Show more")), 4000);
-                    if (show is not null) { Mouse.MoveTo(show.GetClickablePoint()); Thread.Sleep(300); show.Click(); Thread.Sleep(900); Shot("03g-edge-show-more"); }
+                    // "Keep anyway" sits under the arrow on the dialog's Delete button.
+                    var del = edge.FindAllDescendants(cf => cf.ByControlType(ControlType.Button))
+                        .Where(e => (e.Name ?? "").StartsWith("Delete") && !e.BoundingRectangle.IsEmpty)
+                        .OrderByDescending(e => e.BoundingRectangle.Bottom).FirstOrDefault();
+                    Note($"dialog delete button: {del?.Name} {del?.BoundingRectangle}");
+                    if (del is not null)
+                    {
+                        var r = del.BoundingRectangle;
+                        var arrow = new System.Drawing.Point(r.Right - 16, r.Top + r.Height / 2);
+                        Mouse.MoveTo(arrow); Thread.Sleep(400); Shot("03g-edge-arrow-hover");
+                        Mouse.Click(arrow); Thread.Sleep(900); Shot("03g2-edge-arrow-menu");
+                    }
                     var anyway = WaitForValue(() => edge.FindFirstDescendant(cf => cf.ByName("Keep anyway")), 4000);
                     Note($"keep anyway: {anyway is not null}");
                     if (anyway is not null) { Mouse.MoveTo(anyway.GetClickablePoint()); Thread.Sleep(400); Shot("03h-edge-keep-anyway-hover"); anyway.Click(); }
