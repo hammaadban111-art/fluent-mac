@@ -182,7 +182,7 @@ static partial class E2E
             return 1;
         }
         setup.SetForeground();
-        var pages = new[] { ("09-setup-welcome", "Next"), ("10-setup-tasks", "Next"), ("11-setup-ready", "Install") };
+        var pages = new[] { ("10-setup-tasks", "Install") };
         foreach (var (name, button) in pages)
         {
             Thread.Sleep(1200);
@@ -225,11 +225,22 @@ static partial class E2E
         if (box is not null)
         {
             box.Click();
-            Thread.Sleep(300);
-            Keyboard.Type("AIzaSyDemoKeyNotReal0000000000000000");
-            Thread.Sleep(500);
-            Shot("17-setup-key-typed");
+            Thread.Sleep(400);
+            var focused = A.FocusedElement();
+            Note($"key box focused: {box.Properties.HasKeyboardFocus.ValueOrDefault}; focused element: {focused?.ControlType} '{focused?.Name}'");
+            // Paste, the way people add a key they copied from AI Studio.
+            SetClipboard("AIzaSyDemoKeyNotReal0000000000000000");
+            Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.KEY_V);
+            Thread.Sleep(600);
             var save = fluentWin.FindFirstDescendant(cf => cf.ByName("Save key"));
+            Note($"after paste: Save key enabled = {save?.IsEnabled}");
+            if (save is { IsEnabled: false })
+            {
+                Keyboard.Type("AIzaSyDemoKeyNotReal0000000000000000");
+                Thread.Sleep(600);
+                Note($"after typing: Save key enabled = {save?.IsEnabled}");
+            }
+            Shot("17-setup-key-typed");
             if (save is not null) { Mouse.MoveTo(save.GetClickablePoint()); Thread.Sleep(300); save.Click(); }
             Thread.Sleep(1200);
             Shot("18-setup-done");
