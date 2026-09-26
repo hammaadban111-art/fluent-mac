@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Everything in Fluent for Windows that has no UI: the Gemini clients, the Style formatter,
+       insertion spacing, per-app categories, settings, history and the shortcut timing. Plain
+       net10.0, so its tests also run on a Mac or Linux. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Fluent.Core</RootNamespace>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Fluent.Core.Tests" />
+  </ItemGroup>
+
+</Project>

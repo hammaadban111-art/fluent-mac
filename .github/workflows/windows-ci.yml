@@ -1,0 +1,122 @@
+name: Windows build and test
+
+# Fluent for Windows. Lives on the `windows` branch; results go to the `windows-ci-results` branch
+# (Actions artifact storage on this account is full) and the built installer to a DRAFT release
+# (drafts are visible only to the repo owner, nothing is published by CI).
+on:
+  push:
+    branches: [windows]
+  workflow_dispatch:
+
+concurrency:
+  group: windows-ci
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: windows-2025
+    timeout-minutes: 45
+    env:
+      OUT: ${{ github.workspace }}\ci-out
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      DOTNET_NOLOGO: 1
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Summary header
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:OUT | Out-Null
+          $v = (Get-Content windows-version.txt).Trim()
+          @("# Fluent for Windows — CI run ${{ github.run_id }}", "",
+            "- Commit: ``${{ github.sha }}``, version $v",
+            "- Runner: $((Get-CimInstance Win32_OperatingSystem).Caption) $([Environment]::OSVersion.Version), .NET $(dotnet --version)",
+            "- Screen: $((Get-CimInstance Win32_VideoController | Select-Object -First 1).CurrentHorizontalResolution)x$((Get-CimInstance Win32_VideoController | Select-Object -First 1).CurrentVerticalResolution)", "") |
+            Set-Content "$env:OUT\SUMMARY.md"
+          "FLUENT_VERSION=$v" | Out-File -Append $env:GITHUB_ENV
+
+      - name: Unit tests
+        run: |
+          dotnet test tests/Fluent.Core.Tests -c Release 2>&1 | Tee-Object "$env:OUT\unit-tests.txt" | Select-Object -Last 15
+          $line = Select-String -Path "$env:OUT\unit-tests.txt" -Pattern "(Passed|Failed)!" | Select-Object -Last 1
+          "## Unit tests`n- $(if ($LASTEXITCODE -eq 0) {'✅'} else {'❌'}) $($line.Line.Trim())`n" | Add-Content "$env:OUT\SUMMARY.md"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Build Fluent.exe (x64 + arm64) and the installer
+        run: |
+          ./scripts/build.ps1 -Version $env:FLUENT_VERSION 2>&1 | Tee-Object "$env:OUT\build.txt" | Select-Object -Last 12
+          if (-not (Test-Path "dist\Fluent-Setup-$env:FLUENT_VERSION.exe")) { exit 1 }
+          $s = Get-Item "dist\Fluent-Setup-$env:FLUENT_VERSION.exe"; $x = Get-Item dist\win-x64\Fluent.exe; $a = Get-Item dist\win-arm64\Fluent.exe
+          "## Build`n- ✅ Fluent-Setup-$env:FLUENT_VERSION.exe $([math]::Round($s.Length/1MB,1)) MB; Fluent.exe x64 $([math]::Round($x.Length/1MB,1)) MB, arm64 $([math]::Round($a.Length/1MB,1)) MB`n- SHA-256 (setup): $((Get-FileHash $s).Hash)`n" | Add-Content "$env:OUT\SUMMARY.md"
+
+      - name: Install silently like a user would (no admin)
+        run: |
+          $setup = "dist\Fluent-Setup-$env:FLUENT_VERSION.exe"
+          $p = Start-Process $setup -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/CURRENTUSER", "/TASKS=desktopicon,startup", "/LOG=$env:OUT\install.log" -Wait -PassThru
+          $exe = "$env:LOCALAPPDATA\Programs\Fluent\Fluent.exe"
+          $checks = [ordered]@{
+            "installer exit code 0" = ($p.ExitCode -eq 0)
+            "Fluent.exe in %LOCALAPPDATA%\Programs\Fluent" = (Test-Path $exe)
+            "Start menu shortcut" = (Test-Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Fluent.lnk")
+            "desktop shortcut" = (Test-Path "$([Environment]::GetFolderPath('Desktop'))\Fluent.lnk")
+            "listed in Settings > Apps (uninstall entry)" = (Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{7C2A5E1D-4F7B-4B8E-9E0A-F1C3D2B6A901}_is1")
+            "open-at-sign-in entry" = ((Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -ErrorAction SilentlyContinue).Fluent -like "*Fluent.exe*--background")
+            "file version is $env:FLUENT_VERSION" = ((Get-Item $exe).VersionInfo.ProductVersion -like "$env:FLUENT_VERSION*")
+          }
+          $md = "## Installer`n"; $fail = $false
+          foreach ($k in $checks.Keys) { $md += "- $(if ($checks[$k]) {'✅'} else {'❌'; $fail = $true}) $k`n" }
+          $md | Add-Content "$env:OUT\SUMMARY.md"; $md
+          if ($fail) { exit 1 }
+
+      - name: Screenshots of every screen in every theme
+        run: |
+          ./scripts/screenshots.ps1 -Exe "$env:LOCALAPPDATA\Programs\Fluent\Fluent.exe" -Out "$env:OUT\screens" 2>&1 | Tee-Object "$env:OUT\screens.txt"
+          "## Screens`n- $(if ($LASTEXITCODE -eq 0) {'✅'} else {'❌'}) $(Get-Content "$env:OUT\screens.txt" | Select-Object -Last 1)`n" | Add-Content "$env:OUT\SUMMARY.md"
+
+      - name: End-to-end (Notepad, Edge, shortcut, hold key, bubble, capsule)
+        run: |
+          dotnet build tests/Fluent.E2E -c Release -o e2e --nologo | Select-Object -Last 3
+          ./e2e/Fluent.E2E.exe "$env:LOCALAPPDATA\Programs\Fluent\Fluent.exe" "$env:OUT\e2e" 2>&1 | Tee-Object "$env:OUT\e2e.txt"
+          $code = $LASTEXITCODE
+          Get-Content "$env:OUT\e2e\E2E.md" -ErrorAction SilentlyContinue | Add-Content "$env:OUT\SUMMARY.md"
+          exit $code
+
+      - name: Uninstall
+        if: always()
+        run: |
+          $u = "$env:LOCALAPPDATA\Programs\Fluent\unins000.exe"
+          if (Test-Path $u) {
+            Start-Process $u -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
+            Start-Sleep 3
+            $gone = -not (Test-Path "$env:LOCALAPPDATA\Programs\Fluent\Fluent.exe")
+            $run = (Get-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -ErrorAction SilentlyContinue).Fluent
+            "`n## Uninstall`n- $(if ($gone) {'✅'} else {'❌'}) app removed`n- $(if (-not $run) {'✅'} else {'❌'}) sign-in entry removed`n" | Add-Content "$env:OUT\SUMMARY.md"
+          }
+
+      - name: Draft release with the installer (private until published by hand)
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "windows-ci-draft"
+          gh release delete $tag --yes --cleanup-tag 2>$null
+          gh release create $tag --draft --target ${{ github.sha }} --title "Fluent for Windows $env:FLUENT_VERSION (CI draft)" `
+            --notes "Built by run ${{ github.run_id }}. Not published." `
+            "dist\Fluent-Setup-$env:FLUENT_VERSION.exe" "dist\Fluent-$env:FLUENT_VERSION-portable-x64.zip"
+          "- Draft release: $tag`n" | Add-Content "$env:OUT\SUMMARY.md"
+
+      - name: Publish results to the windows-ci-results branch
+        if: always()
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: scripts/publish-results.sh ci "$OUT"
