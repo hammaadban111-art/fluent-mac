@@ -70,8 +70,8 @@ static class TestHooks
                     ["fieldType"] = field?.Traits.ControlType,
                     ["fieldCategory"] = field?.Category.ToString(),
                 };
-                if (overlays.Bubble.IsVisible) { var r = overlays.Bubble.PixelRect(); o["bubble"] = new JsonArray(r.X, r.Y, r.W, r.H); }
-                if (overlays.Capsule.IsVisible) { var r = overlays.Capsule.PixelRect(); o["capsule"] = new JsonArray(r.X, r.Y, r.W, r.H); }
+                if (overlays.Bubble.IsVisible) { var r = overlays.Bubble.ContentRect(); o["bubble"] = new JsonArray(r.X, r.Y, r.W, r.H); }
+                if (overlays.Capsule.IsVisible) { var r = overlays.Capsule.ContentRect(); o["capsule"] = new JsonArray(r.X, r.Y, r.W, r.H); }
                 if (field is not null) o["field"] = new JsonArray(field.Frame.X, field.Frame.Y, field.Frame.Width, field.Frame.Height);
                 return o.ToJsonString();
             }

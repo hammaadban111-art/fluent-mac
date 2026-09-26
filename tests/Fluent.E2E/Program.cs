@@ -116,6 +116,11 @@ static class E2E
         {
             int bw = bb[2]!.GetValue<int>(), bh = bb[3]!.GetValue<int>();
             Record("bubble is round and bubble-sized", Math.Abs(bw - bh) <= 2 && bw is >= 40 and <= 130, $"{bw}x{bh} px");
+            // Independent of Fluent's report: the screenshot must show the orb's colours at that spot.
+            using var shot = new Bitmap(Path.Combine(Out, "e2e-02-notepad-bubble.png"));
+            var px = shot.GetPixel(bb[0]!.GetValue<int>() + bw / 2 - bw / 5, bb[1]!.GetValue<int>() + bh / 2);
+            var sat = Math.Max(px.R, Math.Max(px.G, px.B)) - Math.Min(px.R, Math.Min(px.G, px.B));
+            Record("the orb is drawn where Fluent says the bubble is", sat > 60, $"pixel={px.R},{px.G},{px.B}");
         }
 
         SetClipboard("ORIGINAL CLIPBOARD");

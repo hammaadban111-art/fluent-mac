@@ -80,6 +80,15 @@ public class OverlayWindow : Window
         Native.SetWindowPos(Handle, Native.HWND_TOPMOST, (int)Math.Round(x), (int)Math.Round(y), w, h, flags);
     }
 
+    /// <summary>The visible content in screen pixels (the window itself may be wider).</summary>
+    public (int X, int Y, int W, int H) ContentRect()
+    {
+        var r = PixelRect();
+        var scale = Dpi.ScaleAt(r.X + 4, r.Y + 4);
+        var fe = Content as FrameworkElement;
+        return (r.X, r.Y, (int)Math.Round((fe?.DesiredSize.Width ?? 0) * scale), (int)Math.Round((fe?.DesiredSize.Height ?? 0) * scale));
+    }
+
     public (int X, int Y, int W, int H) PixelRect()
     {
         Native.GetWindowRect(Handle, out var r);
@@ -111,6 +120,10 @@ public sealed class BubbleWindow : OverlayWindow
         root.RenderTransformOrigin = new Point(0.5, 0.5);
         root.RenderTransform = press;
         root.Background = Brushes.Transparent;
+        // WPF keeps top-level windows at least ~136 px wide; pinning the content to the top-left keeps the
+        // orb exactly where it was placed. The extra area is fully transparent, so clicks pass through it.
+        root.HorizontalAlignment = HorizontalAlignment.Left;
+        root.VerticalAlignment = VerticalAlignment.Top;
         Content = root;
         orb.Cursor = Cursors.Hand;
         System.Windows.Automation.AutomationProperties.SetName(orb, "Fluent: dictate into this field");
