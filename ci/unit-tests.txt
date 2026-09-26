@@ -1,0 +1,9 @@
+  Determining projects to restore...
+  Restored D:\a\fluent-mac\fluent-mac\src\Fluent.Core\Fluent.Core.csproj (in 139 ms).
+  Restored D:\a\fluent-mac\fluent-mac\tests\Fluent.Core.Tests\Fluent.Core.Tests.csproj (in 4.19 sec).
+  Fluent.Core -> D:\a\fluent-mac\fluent-mac\src\Fluent.Core\bin\Release\net10.0\Fluent.Core.dll
+  Fluent.Core.Tests -> D:\a\fluent-mac\fluent-mac\tests\Fluent.Core.Tests\bin\Release\net10.0\Fluent.Core.Tests.dll
+Test run for D:\a\fluent-mac\fluent-mac\tests\Fluent.Core.Tests\bin\Release\net10.0\Fluent.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    53, Skipped:     0, Total:    53, Duration: 6 s - Fluent.Core.Tests.dll (net10.0)

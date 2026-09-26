@@ -1,0 +1,206 @@
+[
+  {
+    "Name": "Fluent starts and answers",
+    "Pass": true,
+    "Detail": "",
+    "Required": true
+  },
+  {
+    "Name": "Notepad opens",
+    "Pass": true,
+    "Detail": "",
+    "Required": true
+  },
+  {
+    "Name": "Notepad text area found",
+    "Pass": true,
+    "Detail": "Document",
+    "Required": true
+  },
+  {
+    "Name": "Fluent sees the Notepad text box",
+    "Pass": true,
+    "Detail": "process=notepad type=Document kind=Editable",
+    "Required": true
+  },
+  {
+    "Name": "bubble appears next to the text box",
+    "Pass": true,
+    "Detail": "bubble=[818,546,58,58] field=[138,181,752,437]",
+    "Required": true
+  },
+  {
+    "Name": "bubble is round and bubble-sized",
+    "Pass": true,
+    "Detail": "58x58 px",
+    "Required": true
+  },
+  {
+    "Name": "the orb is drawn where Fluent says the bubble is",
+    "Pass": true,
+    "Detail": "pixel=220,134,220",
+    "Required": true
+  },
+  {
+    "Name": "shortcut starts a dictation",
+    "Pass": true,
+    "Detail": "phase=Recording",
+    "Required": true
+  },
+  {
+    "Name": "capsule shows while recording",
+    "Pass": true,
+    "Detail": "[280,10,464,82]",
+    "Required": true
+  },
+  {
+    "Name": "bubble hides while the capsule owns the session",
+    "Pass": true,
+    "Detail": "",
+    "Required": false
+  },
+  {
+    "Name": "shortcut dictation lands in Notepad",
+    "Pass": true,
+    "Detail": "text=\u0022sounds good are you free for lunch tomorrow let\u0027s do twelve if that works\u0022 route=live insert=Pasted: sounds good are you free for lunch tomorrow let\u0027s do twelve if that works",
+    "Required": true
+  },
+  {
+    "Name": "transcript came over Gemini Live (streamed)",
+    "Pass": true,
+    "Detail": "latency=222.6244 ms",
+    "Required": true
+  },
+  {
+    "Name": "latency after stop under 2 s",
+    "Pass": true,
+    "Detail": "222.6244 ms",
+    "Required": true
+  },
+  {
+    "Name": "user\u0027s clipboard is put back",
+    "Pass": true,
+    "Detail": "clipboard=\u0022ORIGINAL CLIPBOARD\u0022",
+    "Required": true
+  },
+  {
+    "Name": "Notepad kept the focus",
+    "Pass": true,
+    "Detail": "",
+    "Required": true
+  },
+  {
+    "Name": "bubble click starts a dictation",
+    "Pass": true,
+    "Detail": "",
+    "Required": true
+  },
+  {
+    "Name": "bubble click does not steal focus",
+    "Pass": true,
+    "Detail": "",
+    "Required": true
+  },
+  {
+    "Name": "capsule Stop button reachable",
+    "Pass": true,
+    "Detail": "",
+    "Required": true
+  },
+  {
+    "Name": "capsule Stop inserts, spaced after the earlier text",
+    "Pass": true,
+    "Detail": "text=\u0022sounds good are you free for lunch tomorrow let\u0027s do twelve if that works sounds good are you free for lunch tomorrow let\u0027s do twelve if that works\u0022",
+    "Required": true
+  },
+  {
+    "Name": "Notepad still focused after the capsule click",
+    "Pass": true,
+    "Detail": "",
+    "Required": true
+  },
+  {
+    "Name": "holding Right Ctrl dictates and inserts on release",
+    "Pass": true,
+    "Detail": "text=\u0022sounds good are you free for lunch tomorrow let\u0027s do twelve if that works sounds good are you free for lunch tomorrow let\u0027s do twelve if that works sounds good are you free for lunch tomorrow let\u0027s do twelve if that works\u0022",
+    "Required": true
+  },
+  {
+    "Name": "rejected live socket falls back to the batch request",
+    "Pass": true,
+    "Detail": "route=batch batchHits=1",
+    "Required": true
+  },
+  {
+    "Name": "Style applies (Other \u2192 Excited turns the full stop into !)",
+    "Pass": true,
+    "Detail": "text=\u0022sounds good are you free for lunch tomorrow let\u0027s do twelve if that works sounds good are you free for lunch tomorrow let\u0027s do twelve if that works sounds good are you free for lunch tomorrow let\u0027s do twelve if that works Batch fallback works!\u0022",
+    "Required": true
+  },
+  {
+    "Name": "Esc cancels without inserting",
+    "Pass": true,
+    "Detail": "phase=Idle",
+    "Required": true
+  },
+  {
+    "Name": "Edge opens the test page",
+    "Pass": true,
+    "Detail": "",
+    "Required": false
+  },
+  {
+    "Name": "Edge Message: Fluent sees an editable box",
+    "Pass": true,
+    "Detail": "type=Edit kind=Editable bubble=true",
+    "Required": true
+  },
+  {
+    "Name": "Edge Message: text inserted",
+    "Pass": true,
+    "Detail": "insert={\r\n  \u0022kind\u0022: \u0022Pasted\u0022,\r\n  \u0022detail\u0022: \u0022Hello from Fluent\u0022\r\n} text=\u0022Hello from Fluent\u0022",
+    "Required": true
+  },
+  {
+    "Name": "Edge Subject: Fluent sees an editable box",
+    "Pass": true,
+    "Detail": "type=Edit kind=Editable bubble=true",
+    "Required": true
+  },
+  {
+    "Name": "Edge Subject: text inserted",
+    "Pass": true,
+    "Detail": "insert={\r\n  \u0022kind\u0022: \u0022Pasted\u0022,\r\n  \u0022detail\u0022: \u0022 lunch tomorrow\u0022\r\n} text=\u0022Re: lunch tomorrow\u0022",
+    "Required": true
+  },
+  {
+    "Name": "Edge Editor: Fluent sees an editable box",
+    "Pass": true,
+    "Detail": "type=Edit kind=Editable bubble=true",
+    "Required": false
+  },
+  {
+    "Name": "Edge Editor: text inserted",
+    "Pass": true,
+    "Detail": "insert={\r\n  \u0022kind\u0022: \u0022Pasted\u0022,\r\n  \u0022detail\u0022: \u0022Typed into a rich editor\u0022\r\n} text=\u0022Typed into a rich editor\u0022",
+    "Required": false
+  },
+  {
+    "Name": "password field: no bubble",
+    "Pass": true,
+    "Detail": "kind=Secure",
+    "Required": true
+  },
+  {
+    "Name": "password field: Fluent refuses to type",
+    "Pass": true,
+    "Detail": "{\u0022kind\u0022:\u0022Failed\u0022,\u0022detail\u0022:\u0022refusing to type into a password field\u0022}",
+    "Required": true
+  },
+  {
+    "Name": "Fluent quits cleanly",
+    "Pass": true,
+    "Detail": "",
+    "Required": false
+  }
+]

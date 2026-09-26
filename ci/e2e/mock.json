@@ -1,0 +1,91 @@
+[
+  {
+    "live": true,
+    "order": [
+      "activityStart",
+      "activityEnd",
+      "audioStreamEnd"
+    ],
+    "setup": {
+      "setup": {
+        "model": "models/gemini-3.5-transcribe-live",
+        "generationConfig": {
+          "responseModalities": [
+            "TEXT"
+          ]
+        },
+        "realtimeInputConfig": {
+          "automaticActivityDetection": {
+            "disabled": true
+          }
+        },
+        "inputAudioTranscription": {
+          "mode": "SMART",
+          "languageCodes": []
+        }
+      }
+    },
+    "audioBytes": 107200
+  },
+  {
+    "live": true,
+    "order": [
+      "activityStart",
+      "activityEnd",
+      "audioStreamEnd"
+    ],
+    "setup": {
+      "setup": {
+        "model": "models/gemini-3.5-transcribe-live",
+        "generationConfig": {
+          "responseModalities": [
+            "TEXT"
+          ]
+        },
+        "realtimeInputConfig": {
+          "automaticActivityDetection": {
+            "disabled": true
+          }
+        },
+        "inputAudioTranscription": {
+          "mode": "SMART",
+          "languageCodes": []
+        }
+      }
+    },
+    "audioBytes": 86400
+  },
+  {
+    "live": true,
+    "order": [
+      "activityStart",
+      "activityEnd",
+      "audioStreamEnd"
+    ],
+    "setup": {
+      "setup": {
+        "model": "models/gemini-3.5-transcribe-live",
+        "generationConfig": {
+          "responseModalities": [
+            "TEXT"
+          ]
+        },
+        "realtimeInputConfig": {
+          "automaticActivityDetection": {
+            "disabled": true
+          }
+        },
+        "inputAudioTranscription": {
+          "mode": "SMART",
+          "languageCodes": []
+        }
+      }
+    },
+    "audioBytes": 81600
+  },
+  {
+    "batch": true,
+    "bytes": 88946,
+    "key": true
+  }
+]
