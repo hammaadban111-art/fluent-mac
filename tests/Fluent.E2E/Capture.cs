@@ -230,6 +230,13 @@ static partial class E2E
         {
             box.Click();
             Thread.Sleep(400);
+            Note($"key box: type={box.ControlType} class={box.ClassName} enabled={box.IsEnabled} focusable={box.Properties.IsKeyboardFocusable.ValueOrDefault} rect={box.BoundingRectangle} fw={fluentWin.BoundingRectangle}");
+            var hit = A.FromPoint(box.GetClickablePoint());
+            Note($"element under the click point: {hit?.ControlType} class={hit?.ClassName} name='{hit?.Name}'");
+            Shot("16b-key-clicked");
+            try { box.Focus(); } catch (Exception e) { Note("focus() threw " + e.Message); }
+            Thread.Sleep(400);
+            Note($"after UIA SetFocus: {box.Properties.HasKeyboardFocus.ValueOrDefault}");
             var focused = A.FocusedElement();
             Note($"key box focused: {box.Properties.HasKeyboardFocus.ValueOrDefault}; focused element: {focused?.ControlType} '{focused?.Name}'");
             // Paste, the way people add a key they copied from AI Studio.
