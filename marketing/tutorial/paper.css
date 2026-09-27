@@ -1,0 +1,23 @@
+/* The Fluent website's paper-and-ink look (website-v2/v2.css), for the launch videos. */
+@font-face{font-family:Archivo;src:url(fonts/archivo-latin-100-900.woff2) format("woff2");font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:Plex;src:url(fonts/ibm-plex-mono-latin-500.woff2) format("woff2");font-weight:500}
+@font-face{font-family:Kalam;src:url(fonts/kalam-latin-700.woff2) format("woff2");font-weight:700}
+@font-face{font-family:Kalam;src:url(fonts/kalam-latin-400.woff2) format("woff2");font-weight:400}
+:root{--paper:#f4f2ec;--sheet:#fffdf8;--ink:#16161a;--ink2:#4a4843;--ink3:#6e6b64;--rule:#dcd8cd;--pen:#2f3bd1;--voice:#c2621a;--ok:#1e7a4c}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Archivo,sans-serif}
+#stage{position:absolute;inset:0;overflow:hidden;
+  background:radial-gradient(1200px 900px at 20% 10%,#fbfaf6 0,rgba(251,250,246,0) 70%),var(--paper)}
+#stage::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.018) 0 1px,transparent 1px 3px)}
+.layer{position:absolute;inset:0;opacity:0}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.big{font-weight:820;font-stretch:96%;letter-spacing:-.035em;line-height:.95;text-align:center}
+.hand{font-family:Kalam;font-weight:700;color:var(--pen)}
+.mono{font-family:Plex;font-weight:500;letter-spacing:.02em}
+.sheet{background:var(--sheet);border:2px solid var(--rule);border-radius:14px;box-shadow:0 30px 70px rgba(40,34,20,.12),0 2px 0 rgba(0,0,0,.03)}
+.stampbox{display:inline-block;font-family:Archivo;font-weight:900;font-stretch:112%;letter-spacing:.04em;color:var(--voice);
+  border:10px solid var(--voice);border-radius:18px;padding:8px 34px;text-transform:uppercase;
+  -webkit-mask-image:radial-gradient(circle at 30% 40%,#000 55%,rgba(0,0,0,.75) 56%,#000 70%);mix-blend-mode:multiply}
+.cursor{position:absolute;width:44px;height:62px;z-index:50;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+.ripple{position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:6px solid var(--pen);opacity:0;z-index:49}

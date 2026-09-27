@@ -5,3 +5,9 @@ e2e/
 ci-out/
 *.user
 .vs/
+
+# rendered video outputs
+marketing/tutorial/*.mp4
+marketing/tutorial/*.wav
+marketing/tutorial/stills/
+marketing/tutorial/__pycache__/
