@@ -142,7 +142,11 @@ static partial class E2E
         while (sw.ElapsedMilliseconds < 60000)
         {
             file = Directory.GetFiles(dl, "Fluent-Setup-1.0.0.exe").FirstOrDefault();
-            if (file is not null && new FileInfo(file).Length == 70853757) break;
+            if (file is not null && new FileInfo(file).Length > 60_000_000 && !Directory.GetFiles(dl, "*.crdownload").Any())
+            {
+                var len = new FileInfo(file).Length; Thread.Sleep(700);
+                if (new FileInfo(file).Length == len) break;
+            }
             Thread.Sleep(500);
             file = null;
         }
