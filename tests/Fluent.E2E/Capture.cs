@@ -186,7 +186,7 @@ static partial class E2E
             return 1;
         }
         setup.SetForeground();
-        var pages = new[] { ("10-setup-tasks", "Install") };
+        var pages = new[] { ("10-setup-tasks", "Next") };
         foreach (var (name, button) in pages)
         {
             Thread.Sleep(1200);
