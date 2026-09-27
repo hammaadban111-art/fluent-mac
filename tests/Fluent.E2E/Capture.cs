@@ -225,7 +225,7 @@ static partial class E2E
         if (cont is not null) { Mouse.MoveTo(cont.GetClickablePoint()); Thread.Sleep(300); cont.Click(); }
         Thread.Sleep(1500);
         Shot("16-setup");
-        var box = WaitForValue(() => fluentWin.FindFirstDescendant(cf => cf.ByName("Gemini API key")), 5000);
+        var box = WaitForValue(() => fluentWin.FindFirstDescendant(cf => cf.ByName("Gemini API key").And(cf.ByControlType(ControlType.Edit))), 5000);
         if (box is not null)
         {
             box.Click();
