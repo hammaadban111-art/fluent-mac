@@ -221,16 +221,18 @@ public sealed class Settings(ISettingsStore store)
         if (SnoozeUntil == UntilRestartMarker) SnoozeUntil = 0;
     }
 
-    public HoldKey HoldKey
+    /// <summary>Hold to talk. Stored as <see cref="KeyCombo.Code"/>; Fluent 1.0's "hold_key" names still load.</summary>
+    public KeyCombo HoldKey
     {
-        get => Enum.TryParse<HoldKey>(Str("hold_key"), out var k) ? k : HoldKey.RightCtrl;
-        set => Store.Set("hold_key", value.ToString());
+        get => KeyCombo.Parse(Str("hold_combo")) ?? KeyCombo.FromLegacyHold(Str("hold_key"));
+        set => Store.Set("hold_combo", value.Code);
     }
 
-    public ToggleShortcut ToggleShortcut
+    /// <summary>Start / stop. Stored as <see cref="KeyCombo.Code"/>; Fluent 1.0's "toggle_shortcut" labels still load.</summary>
+    public KeyCombo ToggleShortcut
     {
-        get => ToggleShortcut.ByLabel(Str("toggle_shortcut"));
-        set => Store.Set("toggle_shortcut", value.Label);
+        get => KeyCombo.Parse(Str("toggle_combo")) ?? KeyCombo.FromLegacyToggle(Str("toggle_shortcut"));
+        set => Store.Set("toggle_combo", value.Code);
     }
 
     /// <summary>Palette for the bubble and capsule; <see cref="MatchApp"/> follows the app theme.</summary>

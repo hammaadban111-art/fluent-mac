@@ -38,6 +38,7 @@ public partial class App : Application
     EventWaitHandle? showSignal;
 
     public string? HotkeyProblem => hotkeys?.Problem;
+    public HotkeyManager? Hotkeys => hotkeys;
     public OverlayController? Overlays => overlays;
     public MainWindow? MainWin => window;
 

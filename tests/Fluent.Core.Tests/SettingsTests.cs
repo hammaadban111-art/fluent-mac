@@ -20,8 +20,8 @@ public class SettingsTests
         Assert.Equal(42, s.BubbleSize);
         Assert.Equal(WritingStyle.Casual, s.StyleFor(StyleCategory.Personal));
         Assert.Equal(WritingStyle.Formal, s.StyleFor(StyleCategory.Email));
-        Assert.Equal(HoldKey.RightCtrl, s.HoldKey);
-        Assert.Equal(ToggleShortcut.Default, s.ToggleShortcut);
+        Assert.Equal(KeyCombo.RightCtrl, s.HoldKey);
+        Assert.Equal(KeyCombo.DefaultToggle, s.ToggleShortcut);
         Assert.Equal(Settings.MatchApp, s.OverlayThemeId);
         Assert.False(s.TermsAccepted);
     }
@@ -34,8 +34,8 @@ public class SettingsTests
         var s = new Settings(new JsonFileStore(file))
         {
             Mode = TranscriptionMode.Verbatim, LanguageCode = "hi-IN", Vocabulary = ["Hammaad", "Fluent"],
-            ThemeId = "ember", BubbleSize = 99, HoldKey = HoldKey.CtrlWin,
-            ToggleShortcut = ToggleShortcut.Presets[2], ExcludedApps = ["KeePass.exe", "keepass"],
+            ThemeId = "ember", BubbleSize = 99, HoldKey = new KeyCombo([], 0x77),
+            ToggleShortcut = new KeyCombo([KeyCombo.VkRMenu], null), ExcludedApps = ["KeePass.exe", "keepass"],
         };
         s.SetStyle(WritingStyle.VeryCasual, StyleCategory.Work);
         s.AcceptTerms();
@@ -46,13 +46,26 @@ public class SettingsTests
         Assert.Equal(["Hammaad", "Fluent"], t.Vocabulary);
         Assert.Equal("ember", t.ThemeId);
         Assert.Equal(60, t.BubbleSize);   // clamped
-        Assert.Equal(HoldKey.CtrlWin, t.HoldKey);
-        Assert.Equal(ToggleShortcut.Presets[2], t.ToggleShortcut);
+        Assert.Equal("F8", t.HoldKey.Label);
+        Assert.Equal("Right Alt", t.ToggleShortcut.Label);
         Assert.Equal(["keepass"], t.ExcludedApps);
         Assert.True(t.IsExcluded("KEEPASS.EXE"));
         Assert.Equal(WritingStyle.VeryCasual, t.StyleFor(StyleCategory.Work));
         Assert.True(t.TermsAccepted);
         Directory.Delete(dir, true);
+    }
+
+    [Fact]
+    public void Fluent10ShortcutSettingsCarryOver()
+    {
+        var store = new MemoryStore();
+        store.Set("hold_key", "CtrlWin");
+        store.Set("toggle_shortcut", "Ctrl + Alt + D");
+        var s = new Settings(store);
+        Assert.Equal("Left Ctrl + Left Win", s.HoldKey.Label);
+        Assert.Equal("Ctrl + Alt + D", s.ToggleShortcut.Label);
+        s.HoldKey = KeyCombo.Off;
+        Assert.True(new Settings(store).HoldKey.IsOff);
     }
 
     [Fact]

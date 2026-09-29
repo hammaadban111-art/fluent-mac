@@ -45,7 +45,7 @@ public sealed class Tray : IDisposable
         };
         m.Items.Add(dictate);
         if (d.IsLive) m.Items.Add("Cancel dictation", null, (_, _) => d.Cancel());
-        m.Items.Add(new ToolStripMenuItem($"Hold {model.HoldKey.Label()} · {model.ToggleShortcut.Label}") { Enabled = false });
+        m.Items.Add(new ToolStripMenuItem(model.ShortcutSummary) { Enabled = false });
         m.Items.Add(new ToolStripSeparator());
         if (model.Snoozed) m.Items.Add("Resume Fluent", null, (_, _) => model.Resume());
         else

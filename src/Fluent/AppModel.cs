@@ -129,9 +129,15 @@ public sealed class AppModel : Observable
     public void Resume() { Store.ClearSnooze(); RaiseSnooze(); }
     void RaiseSnooze() { Raise(nameof(Snoozed)); Raise(nameof(SnoozeLabel)); Raise(nameof(Status)); Raise(nameof(Headline)); }
 
-    public HoldKey HoldKey { get => Store.HoldKey; set { Store.HoldKey = value; Raise(); RaiseShortcuts(); } }
-    public ToggleShortcut ToggleShortcut { get => Store.ToggleShortcut; set { Store.ToggleShortcut = value; Raise(); RaiseShortcuts(); } }
-    public string ShortcutSummary => $"Hold {HoldKey.Label()} to talk · {ToggleShortcut.Label} to start and stop";
+    public KeyCombo HoldKey { get => Store.HoldKey; set { Store.HoldKey = value; Raise(); RaiseShortcuts(); } }
+    public KeyCombo ToggleShortcut { get => Store.ToggleShortcut; set { Store.ToggleShortcut = value; Raise(); RaiseShortcuts(); } }
+    public string ShortcutSummary => (HoldKey.IsOff, ToggleShortcut.IsOff) switch
+    {
+        (false, false) => $"Hold {HoldKey.Label} to talk · {ToggleShortcut.Label} to start and stop",
+        (false, true) => $"Hold {HoldKey.Label} to talk",
+        (true, false) => $"{ToggleShortcut.Label} to start and stop",
+        _ => "Shortcuts are off; use the bubble",
+    };
     void RaiseShortcuts() { Raise(nameof(ShortcutSummary)); ShortcutsChanged?.Invoke(); }
 
     public bool SoundsEnabled { get => Store.SoundsEnabled; set { Store.SoundsEnabled = value; Raise(); } }

@@ -18,6 +18,9 @@ public sealed class SettingsPage : ContentControl
     readonly AppModel model;
     bool editingKey;
     string? testResult;
+    /// <summary>Which shortcut is waiting for keys: "hold", "toggle" or null.</summary>
+    string? recording;
+    string? shortcutNote;
     bool testing;
     ScrollViewer? scroll;
 
@@ -35,6 +38,8 @@ public sealed class SettingsPage : ContentControl
         model.PropertyChanged += (_, e) => { if (e.PropertyName is { } n && Structural.Contains(n)) Build(); };
         model.Vocabulary.CollectionChanged += (_, _) => Build();
         model.ExcludedApps.CollectionChanged += (_, _) => Build();
+        // Leaving Settings mid-recording gives the old shortcut back.
+        Unloaded += (_, _) => { if (recording is null) return; (App.Current as App)?.Hotkeys?.CancelRecording(); recording = null; };
         Build();
     }
 
@@ -45,7 +50,7 @@ public sealed class SettingsPage : ContentControl
             V(2, Eyebrow("Fluent for Windows"), Title("Settings", 30)),
             Section("How to talk", null, HowToTalk()),
             Section("Dictation", "Vocabulary: names, brands and jargon Gemini should spell your way.", Dictation()),
-            Section("Shortcuts", "Hold the key, speak, and let go to insert. Esc cancels a dictation.", Shortcuts()),
+            Section("Shortcuts", "Your words go straight into the app you are in, and are copied too. Esc cancels a dictation.", Shortcuts()),
             Section("Floating bubble", "Right-click the bubble for more: snooze, hide it in an app, or reset its position.", Bubble()),
             Section("Theme", null, Theme()),
             Section("Gemini API key", $"Stored encrypted for your Windows account (DPAPI). Streams to {Constants.LiveModel} while you talk.", ApiKey()),
@@ -100,8 +105,8 @@ public sealed class SettingsPage : ContentControl
             model.BubbleEnabled ? "Talk, then click it again (or Stop). Your words appear where you were typing."
                                 : "The bubble is off. Turn it on under Floating bubble below."));
         var n = 3;
-        if (model.HoldKey != HoldKey.Off)
-            steps.Children.Add(Step(n++, true, $"Or hold {model.HoldKey.Label()} and talk", "Let go and it's typed. Esc cancels."));
+        if (!model.HoldKey.IsOff)
+            steps.Children.Add(Step(n++, true, $"Or hold {model.HoldKey.Label} and talk", "Let go and it's typed. Esc cancels."));
         if (!model.ToggleShortcut.IsOff)
             steps.Children.Add(Step(n, true, $"Or press {model.ToggleShortcut.Label} to start, and again to stop", "Handy for long dictations."));
         return steps;
@@ -138,14 +143,66 @@ public sealed class SettingsPage : ContentControl
 
     UIElement Shortcuts()
     {
-        var hold = Combo(Enum.GetValues<HoldKey>().Select(k => (k, k.Label())), model.HoldKey, k => model.HoldKey = k, 220);
-        System.Windows.Automation.AutomationProperties.SetName(hold, "Hold to talk");
-        var toggle = Combo(ToggleShortcut.Presets.Append(ToggleShortcut.Off).Select(s => (s, s.Label)), model.ToggleShortcut, s => model.ToggleShortcut = s, 220);
-        System.Windows.Automation.AutomationProperties.SetName(toggle, "Start and stop shortcut");
+        var hotkeys = (App.Current as App)?.Hotkeys;
+        UIElement Picker(string which, string name, KeyCombo current)
+        {
+            var waiting = recording == which;
+            var chip = new Border
+            {
+                CornerRadius = new CornerRadius(8), BorderThickness = new Thickness(1), Padding = new Thickness(10, 5, 10, 5),
+                MinWidth = 120, VerticalAlignment = VerticalAlignment.Center,
+                Child = Body(waiting ? "Press keys…" : current.Label, 13, waiting ? "FAccent" : "FInk"),
+            }.Res(Border.BackgroundProperty, "FSurface").Res(Border.BorderBrushProperty, waiting ? "FAccent" : "FBorder");
+            System.Windows.Automation.AutomationProperties.SetName(chip, $"{name}: {(waiting ? "waiting for keys" : current.Label)}");
+            if (waiting)
+                return H(8, chip, Button("Cancel", () => { hotkeys?.CancelRecording(); recording = null; Build(); }));
+            var change = Button("Change", () =>
+            {
+                if (hotkeys is null) return;
+                recording = which;
+                shortcutNote = null;
+                hotkeys.Record(combo => Recorded(which, combo));
+                Build();
+            });
+            change.IsEnabled = hotkeys is not null && recording is null;
+            System.Windows.Automation.AutomationProperties.SetName(change, "Change " + name);
+            var off = Button("Turn off", () =>
+            {
+                shortcutNote = null;
+                if (which == "hold") model.HoldKey = KeyCombo.Off; else model.ToggleShortcut = KeyCombo.Off;
+            }, "Link");
+            off.IsEnabled = !current.IsOff && recording is null;
+            System.Windows.Automation.AutomationProperties.SetName(off, "Turn off " + name);
+            return H(8, chip, change, off);
+        }
+        var warning = recording is null ? (model.HoldKey.Warning ?? model.ToggleShortcut.Warning) : null;
         return Stack(
-            Line("Hold to talk", model.HoldKey == HoldKey.RightAlt ? "On keyboards where Right Alt is AltGr, pick Right Ctrl instead." : null, hold),
-            Line("Start / stop shortcut", null, toggle),
+            Line("Hold to talk", "Hold it, talk, let go.", Picker("hold", "Hold to talk", model.HoldKey)),
+            Line("Start / stop shortcut", "Press once to start, again to stop.", Picker("toggle", "Start and stop shortcut", model.ToggleShortcut)),
+            Body(recording is null
+                ? "Click Change, then press any key or combination: Right Ctrl, F8, Caps Lock, Ctrl + Alt + Space… Esc cancels."
+                : "Press the key or keys now. Modifiers on their own (like Right Alt, or Ctrl + Win) count when you let go. Esc cancels.", 12.5),
+            shortcutNote is { } note ? Body(note, 12.5, "FDanger") : null,
+            warning is { } w ? Body(w, 12.5, "FDanger") : null,
             (App.Current as App)?.HotkeyProblem is { } problem ? Body(problem, 12.5, "FDanger") : null);
+    }
+
+    void Recorded(string which, KeyCombo? combo)
+    {
+        recording = null;
+        if (combo is not null)
+        {
+            var other = which == "hold" ? model.ToggleShortcut : model.HoldKey;
+            if (combo.Equals(other) && !combo.ModifierOnly)
+                shortcutNote = $"{combo.Label} is already the {(which == "hold" ? "start / stop shortcut" : "hold to talk key")}. Pick a different one.";
+            else
+            {
+                // The same modifier keys may be both: a tap starts or stops, a hold talks.
+                shortcutNote = null;
+                if (which == "hold") model.HoldKey = combo; else model.ToggleShortcut = combo;
+            }
+        }
+        Build();
     }
 
     UIElement Bubble()

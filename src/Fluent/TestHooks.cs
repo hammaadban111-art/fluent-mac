@@ -15,7 +15,9 @@ namespace Fluent;
 ///
 ///   state                       → phase, label, bubble and field rectangles, last text, route, insert
 ///   insert &lt;text&gt;               → runs the real TextInserter on the focused field
-///   theme &lt;id&gt; | style &lt;cat&gt; &lt;style&gt; | history on|off | terms | setup | key &lt;k&gt;</summary>
+///   theme &lt;id&gt; | style &lt;cat&gt; &lt;style&gt; | history on|off | terms | setup | key &lt;k&gt;
+///   hold &lt;code&gt; | toggle &lt;code&gt;  → sets a shortcut from a <see cref="KeyCombo.Code"/> ("77" is F8, "off")
+///   clipboard                   → the clipboard text</summary>
 static class TestHooks
 {
     public const string PipeName = "FluentTestHooks";
@@ -91,6 +93,14 @@ static class TestHooks
             case "terms": model.AcceptTerms(); return Ok();
             case "setup": model.SetupComplete = true; return Ok();
             case "key": model.SaveApiKey(arg); return Ok();
+            case "hold": model.HoldKey = KeyCombo.Parse(arg) ?? KeyCombo.DefaultHold; return Ok();
+            case "toggle": model.ToggleShortcut = KeyCombo.Parse(arg) ?? KeyCombo.DefaultToggle; return Ok();
+            case "clipboard":
+            {
+                string? text = null;
+                try { text = Clipboard.ContainsText() ? Clipboard.GetText() : null; } catch { }
+                return new JsonObject { ["text"] = text }.ToJsonString();
+            }
             case "hide": (Application.Current as App)?.MainWin?.Hide(); return Ok();
             case "quit": (Application.Current as App)?.Quit(); return Ok();
             default: return new JsonObject { ["error"] = "unknown command " + cmd }.ToJsonString();

@@ -7,35 +7,59 @@ using Fluent.Core;
 
 namespace Fluent;
 
-public enum InsertKind { Pasted, Typed, Failed }
+public enum InsertKind { Pasted, Typed, Copied, Failed }
 
 public sealed record InsertOutcome(InsertKind Kind, string Detail);
 
-/// <summary>Puts a transcript at the caret of the focused text box, the way Android's
-/// <c>insertAtCursor</c> and the Mac's <c>TextInserter</c> do: space it against the text around the
-/// caret, put it in, read the field back to confirm, and fall back when the app ignored it.
+/// <summary>Puts a transcript where the user is typing, in any app, and leaves it on the clipboard too so it
+/// can be pasted again (Wispr Flow does the same).
 ///
 /// Windows has no reliable "insert at caret" call for other apps, so the text goes in through the
-/// clipboard and Ctrl+V (what people do by hand, and what works in Win32, WPF, UWP, Chromium and
-/// Electron apps alike). The user's clipboard is put back afterwards and the transcript is kept out of
-/// Windows clipboard history. If the clipboard is busy, the text is typed as Unicode keystrokes.</summary>
+/// clipboard and Ctrl+V (what people do by hand, and what works in Win32, WPF, UWP, WebView2, Chromium and
+/// Electron apps alike). UI Automation only helps: when it can read the field, the text is spaced against
+/// the words around the caret and checked afterwards, and typed as Unicode keystrokes if the paste was
+/// ignored. When it cannot (Store apps such as WhatsApp report their WebView2 host as a plain pane), the
+/// paste still goes to the app in front. Only password fields are refused; the text is copied instead.</summary>
 public static class TextInserter
 {
-    public static async Task<InsertOutcome> InsertAsync(string text, FocusedField? fallback)
+    public static async Task<InsertOutcome> InsertAsync(string text, FocusedField? fallback, IntPtr appWindow = default)
     {
         var trimmed = text.Trim();
         if (trimmed.Length == 0) return new(InsertKind.Failed, "empty transcription");
 
-        // The field focused now wins; the one captured when dictation started is the fallback.
-        var field = await FieldFinder.FrontmostAsync();
-        if (field?.Kind != FieldKind.Editable && fallback is { Kind: FieldKind.Editable }
+        // Fluent's own window in front (the user clicked it while talking): go back to the app the words are for.
+        var front = Native.GetForegroundWindow();
+        Native.GetWindowThreadProcessId(front, out var frontPid);
+        if (front == IntPtr.Zero || frontPid == Environment.ProcessId)
+        {
+            var w = fallback?.Window ?? appWindow;
+            if (w != IntPtr.Zero && Native.IsWindow(w))
+            {
+                Native.SetForegroundWindow(w);
+                await Task.Delay(120);
+                front = Native.GetForegroundWindow();
+            }
+            else return await CopyOnly(trimmed, "Fluent is the app in front");
+        }
+        if (fallback?.Kind == FieldKind.Secure) return await CopyOnly(trimmed, "password field", secret: true);
+
+        // The field focused now wins; the one captured when dictation started is the fallback, but only
+        // while its window is still in front (the paste always goes to the window in front).
+        var field = await FieldFinder.FrontmostAsync(1200);
+        if (field?.Kind != FieldKind.Editable && fallback is { Kind: FieldKind.Editable } && fallback.Window == front
             && (field is null || field.Pid == fallback.Pid))
             field = fallback;
-        if (field is null) return new(InsertKind.Failed, "no focused field");
-        if (field.Kind == FieldKind.Secure) return new(InsertKind.Failed, "refusing to type into a password field");
-        if (field.Kind != FieldKind.Editable) return new(InsertKind.Failed, "focused field is not editable");
+        if (field?.Kind == FieldKind.Secure) return await CopyOnly(trimmed, "password field", secret: true);
 
-        var before = await FieldFinder.SnapshotAsync(field.Element);
+        await WaitForModifiersUp();
+        if (field?.Kind != FieldKind.Editable)
+        {
+            // Nothing UI Automation can read or check: paste at the app's own caret, as a person would.
+            Log.Write($"field {(field is null ? "unknown" : field.Traits.ControlType)} in {field?.Process ?? "?"}, pasting anyway");
+            return await PasteAsync(trimmed, trimmed) ? new(InsertKind.Pasted, trimmed) : await CopyOnly(trimmed, "clipboard busy");
+        }
+
+        var before = await FieldFinder.SnapshotAsync(field.Element, 1000);
         var piece = before is { Text: { } t, SelStart: >= 0 }
             ? InsertionRules.SpacedInsertion(t, before.SelStart, before.SelEnd, trimmed)
             : trimmed;
@@ -44,29 +68,50 @@ public static class TextInserter
             ? bt[..before.SelStart] + piece + bt[before.SelEnd..]
             : null;
 
-        await WaitForModifiersUp();
-        var pasted = await PasteAsync(piece);
-        if (pasted && await LandedAsync(field, before, expected)) return new(InsertKind.Pasted, piece);
+        var pasted = await PasteAsync(piece, trimmed);
         if (pasted && before?.Text is null) return new(InsertKind.Pasted, piece);   // nothing to check against
+        if (pasted)
+        {
+            var check = await CheckAsync(field, before!, expected);
+            if (check != Landing.Unchanged)
+            {
+                // Changed but not as expected: the paste went in and the app is still updating (or reformatted
+                // it). Typing now would put the words in twice.
+                if (check == Landing.Changed) Log.Write($"paste changed the field in {field.Process} differently than expected");
+                return new(InsertKind.Pasted, piece);
+            }
+        }
 
-        // The paste was ignored or the clipboard was busy: type it instead.
+        // The paste was ignored (the field did not change at all) or the clipboard was busy: type it instead.
         Log.Write($"paste not confirmed in {field.Process}, typing");
-        if (Native.TypeUnicode(piece) && (before?.Text is null || await LandedAsync(field, before, expected)))
-            return new(InsertKind.Typed, piece);
-        return new(InsertKind.Failed, "the app ignored the text");
+        if (!Native.TypeUnicode(piece)) return await CopyOnly(trimmed, "the app ignored the text");
+        if (before?.Text is null) return new(InsertKind.Typed, piece);   // nothing to check against
+        if (await CheckAsync(field, before, expected) != Landing.Unchanged) return new(InsertKind.Typed, piece);
+        return await CopyOnly(trimmed, "the app ignored the text");
     }
 
-    static async Task<bool> LandedAsync(FocusedField field, FieldSnapshot? before, string? expected)
+    enum Landing { Landed, Changed, Unchanged }
+
+    /// <summary>Reads the field back a few times: landed as expected, changed some other way, or untouched.</summary>
+    static async Task<Landing> CheckAsync(FocusedField field, FieldSnapshot before, string? expected)
     {
-        if (before?.Text is null) return false;
-        // Browsers and Electron apps update their accessibility tree a moment after the edit.
-        foreach (var wait in new[] { 60, 150, 300, 500 })
+        if (before.Text is null) return Landing.Unchanged;
+        string? last = null;
+        foreach (var wait in new[] { 60, 150, 300, 500, 700 })
         {
             await Task.Delay(wait);
-            var after = await FieldFinder.SnapshotAsync(field.Element);
-            if (InsertionRules.Landed(before.Text, after?.Text, expected ?? before.Text)) return true;
+            var after = await FieldFinder.SnapshotAsync(field.Element, 1000);
+            if (InsertionRules.Landed(before.Text, after?.Text, expected ?? before.Text)) return Landing.Landed;
+            if (after?.Text is { } a) last = a;
         }
-        return false;
+        return last is not null && last != before.Text ? Landing.Changed : Landing.Unchanged;
+    }
+
+    /// <summary>Copies without inserting. For a password field the copy is kept out of clipboard history.</summary>
+    static async Task<InsertOutcome> CopyOnly(string text, string why, bool secret = false)
+    {
+        var ok = await SetClipboardAsync(text, transient: secret);
+        return new(ok ? InsertKind.Copied : InsertKind.Failed, why);
     }
 
     /// <summary>Ctrl+V must not mix with keys the user is still holding (the hold-to-talk key).</summary>
@@ -75,59 +120,36 @@ public static class TextInserter
         for (var i = 0; i < 30 && Native.AnyModifierDown(); i++) await Task.Delay(50);
     }
 
-    static readonly string[] KeptFormats =
-    [
-        DataFormats.UnicodeText, DataFormats.Text, DataFormats.Rtf, DataFormats.Html,
-        DataFormats.FileDrop, DataFormats.Bitmap, DataFormats.CommaSeparatedValue,
-    ];
-
-    /// <summary>Puts <paramref name="text"/> on the clipboard, presses Ctrl+V, and restores what was there.</summary>
-    static async Task<bool> PasteAsync(string text)
+    /// <summary>Puts <paramref name="piece"/> on the clipboard and presses Ctrl+V. Afterwards the clipboard
+    /// holds <paramref name="keep"/> (the transcript without the spacing added for this spot), so the user
+    /// can paste it again anywhere.</summary>
+    static async Task<bool> PasteAsync(string piece, string keep)
     {
-        var saved = SaveClipboard();
-        if (!await SetClipboardAsync(text, transient: true)) return false;
+        var same = piece == keep;
+        if (!await SetClipboardAsync(piece, transient: !same)) return false;
         if (!Native.CtrlV()) return false;
-        _ = RestoreLaterAsync(saved, text);
+        if (!same) _ = KeepLaterAsync(piece, keep);
         return true;
     }
 
-    static async Task RestoreLaterAsync(DataObject? saved, string ours)
+    static async Task KeepLaterAsync(string pasted, string keep)
     {
-        await Task.Delay(700);
+        // Apps read the clipboard a moment after Ctrl+V; swapping it sooner could paste the wrong text.
+        await Task.Delay(600);
         try
         {
-            // Only if the clipboard still holds the transcript: never overwrite something the user just copied.
-            if (Clipboard.ContainsText() && Clipboard.GetText() == ours)
-            {
-                if (saved is null) Clipboard.Clear(); else Clipboard.SetDataObject(saved, true);
-            }
-        }
-        catch (Exception e) { Log.Write("restore clipboard: " + e.Message); }
-    }
-
-    static DataObject? SaveClipboard()
-    {
-        try
-        {
-            var current = Clipboard.GetDataObject();
-            if (current is null) return null;
-            var copy = new DataObject();
-            var any = false;
-            foreach (var f in KeptFormats)
+            // Only if the clipboard still holds what Fluent put there: never overwrite something the user just copied.
+            for (var i = 0; i < 5; i++)
             {
                 try
                 {
-                    if (!current.GetDataPresent(f, false)) continue;
-                    var d = current.GetData(f, false);
-                    if (d is null) continue;
-                    copy.SetData(f, d);
-                    any = true;
+                    if (Clipboard.ContainsText() && Clipboard.GetText() == pasted) await SetClipboardAsync(keep, transient: false);
+                    return;
                 }
-                catch { }
+                catch { await Task.Delay(80); }   // another app has the clipboard open
             }
-            return any ? copy : null;
         }
-        catch { return null; }
+        catch (Exception e) { Log.Write("keep clipboard: " + e.Message); }
     }
 
     /// <summary>Sets clipboard text. <paramref name="transient"/> keeps it out of Win+V history and cloud

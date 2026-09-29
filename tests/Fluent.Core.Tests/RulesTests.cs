@@ -137,24 +137,280 @@ public class ShortcutTests
     }
 
     [Fact]
-    public void HoldKeys()
+    public void ModifierOnlyCombosMatchTheirExactSide()
     {
-        Assert.True(HoldKey.RightCtrl.IsDown(new HashSet<int> { HoldKeyInfo.VkRControl }));
-        Assert.False(HoldKey.RightCtrl.IsDown(new HashSet<int> { HoldKeyInfo.VkLControl }));
-        Assert.True(HoldKey.CtrlWin.IsDown(new HashSet<int> { HoldKeyInfo.VkLControl, HoldKeyInfo.VkLWin }));
-        Assert.False(HoldKey.CtrlWin.IsDown(new HashSet<int> { HoldKeyInfo.VkLWin }));
-        Assert.False(HoldKey.Off.IsDown(new HashSet<int> { HoldKeyInfo.VkRControl }));
-        Assert.True(HoldKey.CtrlWin.IsPart(HoldKeyInfo.VkRWin));
-        Assert.False(HoldKey.RightAlt.IsPart(HoldKeyInfo.VkRControl));
+        var rc = KeyCombo.RightCtrl;
+        Assert.True(rc.IsDown(new HashSet<int> { KeyCombo.VkRControl }));
+        Assert.False(rc.IsDown(new HashSet<int> { KeyCombo.VkLControl }));
+        var ctrlWin = new KeyCombo([KeyCombo.VkLControl, KeyCombo.VkLWin], null);
+        Assert.True(ctrlWin.IsDown(new HashSet<int> { KeyCombo.VkLControl, KeyCombo.VkLWin }));
+        Assert.False(ctrlWin.IsDown(new HashSet<int> { KeyCombo.VkLWin }));
+        Assert.True(ctrlWin.IsPart(KeyCombo.VkLWin));
+        Assert.False(ctrlWin.IsPart(KeyCombo.VkRControl));
+        Assert.False(KeyCombo.Off.IsDown(new HashSet<int> { KeyCombo.VkRControl }));
+        Assert.True(ctrlWin.NeedsMask);
+        Assert.False(rc.NeedsMask);
     }
 
     [Fact]
-    public void ToggleShortcutsRoundTrip()
+    public void CombosWithAKeyTakeEitherSideButNoExtraModifier()
     {
-        foreach (var p in ToggleShortcut.Presets) Assert.Equal(p, ToggleShortcut.ByLabel(p.Label));
-        Assert.Equal(ToggleShortcut.Off, ToggleShortcut.ByLabel("Off"));
-        Assert.Equal(ToggleShortcut.Default, ToggleShortcut.ByLabel("nonsense"));
-        Assert.Equal(ToggleShortcut.Default, ToggleShortcut.ByLabel(null));
+        var c = KeyCombo.DefaultToggle;   // Ctrl + Alt + Space
+        Assert.Equal("Ctrl + Alt + Space", c.Label);
+        Assert.True(c.IsDown(new HashSet<int> { KeyCombo.VkRControl, KeyCombo.VkLMenu, KeyCombo.VkSpace }));
+        Assert.False(c.IsDown(new HashSet<int> { KeyCombo.VkLControl, KeyCombo.VkLMenu, KeyCombo.VkLShift, KeyCombo.VkSpace }));
+        Assert.False(c.IsDown(new HashSet<int> { KeyCombo.VkLControl, KeyCombo.VkSpace }));
+        var f8 = new KeyCombo([], 0x77);
+        Assert.Equal("F8", f8.Label);
+        Assert.True(f8.IsDown(new HashSet<int> { 0x77 }));
+        Assert.False(f8.IsDown(new HashSet<int> { 0x77, KeyCombo.VkLShift }));
+        Assert.Null(f8.Warning);
+        Assert.NotNull(new KeyCombo([], 0x41).Warning);   // a lone letter
+        Assert.Null(new KeyCombo([KeyCombo.VkLControl], 0x41).Warning);
+    }
+
+    [Fact]
+    public void SidesDoNotMatterWithAnOrdinaryKey()
+    {
+        Assert.Equal(new KeyCombo([KeyCombo.VkLControl], KeyCombo.VkSpace), new KeyCombo([KeyCombo.VkRControl], KeyCombo.VkSpace));
+        Assert.NotEqual(KeyCombo.RightCtrl, new KeyCombo([KeyCombo.VkLControl], null));
+    }
+
+    [Fact]
+    public void CombosRoundTripThroughTheirCode()
+    {
+        foreach (var c in new[] { KeyCombo.RightCtrl, KeyCombo.DefaultToggle, new KeyCombo([KeyCombo.VkRMenu, KeyCombo.VkLShift], 0x14), KeyCombo.Off })
+            Assert.Equal(c, KeyCombo.Parse(c.Code));
+        Assert.Equal("A3", KeyCombo.RightCtrl.Code);
+        Assert.Null(KeyCombo.Parse("nonsense"));
+        Assert.Null(KeyCombo.Parse("41+42"));   // two ordinary keys
+        Assert.Null(KeyCombo.Parse(null));
+        Assert.Equal("Left Ctrl + Left Win", new KeyCombo([KeyCombo.VkLWin, KeyCombo.VkLControl], null).Label);
+    }
+
+    [Fact]
+    public void LegacySettingsStillLoad()
+    {
+        Assert.Equal(KeyCombo.RightCtrl, KeyCombo.FromLegacyHold("RightCtrl"));
+        Assert.Equal(new KeyCombo([KeyCombo.VkRMenu], null), KeyCombo.FromLegacyHold("RightAlt"));
+        Assert.Equal(KeyCombo.Off, KeyCombo.FromLegacyHold("Off"));
+        Assert.Equal(KeyCombo.DefaultToggle, KeyCombo.FromLegacyToggle("Ctrl + Alt + Space"));
+        Assert.Equal("Alt + Space", KeyCombo.FromLegacyToggle("Alt + Space").Label);
+        Assert.Equal(KeyCombo.Off, KeyCombo.FromLegacyToggle("Off"));
+        Assert.Equal(KeyCombo.DefaultToggle, KeyCombo.FromLegacyToggle(null));
+    }
+
+    [Fact]
+    public void RecorderCapturesCombos()
+    {
+        var r = new KeyComboRecorder();
+        Assert.Equal(KeyComboRecorder.Result.Continue, r.Key(KeyCombo.VkLControl, true));
+        Assert.Equal(KeyComboRecorder.Result.Continue, r.Key(KeyCombo.VkLMenu, true));
+        Assert.Equal(KeyComboRecorder.Result.Done, r.Key(0x44, true));
+        Assert.Equal("Ctrl + Alt + D", r.Combo!.Label);
+
+        r = new KeyComboRecorder();   // modifiers only: done when all are let go
+        r.Key(KeyCombo.VkRControl, true);
+        r.Key(KeyCombo.VkRWin, true);
+        Assert.Equal(KeyComboRecorder.Result.Continue, r.Key(KeyCombo.VkRWin, false));
+        Assert.Equal(KeyComboRecorder.Result.Done, r.Key(KeyCombo.VkRControl, false));
+        Assert.Equal("Right Ctrl + Right Win", r.Combo!.Label);
+
+        r = new KeyComboRecorder();
+        Assert.Equal(KeyComboRecorder.Result.Cancelled, r.Key(KeyCombo.VkEscape, true));
+        r = new KeyComboRecorder();
+        Assert.Equal(KeyComboRecorder.Result.Done, r.Key(0x14, true));   // Caps Lock alone
+        Assert.Equal("Caps Lock", r.Combo!.Label);
+    }
+}
+
+public class HotkeyEngineTests
+{
+    static HotkeyEngine Engine(KeyCombo hold, KeyCombo toggle) => new() { Hold = hold, Toggle = toggle };
+
+    [Fact]
+    public void HoldingRightCtrlTalksAndPassesTheKeyThrough()
+    {
+        var e = Engine(KeyCombo.RightCtrl, KeyCombo.DefaultToggle);
+        var (swallow, s) = e.Key(KeyCombo.VkRControl, true, 0, false);
+        Assert.False(swallow);
+        Assert.Equal([HotkeyEngine.Signal.ArmHoldTimer], s);
+        Assert.True(e.HoldTimerFired());
+        (swallow, s) = e.Key(KeyCombo.VkRControl, true, 0.3, true);   // auto-repeat
+        Assert.Empty(s);
+        (swallow, s) = e.Key(KeyCombo.VkRControl, false, 2, true);
+        Assert.False(swallow);
+        Assert.Equal([HotkeyEngine.Signal.StopHold], s);
+    }
+
+    [Fact]
+    public void CtrlCIsNotAHold()
+    {
+        var e = Engine(KeyCombo.RightCtrl, KeyCombo.Off);
+        e.Key(KeyCombo.VkRControl, true, 0, false);
+        var (_, s) = e.Key(0x43, true, 0.1, false);
+        Assert.Equal([HotkeyEngine.Signal.CancelHoldTimer], s);
+        Assert.False(e.HoldTimerFired());
+    }
+
+    [Fact]
+    public void AnOrdinaryHoldKeyIsSwallowedDownRepeatAndUp()
+    {
+        var f8 = new KeyCombo([], 0x77);
+        var e = Engine(f8, KeyCombo.Off);
+        Assert.True(e.Key(0x77, true, 0, false).Swallow);
+        Assert.True(e.HoldTimerFired());
+        Assert.True(e.Key(0x77, true, 0.4, true).Swallow);
+        var (swallow, s) = e.Key(0x77, false, 1, true);
+        Assert.True(swallow);
+        Assert.Equal([HotkeyEngine.Signal.StopHold], s);
+        Assert.False(e.Key(0x41, true, 2, false).Swallow);   // other keys untouched
+    }
+
+    [Fact]
+    public void ToggleWithAKeyFiresOnceAndSwallowsTheKey()
+    {
+        var e = Engine(KeyCombo.RightCtrl, KeyCombo.DefaultToggle);
+        e.Key(KeyCombo.VkLControl, true, 0, false);
+        e.Key(KeyCombo.VkLMenu, true, 0.01, false);
+        var (swallow, s) = e.Key(KeyCombo.VkSpace, true, 0.02, false);
+        Assert.True(swallow);
+        Assert.Equal([HotkeyEngine.Signal.Toggle, HotkeyEngine.Signal.Mask], s);
+        Assert.True(e.Key(KeyCombo.VkSpace, true, 0.5, true).Swallow);   // repeat: no second toggle
+        Assert.Empty(e.Key(KeyCombo.VkSpace, true, 0.6, true).Signals);
+        Assert.True(e.Key(KeyCombo.VkSpace, false, 0.7, true).Swallow);
+        Assert.False(e.Key(KeyCombo.VkLMenu, false, 0.8, true).Swallow);   // modifiers always pass
+        e.Key(KeyCombo.VkLControl, false, 0.8, true);
+        Assert.False(e.Key(KeyCombo.VkSpace, true, 1, false).Swallow);   // Space alone types a space
+    }
+
+    [Fact]
+    public void ModifierOnlyToggleFiresOnAQuickCleanTap()
+    {
+        var e = Engine(KeyCombo.Off, new KeyCombo([KeyCombo.VkRMenu], null));
+        e.Key(KeyCombo.VkRMenu, true, 0, false);
+        Assert.Contains(HotkeyEngine.Signal.Toggle, e.Key(KeyCombo.VkRMenu, false, 0.2, false).Signals);
+        // Used with another key (AltGr + e): not a tap.
+        e.Key(KeyCombo.VkRMenu, true, 1, false);
+        e.Key(0x45, true, 1.1, false);
+        e.Key(0x45, false, 1.15, false);
+        Assert.DoesNotContain(HotkeyEngine.Signal.Toggle, e.Key(KeyCombo.VkRMenu, false, 1.2, false).Signals);
+        // Held too long: not a tap.
+        e.Key(KeyCombo.VkRMenu, true, 2, false);
+        Assert.DoesNotContain(HotkeyEngine.Signal.Toggle, e.Key(KeyCombo.VkRMenu, false, 3, false).Signals);
+    }
+
+    [Fact]
+    public void SameModifiersForBothTapTogglesHoldTalks()
+    {
+        var e = Engine(KeyCombo.RightCtrl, KeyCombo.RightCtrl);
+        e.Key(KeyCombo.VkRControl, true, 0, false);
+        var s = e.Key(KeyCombo.VkRControl, false, 0.1, false).Signals;
+        Assert.Contains(HotkeyEngine.Signal.Toggle, s);
+        Assert.Contains(HotkeyEngine.Signal.CancelHoldTimer, s);
+
+        e.Key(KeyCombo.VkRControl, true, 1, false);
+        Assert.True(e.HoldTimerFired());
+        s = e.Key(KeyCombo.VkRControl, false, 3, true).Signals;
+        Assert.Equal([HotkeyEngine.Signal.StopHold], s);
+    }
+
+    [Fact]
+    public void EscCancelsOnlyWhileDictatingAndIsSwallowedThen()
+    {
+        var e = Engine(KeyCombo.RightCtrl, KeyCombo.DefaultToggle);
+        var (swallow, s) = e.Key(KeyCombo.VkEscape, true, 0, true);
+        Assert.True(swallow);
+        Assert.Equal([HotkeyEngine.Signal.Cancel], s);
+        Assert.True(e.Key(KeyCombo.VkEscape, false, 0.1, true).Swallow);
+        (swallow, s) = e.Key(KeyCombo.VkEscape, true, 1, false);
+        Assert.False(swallow);
+        Assert.Empty(s);
+    }
+
+    [Fact]
+    public void ShiftThenRightCtrlIsTextSelectionNotAHold()
+    {
+        var e = Engine(KeyCombo.RightCtrl, KeyCombo.Off);
+        e.Key(KeyCombo.VkLShift, true, 0, false);
+        Assert.Empty(e.Key(KeyCombo.VkRControl, true, 0.1, false).Signals);
+        Assert.False(e.HoldTimerFired());
+    }
+
+    [Fact]
+    public void InactiveEngineOnlyTracksKeys()
+    {
+        var e = Engine(new KeyCombo([], 0x77), KeyCombo.DefaultToggle);
+        e.Active = false;
+        var (swallow, s) = e.Key(0x77, true, 0, false);
+        Assert.False(swallow);
+        Assert.Empty(s);
+    }
+}
+
+public class TranscriptRaceTests
+{
+    static Func<Task<TranscriptionResult>> Batch(string? text, int ms, List<string> calls) => async () =>
+    {
+        calls.Add("batch");
+        await Task.Delay(ms);
+        return text is null ? TranscriptionResult.Fail(TranscriptionError.ConnectionLost) : TranscriptionResult.Ok(text);
+    };
+
+    static async Task<string?> Live(string? text, int ms) { await Task.Delay(ms); return text; }
+
+    [Fact]
+    public async Task FastLiveWinsWithoutBatch()
+    {
+        var calls = new List<string>();
+        var (r, route) = await TranscriptRace.RunAsync(Live("hello", 20), Batch("batch", 10, calls), TimeSpan.FromMilliseconds(300));
+        Assert.Equal(("hello", "live"), (r.Text, route));
+        Assert.Empty(calls);
+    }
+
+    [Fact]
+    public async Task FailedLiveFallsBackToBatch()
+    {
+        var calls = new List<string>();
+        var (r, route) = await TranscriptRace.RunAsync(Live(null, 10), Batch("batch", 10, calls), TimeSpan.FromMilliseconds(300));
+        Assert.Equal(("batch", "batch"), (r.Text, route));
+    }
+
+    [Fact]
+    public async Task SlowLiveStartsBatchAndTheFirstAnswerWins()
+    {
+        var calls = new List<string>();
+        var sw = System.Diagnostics.Stopwatch.StartNew();
+        var (r, route) = await TranscriptRace.RunAsync(Live("late", 3000), Batch("batch", 100, calls), TimeSpan.FromMilliseconds(200));
+        Assert.Equal("batch", r.Text);
+        Assert.StartsWith("batch", route);
+        Assert.True(sw.ElapsedMilliseconds < 1500, $"{sw.ElapsedMilliseconds} ms");
+
+        (r, route) = await TranscriptRace.RunAsync(Live("live", 400), Batch("batch", 3000, calls), TimeSpan.FromMilliseconds(200));
+        Assert.Equal(("live", "live"), (r.Text, route));
+    }
+
+    [Fact]
+    public async Task AFaultedLiveTaskFallsBackToBatch()
+    {
+        var calls = new List<string>();
+        static async Task<string?> Boom(int ms) { await Task.Delay(ms); throw new InvalidOperationException("socket"); }
+        var (r, route) = await TranscriptRace.RunAsync(Boom(10), Batch("batch", 10, calls), TimeSpan.FromMilliseconds(300));
+        Assert.Equal(("batch", "batch"), (r.Text, route));
+        (r, route) = await TranscriptRace.RunAsync(Boom(500), Batch("slow batch", 100, calls), TimeSpan.FromMilliseconds(50));
+        Assert.Equal("slow batch", r.Text);
+        (r, _) = await TranscriptRace.RunAsync(Boom(500), Batch(null, 50, calls), TimeSpan.FromMilliseconds(50));
+        Assert.False(r.IsSuccess);
+    }
+
+    [Fact]
+    public async Task BatchErrorWaitsForALateLiveAnswer()
+    {
+        var calls = new List<string>();
+        var (r, route) = await TranscriptRace.RunAsync(Live("late", 600), Batch(null, 50, calls), TimeSpan.FromMilliseconds(200));
+        Assert.Equal(("late", "live"), (r.Text, route));
+        (r, _) = await TranscriptRace.RunAsync(Live(null, 600), Batch(null, 50, calls), TimeSpan.FromMilliseconds(200));
+        Assert.False(r.IsSuccess);
     }
 }
 

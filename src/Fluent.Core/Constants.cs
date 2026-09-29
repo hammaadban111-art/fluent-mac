@@ -20,6 +20,9 @@ public static class Constants
     /// second); past either, the whole recording goes through the batch request instead.</summary>
     public static readonly TimeSpan LiveConnectTimeout = TimeSpan.FromSeconds(6);
     public static readonly TimeSpan LiveFinalizeTimeout = TimeSpan.FromSeconds(6);
+    /// <summary>If the live transcript is not final this long after stop, the batch request starts too and
+    /// whichever answers first wins, so a slow live finish never holds up the words for long.</summary>
+    public static readonly TimeSpan LiveGrace = TimeSpan.FromSeconds(1.2);
 
     // Legal. Bump TermsVersion whenever the Terms change materially: everyone is asked to accept again.
     public const string TermsVersion = "2026-09-24";

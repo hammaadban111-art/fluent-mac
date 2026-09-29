@@ -144,7 +144,7 @@ static partial class E2E
         Record("transcript came over Gemini Live (streamed)", st?["lastRoute"]?.GetValue<string>() == "live", $"latency={st?["latencyMs"]} ms");
         Record("latency after stop under 2 s", (st?["latencyMs"]?.GetValue<double>() ?? 99999) < 2000, $"{st?["latencyMs"]} ms");
         Thread.Sleep(900);
-        Record("user's clipboard is put back", GetClipboard() == "ORIGINAL CLIPBOARD", $"clipboard=\"{GetClipboard()}\"");
+        Record("the transcript is also left on the clipboard", GetClipboard()?.Trim() == Words, $"clipboard=\"{GetClipboard()}\"");
         Record("Notepad kept the focus", ForegroundIs("notepad"), "");
 
         // 2. Click the bubble, talk, click again.
@@ -178,6 +178,38 @@ static partial class E2E
         var text3 = WaitForValue(() => { var t = ReadText(edit); return t.Length > before.Length + 10 ? t : null; }, 10000);
         Record("holding Right Ctrl dictates and inserts on release", text3?.TrimEnd().EndsWith(Words + " " + Words) == true && text3.Length > before.Length,
             $"text=\"{text3 ?? ReadText(edit)}\"");
+
+        // 3b. Any key: hold F8 to talk, F9 to start and stop. Both keys are Fluent's while set, so neither
+        // reaches Notepad (F8/F9 do nothing there anyway, so the text is the check).
+        Pipe("hold 77");
+        Pipe("toggle 78");
+        Thread.Sleep(300);
+        before = ReadText(edit);
+        Keyboard.Press(VirtualKeyShort.F8);
+        Thread.Sleep(2800);
+        Keyboard.Release(VirtualKeyShort.F8);
+        var text3b = WaitForValue(() => { var t = ReadText(edit); return t.Length > before.Length + 10 ? t : null; }, 10000);
+        Record("a custom hold key (F8) dictates and inserts on release", text3b?.TrimEnd().EndsWith(Words) == true, $"text=\"{text3b ?? ReadText(edit)}\"");
+        before = ReadText(edit);
+        Keyboard.Type(VirtualKeyShort.F9);
+        var rec9 = WaitFor(() => State()?["phase"]?.GetValue<string>() == "Recording", 3000);
+        Thread.Sleep(2400);
+        Keyboard.Type(VirtualKeyShort.F9);
+        var text3c = WaitForValue(() => { var t = ReadText(edit); return t.Length > before.Length + 10 ? t : null; }, 10000);
+        Record("a custom start/stop key (F9) starts and stops", rec9 && text3c?.TrimEnd().EndsWith(Words) == true, $"text=\"{text3c ?? ReadText(edit)}\"");
+        // Modifier only: a quick tap of Right Shift starts, another stops.
+        Pipe("toggle A1");
+        Thread.Sleep(300);
+        before = ReadText(edit);
+        Keyboard.Type(VirtualKeyShort.RSHIFT);
+        var recShift = WaitFor(() => State()?["phase"]?.GetValue<string>() == "Recording", 3000);
+        Thread.Sleep(2400);
+        Keyboard.Type(VirtualKeyShort.RSHIFT);
+        var text3d = WaitForValue(() => { var t = ReadText(edit); return t.Length > before.Length + 10 ? t : null; }, 10000);
+        Record("a modifier-only start/stop (tap Right Shift) works", recShift && text3d?.TrimEnd().EndsWith(Words) == true, $"text=\"{text3d ?? ReadText(edit)}\"", required: false);
+        Pipe("hold A3");
+        Pipe("toggle A2+A4+20");
+        Thread.Sleep(300);
 
         // 4. Batch fallback + Style: the live socket is refused, the whole recording goes in one request.
         mock.RejectLive = true;
@@ -221,7 +253,7 @@ static partial class E2E
         var page = Path.Combine(Path.GetTempPath(), "fluent-e2e.html");
         File.WriteAllText(page, """
             <!doctype html><html><head><title>Fluent test page</title><style>body{font:16px Segoe UI;margin:40px} textarea,input,div{display:block;width:520px;margin:14px 0;padding:8px;font:16px Segoe UI} textarea{height:90px} div{border:1px solid #999;min-height:60px}</style></head>
-            <body><textarea id="t" aria-label="Message" placeholder="Message"></textarea><input id="i" aria-label="Subject" value="Re:"><input id="p" type="password" aria-label="Password"><div id="c" contenteditable="true" aria-label="Editor" role="textbox"></div></body></html>
+            <body><textarea id="t" aria-label="Message" placeholder="Message"></textarea><input id="i" aria-label="Subject" value="Re:"><input id="p" type="password" aria-label="Password"><div id="c" contenteditable="true" aria-label="Editor" role="textbox"></div><div id="n" tabindex="0" aria-label="Custom chat box">Custom chat box (not a text field to UI Automation)</div><textarea id="o" aria-label="Pasted output" readonly></textarea><script>document.addEventListener('paste', e => { if (document.activeElement && document.activeElement.id === 'n') { document.getElementById('o').value += e.clipboardData.getData('text'); e.preventDefault(); } });</script></body></html>
             """);
         var profile = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "fluent-edge-" + Guid.NewGuid().ToString("N")[..6])).FullName;
         Process.Start(new ProcessStartInfo(edge, $"--user-data-dir=\"{profile}\" --no-first-run --no-default-browser-check --disable-features=msEdgeFRE,EdgeCollections --start-maximized \"file:///{page.Replace('\\', '/')}\"") { UseShellExecute = false });
@@ -251,6 +283,23 @@ static partial class E2E
         Field("Subject", "lunch tomorrow", "Re: lunch tomorrow", required: true);
         Field("Editor", "Typed into a rich editor", "Typed into a rich editor", required: false);
 
+        // Apps like WhatsApp from the Microsoft Store: UI Automation says the focused thing is not a text box,
+        // but the app takes a paste. Fluent must paste anyway.
+        var custom = WaitForValue(() => win.FindFirstDescendant(cf => cf.ByName("Custom chat box")), 5000);
+        var output = win.FindFirstDescendant(cf => cf.ByName("Pasted output"));
+        if (custom is not null && output is not null)
+        {
+            custom.Click();
+            Thread.Sleep(1200);
+            var st = State();
+            var r = Pipe("insert pasted into a custom box");
+            Thread.Sleep(600);
+            Record("a box UI Automation calls not editable still gets the paste", ReadText(output) == "pasted into a custom box",
+                $"kind={st?["fieldKind"]} type={st?["fieldType"]} insert={r} out=\"{ReadText(output)}\"", required: false);
+            Record("pasted text is also on the clipboard", Pipe("clipboard")?["text"]?.GetValue<string>() == "pasted into a custom box", "", required: false);
+        }
+        else Record("Edge: custom chat box found", false, "", required: false);
+
         var pw = win.FindFirstDescendant(cf => cf.ByName("Password"));
         if (pw is not null)
         {
@@ -259,7 +308,7 @@ static partial class E2E
             var st = State();
             Record("password field: no bubble", st?["bubbleVisible"]?.GetValue<bool>() == false, $"kind={st?["fieldKind"]}");
             var r = Pipe("insert secret words");
-            Record("password field: Fluent refuses to type", r?["kind"]?.GetValue<string>() == "Failed", r?.ToJsonString() ?? "");
+            Record("password field: Fluent refuses to type, only copies", r?["kind"]?.GetValue<string>() == "Copied", r?.ToJsonString() ?? "");
             Shot("07-edge-password");
         }
     }

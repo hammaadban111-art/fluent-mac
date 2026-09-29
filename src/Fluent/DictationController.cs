@@ -24,6 +24,8 @@ public sealed class DictationController : Observable
     readonly Stopwatch run = new();
     TimeSpan accumulated;
     FocusedField? target;
+    /// <summary>The window in front when dictation started, even when UI Automation saw no field there.</summary>
+    IntPtr targetWindow;
     StyleCategory category = StyleCategory.Other;
     GeminiLiveClient? live;
     CancellationTokenSource? endAfter;
@@ -69,7 +71,7 @@ public sealed class DictationController : Observable
         DictationPhase.Recording => "Listening",
         DictationPhase.Paused => "Paused",
         DictationPhase.Transcribing => "Writing it up…",
-        DictationPhase.Done => Message.Length == 0 ? "Inserted" : Message,
+        DictationPhase.Done => Message.Length == 0 ? "Pasted" : Message,
         DictationPhase.Error => Message.Length == 0 ? "Something went wrong" : Message,
         _ => "",
     };
@@ -84,6 +86,7 @@ public sealed class DictationController : Observable
 
         Source = source;
         target = field;
+        targetWindow = field?.Window ?? ForeignForeground();
         TargetAppName = field?.AppName;
         category = field?.Category ?? StyleCategory.Other;
         LastError = null;
@@ -162,19 +165,13 @@ public sealed class DictationController : Observable
         var stoppedAt = Stopwatch.StartNew();
         _ = Task.Run(async () =>
         {
-            // Live first: most of the transcript already arrived while the user was talking.
-            if (client is not null && await client.FinishAsync() is { } text)
-            {
-                Note("live", stoppedAt);
-                await ui.InvokeAsync(() => FinishAsync(TranscriptionResult.Ok(text), duration, gen)).Task.Unwrap();
-                return;
-            }
-            if (client?.Failure is { Kind: TranscriptionErrorKind.InvalidApiKey or TranscriptionErrorKind.QuotaExceeded } f)
-                Log.Write("live failed: " + f.Kind);
-            // The socket never came up or failed: send the whole recording in one request.
-            var result = await new GeminiClient(key, endpoint: BatchUrlOverride)
-                .TranscribeAsync(Wav.Encode(samples), mode, languages, vocabulary);
-            Note("batch", stoppedAt);
+            // Live first: most of the transcript already arrived while the user was talking. The batch
+            // request (whole recording) covers a socket that never came up, failed, or is slow to finish.
+            var (result, route) = await TranscriptRace.RunAsync(client?.FinishAsync(),
+                () => new GeminiClient(key, endpoint: BatchUrlOverride).TranscribeAsync(Wav.Encode(samples), mode, languages, vocabulary),
+                Constants.LiveGrace);
+            if (client?.Failure is { } f) Log.Write("live failed: " + f.Kind);
+            Note(route, stoppedAt);
             await ui.InvokeAsync(() => FinishAsync(result, duration, gen)).Task.Unwrap();
         });
     }
@@ -221,19 +218,27 @@ public sealed class DictationController : Observable
             Done("Done", 0.75);
             return;
         }
-        var outcome = await TextInserter.InsertAsync(text, target);
+        var outcome = await TextInserter.InsertAsync(text, target, targetWindow);
         LastInsert = outcome.Kind + ": " + outcome.Detail;
         Log.Write("insert " + outcome.Kind + (outcome.Kind == InsertKind.Failed ? " (" + outcome.Detail + ")" : ""));
-        if (outcome.Kind != InsertKind.Failed)
+        switch (outcome.Kind)
         {
-            Done("Inserted", 0.75);
+            case InsertKind.Pasted or InsertKind.Typed:
+                Done("Pasted · also copied", 1.2);
+                break;
+            default:
+                // Never lose a transcript: it stays on the clipboard to paste by hand (Copied already put it there).
+                if (outcome.Kind == InsertKind.Failed) await TextInserter.SetClipboardAsync(text, transient: false);
+                Done("Copied — press Ctrl+V to paste", 2.2);
+                break;
         }
-        else
-        {
-            // Never lose a transcript: it stays on the clipboard to paste by hand.
-            await TextInserter.SetClipboardAsync(text, transient: false);
-            Done("Copied — press Ctrl+V to paste", 2.2);
-        }
+    }
+
+    static IntPtr ForeignForeground()
+    {
+        var w = Native.GetForegroundWindow();
+        Native.GetWindowThreadProcessId(w, out var pid);
+        return pid == Environment.ProcessId ? IntPtr.Zero : w;
     }
 
     void Done(string message, double seconds)

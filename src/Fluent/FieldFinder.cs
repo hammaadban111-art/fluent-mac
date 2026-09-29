@@ -68,7 +68,7 @@ public static class FieldFinder
     }
 
     /// <summary>The focused element of the foreground app, or null (Fluent's own windows count as none).</summary>
-    public static Task<FocusedField?> FrontmostAsync() => Run(a => Frontmost(a));
+    public static Task<FocusedField?> FrontmostAsync(int timeoutMs = 2500) => Run(a => Frontmost(a), timeoutMs);
 
     static FocusedField? Frontmost(UIA3Automation a)
     {
@@ -103,7 +103,7 @@ public static class FieldFinder
     }
 
     /// <summary>The field's text and selection in UTF-16 offsets. Text is null when the app does not say.</summary>
-    public static Task<FieldSnapshot?> SnapshotAsync(AutomationElement el) => Run(_ => Snapshot(el), 2000);
+    public static Task<FieldSnapshot?> SnapshotAsync(AutomationElement el, int timeoutMs = 2000) => Run(_ => Snapshot(el), timeoutMs);
 
     static FieldSnapshot Snapshot(AutomationElement el)
     {

@@ -69,8 +69,8 @@ public sealed class OnboardingView : ContentControl
         var how = Card(V(8,
             Title("How to dictate", 17),
             HowTo(Glyph.Touch, "Click into any text box. A Fluent bubble appears next to it; click it, speak, click it again (or Stop)."),
-            HowTo(Glyph.Keyboard, $"Or hold {model.HoldKey.Label()}, speak, and let go to insert."),
-            HowTo(Glyph.Keyboard, $"Or press {model.ToggleShortcut.Label} to start, and again to stop.")));
+            model.HoldKey.IsOff ? null : HowTo(Glyph.Keyboard, $"Or hold {model.HoldKey.Label}, speak, and let go to insert."),
+            model.ToggleShortcut.IsOff ? null : HowTo(Glyph.Keyboard, $"Or press {model.ToggleShortcut.Label} to start, and again to stop.")));
 
         var later = Button("Finish later", () => model.SetupComplete = true, "Quiet");
         var finish = Button("Finish setup", () => model.SetupComplete = true, "Primary");

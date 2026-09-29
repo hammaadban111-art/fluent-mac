@@ -44,7 +44,7 @@ static class Demo
             var (phase, message) = screen switch
             {
                 "capsule-writing" => (DictationPhase.Transcribing, ""),
-                "capsule-inserted" => (DictationPhase.Done, "Inserted"),
+                "capsule-inserted" => (DictationPhase.Done, "Pasted · also copied"),
                 "capsule-error" => (DictationPhase.Error, Core.TranscriptionError.NoApiKey.UserMessage),
                 _ => (DictationPhase.Recording, ""),
             };
