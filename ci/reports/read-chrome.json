@@ -1,0 +1,25 @@
+{
+  "appFocusedRole" : "AXTextArea",
+  "field" : {
+    "app" : "Google Chrome",
+    "bundleID" : "com.google.Chrome",
+    "frame" : [
+      30,
+      148,
+      868,
+      300
+    ],
+    "kind" : "editable",
+    "role" : "AXTextArea",
+    "selectedTextSettable" : true,
+    "subrole" : "",
+    "valueSettable" : true
+  },
+  "focusedWindowRole" : "AXWindow",
+  "frontmost" : "com.google.Chrome",
+  "lookups" : 1,
+  "mode" : "read",
+  "systemFocusedRole" : "AXTextArea",
+  "trusted" : true,
+  "value" : "Hello from Fluent inside Chrome."
+}

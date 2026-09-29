@@ -1,0 +1,24 @@
+{
+  "appFocusedRole" : "AXTextArea",
+  "field" : {
+    "app" : "PasteOnlyHost",
+    "bundleID" : "",
+    "frame" : [
+      216,
+      224,
+      528,
+      228
+    ],
+    "kind" : "editable",
+    "role" : "AXTextArea",
+    "selectedTextSettable" : true,
+    "subrole" : "",
+    "valueSettable" : true
+  },
+  "focusedWindowRole" : "AXWindow",
+  "frontmost" : "",
+  "lookups" : 1,
+  "mode" : "probe",
+  "systemFocusedRole" : "AXTextArea",
+  "trusted" : true
+}
