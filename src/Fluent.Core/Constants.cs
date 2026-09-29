@@ -30,6 +30,8 @@ public static class Constants
     public const string PrivacyUrl = "https://fluent-voice-v2.vercel.app/privacy";
     public const string ApiKeyUrl = "https://aistudio.google.com/apikey";
     public const string WebsiteUrl = "https://fluent-voice-v2.vercel.app";
+    /// <summary>Latest version of each app, published with every release (website-v2/updates.json).</summary>
+    public const string UpdatesUrl = "https://fluent-voice-v2.vercel.app/updates.json";
 }
 
 public enum TranscriptionMode { Smart, Verbatim }

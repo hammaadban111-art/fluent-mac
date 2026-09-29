@@ -34,11 +34,13 @@ public partial class App : Application
     OverlayController? overlays;
     HotkeyManager? hotkeys;
     Tray? tray;
+    Updater? updater;
     Mutex? single;
     EventWaitHandle? showSignal;
 
     public string? HotkeyProblem => hotkeys?.Problem;
     public HotkeyManager? Hotkeys => hotkeys;
+    public Updater? Updates => updater;
     public OverlayController? Overlays => overlays;
     public MainWindow? MainWin => window;
 
@@ -95,6 +97,8 @@ public partial class App : Application
         hotkeys = new HotkeyManager(model, overlays);
         hotkeys.Install();
         tray = new Tray(this, model);
+        updater = new Updater(model, (title, text) => tray?.ShowBalloon(title, text, () => ShowMain(Tab.Settings)), Quit);
+        updater.Start();
         if (Options.TestHooks) TestHooks.Start(this, model, overlays);
         if (!Options.Background) window.Show();
         else if (!model.TermsAccepted || !model.Ready) window.Show();

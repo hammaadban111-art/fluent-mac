@@ -226,6 +226,9 @@ public sealed class DictationController : Observable
             case InsertKind.Pasted or InsertKind.Typed:
                 Done("Pasted · also copied", 1.2);
                 break;
+            case InsertKind.Copied when outcome.Detail == TextInserter.AdminApp:
+                Done("Copied — that app runs as admin; press Ctrl+V", 3.2);
+                break;
             default:
                 // Never lose a transcript: it stays on the clipboard to paste by hand (Copied already put it there).
                 if (outcome.Kind == InsertKind.Failed) await TextInserter.SetClipboardAsync(text, transient: false);

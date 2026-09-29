@@ -142,4 +142,28 @@ static class Native
 
     [StructLayout(LayoutKind.Sequential)]
     public struct KBDLLHOOKSTRUCT { public uint vkCode, scanCode, flags, time; public IntPtr dwExtraInfo; }
+
+    // Elevation (UIPI): Windows silently drops keystrokes Fluent sends to an app running as administrator.
+    [DllImport("kernel32.dll", SetLastError = true)] static extern IntPtr OpenProcess(uint access, bool inherit, uint pid);
+    [DllImport("kernel32.dll")] static extern bool CloseHandle(IntPtr h);
+    [DllImport("advapi32.dll", SetLastError = true)] static extern bool OpenProcessToken(IntPtr process, uint access, out IntPtr token);
+    [DllImport("advapi32.dll", SetLastError = true)] static extern bool GetTokenInformation(IntPtr token, int cls, out int info, int len, out int returned);
+    const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000, TOKEN_QUERY = 0x8;
+    const int TokenElevation = 20;
+
+    /// <summary>Whether <paramref name="pid"/> runs elevated. Null when Windows won't say.</summary>
+    public static bool? IsElevated(uint pid)
+    {
+        var p = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
+        if (p == IntPtr.Zero) return null;
+        try
+        {
+            if (!OpenProcessToken(p, TOKEN_QUERY, out var t)) return null;
+            try { return GetTokenInformation(t, TokenElevation, out var e, 4, out _) ? e != 0 : null; }
+            finally { CloseHandle(t); }
+        }
+        finally { CloseHandle(p); }
+    }
+
+    public static bool SelfElevated => IsElevated((uint)Environment.ProcessId) == true;
 }

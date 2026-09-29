@@ -56,6 +56,7 @@ public sealed class SettingsPage : ContentControl
             Section("Gemini API key", $"Stored encrypted for your Windows account (DPAPI). Streams to {Constants.LiveModel} while you talk.", ApiKey()),
             Section("Microphone", "Fluent opens the microphone only while you dictate.", Microphone()),
             Section("Privacy", "Off by default. History stays on this PC and holds text only. Audio is never saved.", Privacy()),
+            Section("Updates", "Fluent checks the website for new versions and tells you. Each download is checked against its published SHA-256.", UpdatesCard()),
             Section("General", null, General()),
             Section("About", null, About()));
         scroll = Scroll(Column(col, 760, new Thickness(28)));
@@ -321,6 +322,32 @@ public sealed class SettingsPage : ContentControl
         return Row(H(10, dot, Body(text, 14, "FInk").Also(t => t.VerticalAlignment = VerticalAlignment.Center)),
             Button("Microphone settings", () => Open("ms-settings:privacy-microphone")));
     }
+
+    UIElement UpdatesCard()
+    {
+        var u = (App.Current as App)?.Updates;
+        if (u is null) return Body("Updates are checked when Fluent runs normally.", 13);
+        var status = Body(u.Summary, 14, "FInk");
+        var notes = Body(u.Status == UpdateStatus.Available ? u.Latest?.Notes ?? "" : "", 12.5);
+        var button = u.Status == UpdateStatus.Available
+            ? Button($"Update to {u.Latest?.Version}", async () => await u.UpdateAsync(), "Primary")
+            : Button("Check for updates", async () => await u.CheckAsync(announce: false));
+        button.IsEnabled = u.Status is not (UpdateStatus.Checking or UpdateStatus.Downloading or UpdateStatus.Installing);
+        void Changed(object? _, PropertyChangedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(() =>
+            {
+                status.Text = u.Summary;
+                if (e.PropertyName == nameof(Updater.Status)) Build();
+            });
+        }
+        u.PropertyChanged -= updatesHandler;
+        updatesHandler = Changed;
+        u.PropertyChanged += updatesHandler;
+        return V(10, Row(status, button), notes.Text.Length > 0 ? notes : null);
+    }
+
+    PropertyChangedEventHandler? updatesHandler;
 
     UIElement Privacy() =>
         Switch(Labeled("Keep history", null, 14.5), model.HistoryEnabled, on => model.HistoryEnabled = on, "Keep history");

@@ -238,6 +238,9 @@ public sealed class Settings(ISettingsStore store)
     /// <summary>Palette for the bubble and capsule; <see cref="MatchApp"/> follows the app theme.</summary>
     public string OverlayThemeId { get => Str("overlay_theme") ?? MatchApp; set => Store.Set("overlay_theme", value); }
 
+    /// <summary>The newest version the user was already told about, so each update is announced once.</summary>
+    public string? UpdateNotified { get => Str("update_notified"); set => Store.Set("update_notified", value); }
+
     /// <summary>Short start/stop sounds (Android: haptics).</summary>
     public bool SoundsEnabled { get => Bool("sounds") ?? true; set => Store.Set("sounds", value); }
 

@@ -26,6 +26,7 @@ public sealed class Tray : IDisposable
         };
         icon.ContextMenuStrip.Opening += (_, e) => { Build(); e.Cancel = false; };
         icon.MouseClick += (_, e) => { if (e.Button == MouseButtons.Left) app.ShowMain(null); };
+        icon.BalloonTipClicked += (_, _) => { balloonClick?.Invoke(); balloonClick = null; };
         model.Dictation.PhaseChanged += () => icon.Text = model.Dictation.IsLive ? "Fluent — listening" : "Fluent";
         Build();
     }
@@ -58,6 +59,8 @@ public sealed class Tray : IDisposable
         bubble.Click += (_, _) => model.BubbleEnabled = !model.BubbleEnabled;
         m.Items.Add(bubble);
         m.Items.Add(new ToolStripSeparator());
+        if (app.Updates is { Status: UpdateStatus.Available, Latest: { } latest } u)
+            m.Items.Add($"Update to Fluent {latest.Version}…", null, async (_, _) => { app.ShowMain(Tab.Settings); await u.UpdateAsync(); });
         m.Items.Add("Open Fluent…", null, (_, _) => app.ShowMain(null));
         m.Items.Add("Settings…", null, (_, _) => app.ShowMain(Tab.Settings));
         m.Items.Add(new ToolStripSeparator());
@@ -72,8 +75,11 @@ public sealed class Tray : IDisposable
         : model.Snoozed ? model.SnoozeLabel
         : "Fluent is ready";
 
-    public void ShowBalloon(string title, string text)
+    Action? balloonClick;
+
+    public void ShowBalloon(string title, string text, Action? onClick = null)
     {
+        balloonClick = onClick;
         icon.BalloonTipTitle = title;
         icon.BalloonTipText = text;
         icon.ShowBalloonTip(4000);

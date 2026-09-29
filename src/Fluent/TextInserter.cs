@@ -42,6 +42,10 @@ public static class TextInserter
             else return await CopyOnly(trimmed, "Fluent is the app in front");
         }
         if (fallback?.Kind == FieldKind.Secure) return await CopyOnly(trimmed, "password field", secret: true);
+        // An app running as administrator ignores keys from Fluent (Windows' UIPI) without any error:
+        // pasting would look done and do nothing, so say so instead.
+        Native.GetWindowThreadProcessId(front, out var targetPid);
+        if (!Native.SelfElevated && Native.IsElevated(targetPid) == true) return await CopyOnly(trimmed, AdminApp);
 
         // The field focused now wins; the one captured when dictation started is the fallback, but only
         // while its window is still in front (the paste always goes to the window in front).
@@ -106,6 +110,8 @@ public static class TextInserter
         }
         return last is not null && last != before.Text ? Landing.Changed : Landing.Unchanged;
     }
+
+    public const string AdminApp = "the app runs as administrator";
 
     /// <summary>Copies without inserting. For a password field the copy is kept out of clipboard history.</summary>
     static async Task<InsertOutcome> CopyOnly(string text, string why, bool secret = false)
