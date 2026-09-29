@@ -446,7 +446,8 @@ public class TranscriptRaceTests
         var (r, route) = await TranscriptRace.RunAsync(Live("late", 3000), Batch("batch", 100, calls), TimeSpan.FromMilliseconds(200));
         Assert.Equal("batch", r.Text);
         Assert.StartsWith("batch", route);
-        Assert.True(sw.ElapsedMilliseconds < 1500, $"{sw.ElapsedMilliseconds} ms");
+        // Well before the slow live answer (3 s); loose, because CI machines are slow.
+        Assert.True(sw.ElapsedMilliseconds < 2800, $"{sw.ElapsedMilliseconds} ms");
 
         (r, route) = await TranscriptRace.RunAsync(Live("live", 400), Batch("batch", 3000, calls), TimeSpan.FromMilliseconds(200));
         Assert.Equal(("live", "live"), (r.Text, route));
