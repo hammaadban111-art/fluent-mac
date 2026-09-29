@@ -51,11 +51,16 @@ final class Updater {
     func check(announce: Bool) async {
         if [.checking, .downloading, .installing].contains(status) { return }
         status = .checking
-        var request = URLRequest(url: URL(string: Updates.manifestURL.absoluteString + "?t=\(Int(Date().timeIntervalSince1970))")!)
+        // FLUENT_UPDATES_URL: tests point Fluent at their own manifest.
+        let base = ProcessInfo.processInfo.environment["FLUENT_UPDATES_URL"] ?? Updates.manifestURL.absoluteString
+        guard let url = URL(string: base + "?t=\(Int(Date().timeIntervalSince1970))") else { fail("Bad update address."); return }
+        var request = URLRequest(url: url)
         request.cachePolicy = .reloadIgnoringLocalCacheData
         request.timeoutInterval = 20
-        guard let (data, response) = try? await URLSession.shared.data(for: request),
-              (response as? HTTPURLResponse)?.statusCode == 200 else {
+        let fetched = try? await URLSession.shared.data(for: request)
+        // An update started meanwhile owns the status now.
+        guard status == .checking else { return }
+        guard let (data, response) = fetched, (response as? HTTPURLResponse)?.statusCode == 200 else {
             fail("Couldn't reach the website. Check your connection.")
             return
         }
@@ -85,7 +90,7 @@ final class Updater {
     }
 
     func update() async {
-        guard let release = latest, ![.downloading, .installing].contains(status) else { return }
+        guard let release = latest, ![.checking, .downloading, .installing].contains(status) else { return }
         let appURL = Bundle.main.bundleURL
         // Swapping the app needs write access to its folder (an admin account for /Applications).
         guard FileManager.default.isWritableFile(atPath: appURL.deletingLastPathComponent().path) else {
@@ -100,10 +105,13 @@ final class Updater {
             try? FileManager.default.removeItem(at: dir)
             try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
             let dmg = dir.appendingPathComponent("Fluent-\(release.version).dmg")
-            try await download(release, to: dmg)
+            // Off the main thread: downloading, mounting and copying take a few seconds.
+            try await Self.download(release, to: dmg) { [weak self] p in
+                Task { @MainActor in self?.progress = p }
+            }
             status = .installing
             let staged = dir.appendingPathComponent("Fluent.app")
-            try Self.copyApp(fromDMG: dmg, to: staged)
+            try await Task.detached { try Self.copyApp(fromDMG: dmg, to: staged) }.value
             try Self.swapAndRelaunch(staged: staged, into: appURL)
             NSApp.terminate(nil)
         } catch {
@@ -111,7 +119,8 @@ final class Updater {
         }
     }
 
-    private func download(_ release: ReleaseInfo, to file: URL) async throws {
+    nonisolated private static func download(_ release: ReleaseInfo, to file: URL,
+                                             progress: @escaping @Sendable (Double) -> Void) async throws {
         let (bytes, response) = try await URLSession.shared.bytes(from: release.url)
         guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw UpdateError("download failed") }
         let total = response.expectedContentLength > 0 ? response.expectedContentLength : release.size
@@ -129,7 +138,7 @@ final class Updater {
                 hasher.update(data: buffer)
                 written += Int64(buffer.count)
                 buffer.removeAll(keepingCapacity: true)
-                if total > 0 { progress = min(1, Double(written) / Double(total)) }
+                if total > 0 { progress(min(1, Double(written) / Double(total))) }
             }
         }
         try out.write(contentsOf: buffer)
@@ -142,7 +151,7 @@ final class Updater {
     }
 
     /// Mounts the DMG read-only, copies Fluent.app out of it, and unmounts it.
-    private static func copyApp(fromDMG dmg: URL, to staged: URL) throws {
+    nonisolated private static func copyApp(fromDMG dmg: URL, to staged: URL) throws {
         let mount = FileManager.default.temporaryDirectory.appendingPathComponent("Fluent-Update-mount-\(UUID().uuidString)")
         try run("/usr/bin/hdiutil", ["attach", "-nobrowse", "-readonly", "-noautoopen", "-mountpoint", mount.path, dmg.path])
         defer { _ = try? run("/usr/bin/hdiutil", ["detach", mount.path, "-force"]) }
@@ -158,10 +167,14 @@ final class Updater {
         let body = """
         #!/bin/bash
         PID=\(ProcessInfo.processInfo.processIdentifier)
-        for _ in $(seq 1 100); do kill -0 "$PID" 2>/dev/null || break; sleep 0.2; done
+        for _ in $(seq 1 150); do kill -0 "$PID" 2>/dev/null || break; sleep 0.2; done
+        # Still running after 30 s: leave everything as it is rather than swap a live app.
+        kill -0 "$PID" 2>/dev/null && { rm -f "$0"; exit 1; }
         DEST=\(q(appURL.path))
         rm -rf "$DEST.old"
-        if mv "$DEST" "$DEST.old" && /usr/bin/ditto \(q(staged.path)) "$DEST"; then
+        # Never delete the current app unless it was moved aside first.
+        if ! mv "$DEST" "$DEST.old"; then /usr/bin/open "$DEST"; rm -f "$0"; exit 1; fi
+        if /usr/bin/ditto \(q(staged.path)) "$DEST"; then
           rm -rf "$DEST.old"
         else
           rm -rf "$DEST"; mv "$DEST.old" "$DEST"
@@ -180,7 +193,7 @@ final class Updater {
     }
 
     @discardableResult
-    private static func run(_ tool: String, _ args: [String]) throws -> Int32 {
+    nonisolated private static func run(_ tool: String, _ args: [String]) throws -> Int32 {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: tool)
         p.arguments = args
