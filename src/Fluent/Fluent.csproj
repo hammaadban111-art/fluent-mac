@@ -16,8 +16,8 @@
     <AssemblyName>Fluent</AssemblyName>
     <ApplicationIcon>Assets\Fluent.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.3.0</Version>
-    <FileVersion>1.3.0.0</FileVersion>
+    <Version>2.2.0</Version>
+    <FileVersion>2.2.0.0</FileVersion>
     <Product>Fluent</Product>
     <Company>Fluent</Company>
     <Description>Fluent: speak in any app, Fluent writes it for you.</Description>

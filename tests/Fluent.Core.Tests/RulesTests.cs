@@ -224,6 +224,68 @@ public class ShortcutTests
     }
 }
 
+public class KeyRecordingSessionTests
+{
+    static KeyCombo? Record(params (int vk, bool down)[] keys)
+    {
+        var s = new KeyRecordingSession();
+        s.Start();
+        KeyCombo? got = null;
+        foreach (var (vk, down) in keys)
+        {
+            var (swallow, result, combo) = s.Key(vk, down);
+            Assert.True(swallow);
+            if (result == KeyComboRecorder.Result.Done) got = combo;
+        }
+        return got;
+    }
+
+    [Fact]
+    public void AModifierOnItsOwnRecordsWhenLetGo()
+    {
+        Assert.Equal("Right Ctrl", Record((KeyCombo.VkRControl, true), (KeyCombo.VkRControl, true), (KeyCombo.VkRControl, false))?.Label);
+        Assert.Equal("Left Ctrl", Record((KeyCombo.VkLControl, true), (KeyCombo.VkLControl, false))?.Label);
+        Assert.Equal("Left Shift", Record((KeyCombo.VkLShift, true), (KeyCombo.VkLShift, false))?.Label);
+        Assert.Equal("Right Alt", Record((KeyCombo.VkRMenu, true), (KeyCombo.VkRMenu, false))?.Label);
+        Assert.Equal("Left Ctrl + Left Win", Record((KeyCombo.VkLControl, true), (KeyCombo.VkLWin, true),
+            (KeyCombo.VkLWin, false), (KeyCombo.VkLControl, false))?.Label);
+    }
+
+    [Fact]
+    public void ModifiersPlusAKeyRecordOnTheKeyAndTheRestIsSwallowed()
+    {
+        var s = new KeyRecordingSession();
+        s.Start();
+        s.Key(KeyCombo.VkLControl, true);
+        var (_, result, combo) = s.Key(0x4C, true);   // L
+        Assert.Equal(KeyComboRecorder.Result.Done, result);
+        Assert.Equal("Ctrl + L", combo!.Label);
+        Assert.False(s.Recording);
+        Assert.True(s.Key(0x4C, true).Swallow);             // auto-repeat: never reaches the app or the shortcuts
+        Assert.True(s.Key(0x4C, false).Swallow);
+        Assert.True(s.Key(KeyCombo.VkLControl, false).Swallow);
+        Assert.False(s.Key(0x4C, true).Swallow);             // afterwards keys are the user's again
+    }
+
+    [Fact]
+    public void EscCancelsAndALoneLetterRecords()
+    {
+        var s = new KeyRecordingSession();
+        s.Start();
+        Assert.Equal(KeyComboRecorder.Result.Cancelled, s.Key(KeyCombo.VkEscape, true).Result);
+        Assert.True(s.Key(KeyCombo.VkEscape, false).Swallow);
+        Assert.Equal("A", Record((0x41, true))?.Label);
+    }
+
+    [Fact]
+    public void NothingIsSwallowedWhenNotRecording()
+    {
+        var s = new KeyRecordingSession();
+        Assert.False(s.Key(KeyCombo.VkRControl, true).Swallow);
+        Assert.False(s.Key(KeyCombo.VkRControl, false).Swallow);
+    }
+}
+
 public class HotkeyEngineTests
 {
     static HotkeyEngine Engine(KeyCombo hold, KeyCombo toggle) => new() { Hold = hold, Toggle = toggle };

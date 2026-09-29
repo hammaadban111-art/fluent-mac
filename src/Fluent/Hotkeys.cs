@@ -18,11 +18,8 @@ public sealed class HotkeyManager : IDisposable
     readonly Native.HookProc proc;   // kept alive: the hook calls it from native code
     IntPtr hook;
     bool holdStartedDictation;
-    KeyComboRecorder? recorder;
+    readonly KeyRecordingSession recording = new();
     Action<KeyCombo?>? recorded;
-    /// <summary>Keys whose press was swallowed while recording: their repeats and release are swallowed
-    /// too, even after recording ended, so no app sees half a keystroke and nothing fires by accident.</summary>
-    readonly System.Collections.Generic.HashSet<int> recordSwallowed = [];
 
     /// <summary>Why the shortcuts cannot work (the hook could not be installed), for Settings.</summary>
     public string? Problem { get; private set; }
@@ -59,22 +56,22 @@ public sealed class HotkeyManager : IDisposable
     {
         CancelRecording();
         holdTimer.Stop();
-        recorder = new KeyComboRecorder();
+        recording.Start();
         recorded = done;
     }
 
     public void CancelRecording()
     {
-        if (recorder is null) return;
+        if (!recording.Recording) return;
         Finish(null);
     }
 
-    public bool Recording => recorder is not null;
+    public bool Recording => recording.Recording;
 
     void Finish(KeyCombo? combo)
     {
         var done = recorded;
-        recorder = null;
+        recording.Stop();
         recorded = null;
         engine.Reset();
         System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => done?.Invoke(combo));
@@ -93,36 +90,21 @@ public sealed class HotkeyManager : IDisposable
             {
                 var vk = (int)k.vkCode;
                 // The user left Settings mid-recording: keys typed elsewhere must never become a shortcut.
-                if (recorder is not null && !FluentInFront()) Finish(null);
-                if (recordSwallowed.Contains(vk))
+                if (recording.Recording && !FluentInFront()) Finish(null);
+                var (swallowRec, result, combo) = recording.Key(vk, down);
+                if (result == KeyComboRecorder.Result.Done) Finish(combo);
+                else if (result == KeyComboRecorder.Result.Cancelled) Finish(null);
+                if (swallowRec) return new IntPtr(1);
+
+                engine.Active = model.TermsAccepted;
+                var (swallow, signals) = engine.Key(vk, down, Environment.TickCount64 / 1000.0, model.Dictation.IsLive);
+                if (signals.Count > 0)
                 {
-                    if (!down) recordSwallowed.Remove(vk);
-                    return new IntPtr(1);   // a repeat or the release of a key pressed while recording
+                    // Masking must happen while the modifier is still down, so it is not deferred.
+                    if (signals.Contains(HotkeyEngine.Signal.Mask)) Native.MaskModifierRelease();
+                    System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => Act(signals));
                 }
-                if (recorder is { } r)
-                {
-                    // Swallowed whole (press and release), so Win does not open Start, Alt does not open menus
-                    // and the key does nothing in the app.
-                    if (down) recordSwallowed.Add(vk);
-                    switch (r.Key(vk, down))
-                    {
-                        case KeyComboRecorder.Result.Done: Finish(r.Combo); break;
-                        case KeyComboRecorder.Result.Cancelled: Finish(null); break;
-                    }
-                    return new IntPtr(1);
-                }
-                else
-                {
-                    engine.Active = model.TermsAccepted;
-                    var (swallow, signals) = engine.Key(vk, down, Environment.TickCount64 / 1000.0, model.Dictation.IsLive);
-                    if (signals.Count > 0)
-                    {
-                        // Masking must happen while the modifier is still down, so it is not deferred.
-                        if (signals.Contains(HotkeyEngine.Signal.Mask)) Native.MaskModifierRelease();
-                        System.Windows.Application.Current?.Dispatcher.BeginInvoke(() => Act(signals));
-                    }
-                    if (swallow) return new IntPtr(1);
-                }
+                if (swallow) return new IntPtr(1);
             }
         }
         return Native.CallNextHookEx(hook, code, wParam, lParam);

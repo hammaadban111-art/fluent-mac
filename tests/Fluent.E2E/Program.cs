@@ -70,6 +70,7 @@ static partial class E2E
             Shot("01-first-run-window");
             Pipe("terms"); Pipe("setup"); Pipe("key AIzaTESTKEYNOTREAL0000"); Pipe("hide");
 
+            RecordingTests();
             NotepadTests(mock);
             EdgeTests();
             Pipe("quit");
@@ -244,6 +245,50 @@ static partial class E2E
     static void SendCtrlEnd() => Keyboard.TypeSimultaneously(VirtualKeyShort.CONTROL, VirtualKeyShort.END);
 
     // Edge: textarea, input, password, contenteditable (web apps: Gmail, WhatsApp Web, ChatGPT, Claude…)
+
+    // Settings → Shortcuts → Change: any key or combination, including a modifier on its own.
+
+    static void RecordingTests()
+    {
+        Pipe("front");
+        var win = WaitForWindow(w => w.Name == "Fluent" && w.Properties.ProcessId.ValueOrDefault != Environment.ProcessId, 8000);
+        if (win is null) { Record("Fluent's window found for recording shortcuts", false); return; }
+        string? Recorded(string which, Action press)
+        {
+            win.SetForeground();
+            Thread.Sleep(600);
+            Pipe("record " + which);
+            Thread.Sleep(300);
+            press();
+            WaitFor(() => State()?["recording"]?.GetValue<bool>() == false, 3000);
+            return State()?[which == "hold" ? "holdKey" : "toggleKey"]?.GetValue<string>();
+        }
+        void Tap(VirtualKeyShort k) { Keyboard.Press(k); Thread.Sleep(150); Keyboard.Release(k); }
+
+        var rc = Recorded("hold", () => Tap(VirtualKeyShort.RCONTROL));
+        Record("Right Ctrl on its own can be recorded", rc == "Right Ctrl", $"hold={rc}");
+        var lc = Recorded("hold", () => Tap(VirtualKeyShort.LCONTROL));
+        Record("Left Ctrl on its own can be recorded", lc == "Left Ctrl", $"hold={lc}");
+        var sh = Recorded("toggle", () => Tap(VirtualKeyShort.LSHIFT));
+        Record("Left Shift on its own can be recorded", sh == "Left Shift", $"toggle={sh}");
+        var rs = Recorded("toggle", () => Tap(VirtualKeyShort.RSHIFT));
+        Record("Right Shift on its own can be recorded", rs == "Right Shift", $"toggle={rs}");
+        var cl = Recorded("toggle", () => { Keyboard.Press(VirtualKeyShort.CONTROL); Thread.Sleep(100); Tap(VirtualKeyShort.KEY_L); Thread.Sleep(100); Keyboard.Release(VirtualKeyShort.CONTROL); });
+        Record("Ctrl + L can be recorded", cl == "Ctrl + L", $"toggle={cl}");
+
+        // The Settings button puts both back.
+        win.SetForeground();
+        Thread.Sleep(800);
+        var reset = WaitForValue(() => win.FindFirstDescendant(cf => cf.ByName("Reset shortcuts to defaults")), 5000);
+        if (reset is not null) { try { reset.AsButton().Invoke(); } catch { reset.Click(); } }
+        Thread.Sleep(800);
+        var st = State();
+        Record("Reset to defaults restores Right Ctrl and Ctrl + Alt + Space",
+            st?["holdKey"]?.GetValue<string>() == "Right Ctrl" && st?["toggleKey"]?.GetValue<string>() == "Ctrl + Alt + Space",
+            $"button={(reset is null ? "missing" : "found")} hold={st?["holdKey"]} toggle={st?["toggleKey"]}");
+        if (reset is null) Pipe("shortcuts-reset");
+        Pipe("hide");
+    }
 
     static void EdgeTests()
     {

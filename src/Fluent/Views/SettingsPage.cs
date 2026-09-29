@@ -177,6 +177,15 @@ public sealed class SettingsPage : ContentControl
             return H(8, chip, change, off);
         }
         var warning = recording is null ? (model.HoldKey.Warning ?? model.ToggleShortcut.Warning) : null;
+        var isDefault = model.HoldKey.Equals(KeyCombo.DefaultHold) && model.ToggleShortcut.Equals(KeyCombo.DefaultToggle);
+        var reset = Button("Reset to defaults", () =>
+        {
+            shortcutNote = null;
+            model.HoldKey = KeyCombo.DefaultHold;
+            model.ToggleShortcut = KeyCombo.DefaultToggle;
+        }, "Link");
+        reset.IsEnabled = !isDefault && recording is null;
+        System.Windows.Automation.AutomationProperties.SetName(reset, "Reset shortcuts to defaults");
         return Stack(
             Line("Hold to talk", "Hold it, talk, let go.", Picker("hold", "Hold to talk", model.HoldKey)),
             Line("Start / stop shortcut", "Press once to start, again to stop.", Picker("toggle", "Start and stop shortcut", model.ToggleShortcut)),
@@ -185,7 +194,8 @@ public sealed class SettingsPage : ContentControl
                 : "Press the key or keys now. Modifiers on their own (like Right Alt, or Ctrl + Win) count when you let go. Esc cancels.", 12.5),
             shortcutNote is { } note ? Body(note, 12.5, "FDanger") : null,
             warning is { } w ? Body(w, 12.5, "FDanger") : null,
-            (App.Current as App)?.HotkeyProblem is { } problem ? Body(problem, 12.5, "FDanger") : null);
+            (App.Current as App)?.HotkeyProblem is { } problem ? Body(problem, 12.5, "FDanger") : null,
+            Line("Defaults", $"Hold {KeyCombo.DefaultHold.Label} · {KeyCombo.DefaultToggle.Label} to start and stop", reset));
     }
 
     void Recorded(string which, KeyCombo? combo)

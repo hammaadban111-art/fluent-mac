@@ -211,6 +211,45 @@ public sealed class KeyComboRecorder
     }
 }
 
+/// <summary>What the keyboard hook does while Settings records a shortcut, and just after. While recording,
+/// every key goes to the <see cref="KeyComboRecorder"/> first (key-ups too: a modifier on its own, like
+/// Right Ctrl, completes when it is let go) and is then swallowed, so Win does not open Start and the key
+/// does nothing in the app. Keys still held when recording ends keep being swallowed (their repeats and
+/// release), so no app sees half a keystroke and nothing fires by accident.</summary>
+public sealed class KeyRecordingSession
+{
+    readonly HashSet<int> held = [];
+    KeyComboRecorder? recorder;
+
+    public bool Recording => recorder is not null;
+
+    public void Start() => recorder = new KeyComboRecorder();
+
+    public void Stop() => recorder = null;
+
+    /// <summary>One key event. Swallow says whether to hide it from Windows; Result and Combo say whether
+    /// recording just finished.</summary>
+    public (bool Swallow, KeyComboRecorder.Result Result, KeyCombo? Combo) Key(int vk, bool down)
+    {
+        if (recorder is { } r)
+        {
+            var repeat = down && held.Contains(vk);
+            if (down) held.Add(vk); else held.Remove(vk);
+            if (repeat) return (true, KeyComboRecorder.Result.Continue, null);
+            var result = r.Key(vk, down);
+            if (result != KeyComboRecorder.Result.Continue) recorder = null;
+            return (true, result, result == KeyComboRecorder.Result.Done ? r.Combo : null);
+        }
+        // Recording is over: the rest of a keystroke that started while recording.
+        if (held.Contains(vk))
+        {
+            if (!down) held.Remove(vk);
+            return (true, KeyComboRecorder.Result.Continue, null);
+        }
+        return (false, KeyComboRecorder.Result.Continue, null);
+    }
+}
+
 /// <summary>Push-to-talk timing, the Mac's <c>HoldGesture</c> unchanged. A modifier tapped and released
 /// quickly, or used together with another key (Ctrl+C…), is ordinary typing and must never start a dictation.</summary>
 public sealed class HoldGesture

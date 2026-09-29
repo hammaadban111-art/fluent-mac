@@ -17,7 +17,10 @@ namespace Fluent;
 ///   insert &lt;text&gt;               → runs the real TextInserter on the focused field
 ///   theme &lt;id&gt; | style &lt;cat&gt; &lt;style&gt; | history on|off | terms | setup | key &lt;k&gt;
 ///   hold &lt;code&gt; | toggle &lt;code&gt;  → sets a shortcut from a <see cref="KeyCombo.Code"/> ("77" is F8, "off")
-///   clipboard                   → the clipboard text</summary>
+///   clipboard                   → the clipboard text
+///   record hold|toggle          → records the next keys pressed in Fluent as that shortcut (as Settings does)
+///   front                       → brings Fluent's window to the front (recording only listens there)
+///   shortcuts-reset             → the Settings "Reset to defaults" button</summary>
 static class TestHooks
 {
     public const string PipeName = "FluentTestHooks";
@@ -71,6 +74,9 @@ static class TestHooks
                     ["fieldKind"] = field?.Kind.ToString(),
                     ["fieldType"] = field?.Traits.ControlType,
                     ["fieldCategory"] = field?.Category.ToString(),
+                    ["holdKey"] = model.HoldKey.Label,
+                    ["toggleKey"] = model.ToggleShortcut.Label,
+                    ["recording"] = (Application.Current as App)?.Hotkeys?.Recording ?? false,
                 };
                 if (overlays.Bubble.IsVisible) { var r = overlays.Bubble.ContentRect(); o["bubble"] = new JsonArray(r.X, r.Y, r.W, r.H); }
                 if (overlays.Capsule.IsVisible) { var r = overlays.Capsule.ContentRect(); o["capsule"] = new JsonArray(r.X, r.Y, r.W, r.H); }
@@ -95,6 +101,22 @@ static class TestHooks
             case "key": model.SaveApiKey(arg); return Ok();
             case "hold": model.HoldKey = KeyCombo.Parse(arg) ?? KeyCombo.DefaultHold; return Ok();
             case "toggle": model.ToggleShortcut = KeyCombo.Parse(arg) ?? KeyCombo.DefaultToggle; return Ok();
+            case "record":
+            {
+                var hotkeys = (Application.Current as App)?.Hotkeys;
+                if (hotkeys is null) return new JsonObject { ["error"] = "no hotkeys" }.ToJsonString();
+                var hold = arg == "hold";
+                hotkeys.Record(combo => { if (combo is null) return; if (hold) model.HoldKey = combo; else model.ToggleShortcut = combo; });
+                return Ok();
+            }
+            case "front":
+            {
+                var app = Application.Current as App;
+                app?.ShowMain(Tab.Settings);
+                if (app?.MainWin is { } w) { w.Activate(); w.Topmost = true; w.Topmost = false; w.Focus(); }
+                return Ok();
+            }
+            case "shortcuts-reset": model.HoldKey = KeyCombo.DefaultHold; model.ToggleShortcut = KeyCombo.DefaultToggle; return Ok();
             case "clipboard":
             {
                 string? text = null;

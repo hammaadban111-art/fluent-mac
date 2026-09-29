@@ -3,6 +3,14 @@
 Speak in any app; Fluent writes it for you. The Windows edition of Fluent (Android, iPhone, Mac), with the
 same Gemini Live streaming, Style formatter, six themes and clickwrap terms.
 
+## 1.3 (2026-09-29)
+
+- In-app updates (`Updater.cs`, `Fluent.Core/Updates.cs`): updates.json at start + every 6 h, a
+  tray notice once per version, Settings → Updates → Update downloads the installer, checks its
+  SHA-256 and runs it with `/SILENT … /UPDATE=1`; the installer reopens Fluent only for `/UPDATE=1`.
+- Apps running as administrator silently ignore Fluent's keystrokes (UIPI): detected with
+  `Native.IsElevated`, and the transcript is copied with a message instead of claiming Pasted.
+
 ## 1.2 (2026-09-29)
 
 - Pastes into every app, not just browsers: 1.0 refused when UI Automation reported the focused thing as a plain
