@@ -40,7 +40,7 @@ enum Demo {
             overlays.pinned = true
             let phase: DictationController.Phase = switch screen {
             case "capsule-writing": .transcribing
-            case "capsule-inserted": .done("Inserted")
+            case "capsule-inserted": .done("Pasted · also copied")
             case "capsule-error": .error(TranscriptionError.noApiKey.userMessage)
             default: .recording
             }

@@ -38,6 +38,8 @@ public struct MacSettings {
         static let snoozeUntil = "snooze_until"
         static let holdKey = "hold_key"
         static let toggleShortcut = "toggle_shortcut"
+        static let holdCombo = "hold_combo"
+        static let toggleCombo = "toggle_combo"
         static let overlayTheme = "overlay_theme"
         static let sounds = "sounds"
         static let launchAtLogin = "launch_at_login"
@@ -111,14 +113,16 @@ public struct MacSettings {
         if snoozeUntil == Self.untilRestart { snoozeUntil = 0 }
     }
 
-    public var holdKey: HoldKey {
-        get { defaults.string(forKey: Key.holdKey).flatMap(HoldKey.init(rawValue:)) ?? .rightOption }
-        nonmutating set { defaults.set(newValue.rawValue, forKey: Key.holdKey) }
+    /// Hold to talk. Stored as `KeyCombo.code`; Fluent 1.0's "hold_key" names still load.
+    public var holdKey: KeyCombo {
+        get { KeyCombo.parse(defaults.string(forKey: Key.holdCombo)) ?? KeyCombo.fromLegacyHold(defaults.string(forKey: Key.holdKey)) }
+        nonmutating set { defaults.set(newValue.code, forKey: Key.holdCombo) }
     }
 
-    public var toggleShortcut: ToggleShortcut {
-        get { ToggleShortcut.byLabel(defaults.string(forKey: Key.toggleShortcut)) }
-        nonmutating set { defaults.set(newValue.label, forKey: Key.toggleShortcut) }
+    /// Start / stop. Stored as `KeyCombo.code`; Fluent 1.0's "toggle_shortcut" labels still load.
+    public var toggleShortcut: KeyCombo {
+        get { KeyCombo.parse(defaults.string(forKey: Key.toggleCombo)) ?? KeyCombo.fromLegacyToggle(defaults.string(forKey: Key.toggleShortcut)) }
+        nonmutating set { defaults.set(newValue.code, forKey: Key.toggleCombo) }
     }
 
     /// Palette for the bubble and capsule; `matchApp` follows the app theme (Android 1.6b).

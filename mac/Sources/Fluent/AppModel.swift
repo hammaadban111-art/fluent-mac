@@ -48,8 +48,17 @@ final class AppModel {
     var excludedApps: [String] { didSet { mac.excludedApps = excludedApps } }
     var snoozeChoice: SnoozeChoice { didSet { mac.snoozeChoice = snoozeChoice } }
     private(set) var snoozeUntil: Double
-    var holdKey: HoldKey { didSet { mac.holdKey = holdKey; onShortcutsChanged?() } }
-    var toggleShortcut: ToggleShortcut { didSet { mac.toggleShortcut = toggleShortcut; onShortcutsChanged?() } }
+    var holdKey: KeyCombo { didSet { mac.holdKey = holdKey; onShortcutsChanged?() } }
+    var toggleShortcut: KeyCombo { didSet { mac.toggleShortcut = toggleShortcut; onShortcutsChanged?() } }
+    var shortcutSummary: String {
+        let hold = holdKey.label(name: KeyNames.name), toggle = toggleShortcut.label(name: KeyNames.name)
+        switch (holdKey.isOff, toggleShortcut.isOff) {
+        case (false, false): return "Hold \(hold) to talk · \(toggle) to start and stop"
+        case (false, true): return "Hold \(hold) to talk"
+        case (true, false): return "\(toggle) to start and stop"
+        case (true, true): return "Shortcuts are off; use the bubble"
+        }
+    }
     var overlayThemeID: String { didSet { mac.overlayThemeID = overlayThemeID } }
     var soundsEnabled: Bool { didSet { mac.soundsEnabled = soundsEnabled } }
     private(set) var launchAtLogin: Bool

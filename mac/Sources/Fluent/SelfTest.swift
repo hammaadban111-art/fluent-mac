@@ -67,9 +67,10 @@ enum SelfTest {
                 switch outcome {
                 case .accessibility(let piece): report["outcome"] = "accessibility"; report["piece"] = piece
                 case .pasted(let piece): report["outcome"] = "pasted"; report["piece"] = piece
+                case .copied(let why): report["outcome"] = "copied"; report["reason"] = why
                 case .failed(let why): report["outcome"] = "failed"; report["reason"] = why
                 }
-                try? await Task.sleep(nanoseconds: 1_600_000_000)   // let the clipboard restore run
+                try? await Task.sleep(nanoseconds: 1_600_000_000)   // let the clipboard swap to the plain transcript run
                 report["valueAfter"] = FieldFinder.frontmost()?.element.string("AXValue") ?? NSNull()
                 report["clipboardAfter"] = NSPasteboard.general.string(forType: .string) ?? NSNull()
                 report["log"] = log

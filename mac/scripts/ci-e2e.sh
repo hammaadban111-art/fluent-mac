@@ -102,10 +102,10 @@ if [ "$PO_CONTENT" = "Pasted: $PO_TEXT" ] && [ "$PO_OUTCOME" = "pasted" ]; then
 else
     fail "Paste-only field: outcome=$PO_OUTCOME, app text \"$PO_CONTENT\" (see reports/insert-pasteonly.json)"
 fi
-if [ "$PO_CLIP" = "clipboard-sentinel" ]; then
-    pass "The paste fallback put the previous clipboard contents back afterwards"
+if [ "$(echo "$PO_CLIP" | sed 's/^ *//;s/ *$//')" = "$PO_TEXT" ]; then
+    pass "After the paste the transcript is also on the clipboard, to paste again anywhere"
 else
-    fail "Clipboard after paste was \"$PO_CLIP\", expected the previous contents back"
+    fail "Clipboard after paste was \"$PO_CLIP\", expected the transcript \"$PO_TEXT\""
 fi
 kill "$HOST_PID" 2>/dev/null
 
@@ -218,7 +218,7 @@ tmo 15 open -a TextEdit /tmp/fluent-notes.txt
 sleep 2
 demo capsule-listening aurora "Listening"
 demo capsule-writing aurora "Writing it up"
-demo capsule-inserted aurora "Inserted"
+demo capsule-inserted aurora "Pasted"
 demo capsule-error aurora "Add your Gemini API key in Settings first."
 demo capsule-listening ember "Listening"
 demo capsule-listening lagoon "Listening"

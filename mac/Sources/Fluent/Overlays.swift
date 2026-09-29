@@ -323,15 +323,23 @@ func ClosureMenuItem(_ title: String, handler: @escaping () -> Void) -> NSMenuIt
     return item
 }
 
-/// Hold-to-talk on a modifier key and the toggle shortcut.
+/// Hold-to-talk and the start/stop shortcut, both on any key or combination the user records in
+/// Settings. `HotkeyEngine` decides; this feeds it. Modifier-only combinations come from the
+/// `flagsChanged` monitors, ones with an ordinary key from Carbon hot keys (which consume the key).
 @MainActor
 final class HotkeyManager {
     private let model: AppModel
-    private var gesture = HoldGesture()
+    private var engine = HotkeyEngine()
     private var holdTimer: Timer?
     private var monitors: [Any] = []
-    private let toggle = ToggleHotKey()
+    private let hotKeys = GlobalHotKeys()
+    private var recorder: KeyComboRecorder?
+    private var recorded: ((KeyCombo?) -> Void)?
+    private var recordMonitor: Any?
+    private var resignObserver: NSObjectProtocol?
     var fieldProvider: () -> FocusedField? = { nil }
+    /// Why a shortcut could not be registered (another app owns it), for Settings.
+    private(set) var problem: String?
 
     init(model: AppModel) {
         self.model = model
@@ -346,73 +354,152 @@ final class HotkeyManager {
             MainActor.assumeIsolated { self?.handle(e) }
             return e
         }) { monitors.append(m) }
-        toggle.action = { [weak self] in
+        hotKeys.action = { [weak self] slot, pressed in
             MainActor.assumeIsolated {
-                guard let self else { return }
-                self.model.dictation.toggle(source: .toggle, target: self.fieldProvider())
+                guard let self, self.recorder == nil else { return }
+                self.engine.active = self.model.termsAccepted
+                self.act(self.engine.hotKey(slot == .hold ? .hold : .toggle, pressed: pressed, at: ProcessInfo.processInfo.systemUptime))
             }
         }
-        registerToggle()
-        model.onShortcutsChanged = { [weak self] in self?.registerToggle() }
+        sync()
+        model.onShortcutsChanged = { [weak self] in self?.sync() }
     }
 
-    func registerToggle() {
-        let s = model.toggleShortcut
-        if s.isOff { toggle.unregister() } else { toggle.register(keyCode: s.keyCode, modifiers: s.carbonModifiers) }
+    func sync() {
+        engine.hold = model.holdKey
+        engine.toggle = model.toggleShortcut
+        problem = nil
+        guard recorder == nil else { hotKeys.unregisterAll(); return }
+        var taken: [String] = []
+        if !hotKeys.register(.hold, model.holdKey) { taken.append(model.holdKey.label(name: KeyNames.name)) }
+        if model.toggleShortcut != model.holdKey, !hotKeys.register(.toggle, model.toggleShortcut) {
+            taken.append(model.toggleShortcut.label(name: KeyNames.name))
+        } else if model.toggleShortcut == model.holdKey {
+            hotKeys.unregister(.toggle)
+        }
+        if !taken.isEmpty {
+            problem = "\(taken.joined(separator: " and ")) is already used by macOS or another app. Pick a different one."
+        }
     }
+
+    // MARK: recording a new combination (Settings)
+
+    /// The next keys pressed in Fluent become a combination; `done` gets nil on Esc or `cancelRecording()`.
+    /// The shortcuts are off meanwhile, so pressing the current one records it instead of starting.
+    func record(_ done: @escaping (KeyCombo?) -> Void) {
+        cancelRecording()
+        holdTimer?.invalidate()
+        recorder = KeyComboRecorder()
+        recorded = done
+        hotKeys.unregisterAll()
+        recordMonitor = NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged, .keyDown]) { [weak self] e in
+            MainActor.assumeIsolated { self?.recordEvent(e) }
+            return nil   // keys pressed while recording reach nothing else
+        }
+        // Leaving Fluent mid-recording cancels it, so the shortcuts come back.
+        resignObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didResignActiveNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.cancelRecording() }
+        }
+    }
+
+    func cancelRecording() {
+        guard recorder != nil else { return }
+        finishRecording(nil)
+    }
+
+    var isRecording: Bool { recorder != nil }
+
+    private func recordEvent(_ e: NSEvent) {
+        guard var r = recorder else { return }
+        let result: KeyComboRecorder.Result
+        if e.type == .flagsChanged {
+            guard KeyCombo.isModifier(e.keyCode) else { return }
+            result = r.modifier(e.keyCode, isDown: Self.isDown(e.keyCode, e.modifierFlags))
+        } else {
+            guard !e.isARepeat else { return }
+            result = r.key(e.keyCode)
+        }
+        recorder = r
+        switch result {
+        case .continue: break
+        case .cancelled: finishRecording(nil)
+        case .done(let combo): finishRecording(combo)
+        }
+    }
+
+    private func finishRecording(_ combo: KeyCombo?) {
+        if let m = recordMonitor { NSEvent.removeMonitor(m) }
+        recordMonitor = nil
+        if let o = resignObserver { NotificationCenter.default.removeObserver(o) }
+        resignObserver = nil
+        recorder = nil
+        let done = recorded
+        recorded = nil
+        engine.reset()
+        sync()
+        done?(combo)
+    }
+
+    // MARK: events
 
     private func handle(_ e: NSEvent) {
-        let dictation = model.dictation
+        guard recorder == nil else { return }
+        engine.active = model.termsAccepted
+        let now = ProcessInfo.processInfo.systemUptime
         if e.type == .keyDown {
-            // Esc cancels a dictation in progress.
-            if e.keyCode == 53, dictation.phase.isLive { dictation.cancel() }
-            act(gesture.handle(.otherKey))
+            if e.isARepeat { return }
+            act(engine.otherKey(e.keyCode, dictationLive: model.dictation.phase.isLive))
             return
         }
-        guard e.type == .flagsChanged, let code = model.holdKey.keyCode, model.termsAccepted else { return }
-        if e.keyCode == code {
-            let down = Self.isDown(model.holdKey, e.modifierFlags)
-            if down && gesture.pressedAt == nil {
-                act(gesture.handle(.down(at: e.timestamp)))
-            } else if !down && gesture.pressedAt != nil {
-                act(gesture.handle(.up(at: e.timestamp)))
-            }
-        } else if gesture.pressedAt != nil {
-            act(gesture.handle(.otherKey))   // ⌥⇧… is a shortcut, not a hold
-        }
+        guard e.type == .flagsChanged, KeyCombo.isModifier(e.keyCode) else { return }
+        act(engine.modifier(e.keyCode, down: Self.isDown(e.keyCode, e.modifierFlags), at: now))
     }
 
-    private func act(_ action: HoldGesture.Action) {
-        switch action {
-        case .none: break
-        case .armTimer:
-            holdTimer?.invalidate()
-            holdTimer = Timer.scheduledTimer(withTimeInterval: HoldGesture.holdDelay, repeats: false) { [weak self] _ in
-                MainActor.assumeIsolated { self?.holdTimerFired() }
+    private func act(_ signals: [HotkeyEngine.Signal]) {
+        for s in signals {
+            switch s {
+            case .armHoldTimer:
+                holdTimer?.invalidate()
+                holdTimer = Timer.scheduledTimer(withTimeInterval: HoldGesture.holdDelay, repeats: false) { [weak self] _ in
+                    MainActor.assumeIsolated { self?.holdTimerFired() }
+                }
+            case .cancelHoldTimer:
+                holdTimer?.invalidate()
+            case .stopHold:
+                holdTimer?.invalidate()
+                if model.dictation.source == .holdKey { model.dictation.stop() }
+            case .toggle:
+                guard model.termsAccepted else { break }
+                model.dictation.toggle(source: .toggle, target: fieldProvider())
+            case .cancel:
+                model.dictation.cancel()
             }
-        case .cancelTimer:
-            holdTimer?.invalidate()
-        case .stopAndInsert:
-            holdTimer?.invalidate()
-            model.dictation.stop()
         }
     }
 
     private func holdTimerFired() {
-        guard gesture.timerFired(), !model.snoozed else { return }
+        guard engine.holdTimerFired(), !model.snoozed else { return }
         let dictation = model.dictation
         if !dictation.phase.isLive { dictation.start(source: .holdKey, target: fieldProvider()) }
     }
 
     /// Left and right modifiers share a flag; the device-dependent bits tell them apart.
-    static func isDown(_ key: HoldKey, _ flags: NSEvent.ModifierFlags) -> Bool {
-        let raw = flags.rawValue
-        switch key {
-        case .rightOption: return raw & 0x40 != 0
-        case .rightCommand: return raw & 0x10 != 0
-        case .rightControl: return raw & 0x2000 != 0
-        case .fn: return flags.contains(.function)
-        case .off: return false
+    static func isDown(_ code: UInt16, _ flags: NSEvent.ModifierFlags) -> Bool {
+        if code == KeyCombo.fn { return flags.contains(.function) }
+        guard let bit = KeyCombo.deviceBit(code) else { return false }
+        return flags.rawValue & bit != 0
+    }
+}
+
+/// Names for ordinary keys on the current keyboard layout (a French keyboard's A key says "Q").
+@MainActor
+enum KeyNames {
+    static func name(_ code: UInt16) -> String {
+        if KeyCombo.specialNames[code] != nil { return KeyCombo.keyName(code) }
+        if let c = TextInserter.character(for: code), !c.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return c.uppercased()
         }
+        return KeyCombo.keyName(code)
     }
 }

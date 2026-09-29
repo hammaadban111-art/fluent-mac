@@ -11,6 +11,9 @@ struct SettingsView: View {
     @State private var testResult: String?
     @State private var testing = false
     @State private var newWord = ""
+    /// Which shortcut is waiting for keys: "hold", "toggle" or nil.
+    @State private var recording: String?
+    @State private var shortcutNote: String?
 
     var body: some View {
         @Bindable var model = model
@@ -29,13 +32,13 @@ struct SettingsView: View {
                             ? (model.axTrusted ? "Talk, then click stop. Your words appear where you were typing."
                                                : "The bubble needs Accessibility. Allow it under Permissions below.")
                             : "The bubble is off. Turn it on under Floating bubble below.") { EmptyView() }
-                if model.holdKey != .off {
-                    howToRow(3, done: true, title: "Or hold \(model.holdKey.label) and talk",
+                if !model.holdKey.isOff {
+                    howToRow(3, done: true, title: "Or hold \(model.holdKey.label(name: KeyNames.name)) and talk",
                              detail: "Let go and it's typed. Esc cancels.") { EmptyView() }
                 }
-                if model.toggleShortcut != .off {
-                    howToRow(model.holdKey != .off ? 4 : 3, done: true,
-                             title: "Or press \(model.toggleShortcut.label) to start, and again to stop",
+                if !model.toggleShortcut.isOff {
+                    howToRow(!model.holdKey.isOff ? 4 : 3, done: true,
+                             title: "Or press \(model.toggleShortcut.label(name: KeyNames.name)) to start, and again to stop",
                              detail: "Handy for long dictations.") { EmptyView() }
                 }
             } header: {
@@ -71,19 +74,19 @@ struct SettingsView: View {
             }
 
             Section {
-                Picker("Hold to talk", selection: $model.holdKey) {
-                    ForEach(HoldKey.allCases, id: \.self) { Text($0.label).tag($0) }
+                LabeledContent("Hold to talk") { shortcutPicker("hold", current: model.holdKey) }
+                LabeledContent("Start / stop shortcut") { shortcutPicker("toggle", current: model.toggleShortcut) }
+                if let shortcutNote { Text(shortcutNote).font(.callout).foregroundStyle(.red) }
+                if recording == nil, let warning = model.holdKey.warning ?? model.toggleShortcut.warning {
+                    Text(warning).font(.callout).foregroundStyle(.secondary)
                 }
-                Picker("Start / stop shortcut", selection: $model.toggleShortcut) {
-                    ForEach(ToggleShortcut.presets) { Text($0.label).tag($0) }
-                    Text(ToggleShortcut.off.label).tag(ToggleShortcut.off)
-                }
+                if let problem = AppDelegate.hotkeys?.problem { Text(problem).font(.callout).foregroundStyle(.red) }
             } header: {
                 Text("Shortcuts")
             } footer: {
-                Text(model.holdKey == .fn
-                     ? "Using Fn: set System Settings › Keyboard › “Press 🌐 key to” to “Do Nothing” so macOS does not open its own dictation or emoji picker. Esc cancels a dictation."
-                     : "Hold the key, speak, and let go to insert. Esc cancels a dictation.")
+                Text(recording == nil
+                     ? "Click Change, then press any key or combination: Right Option, Fn, F5, ⌃⌥ Space… Your words go straight into the app you are in, and are copied too. Esc cancels a dictation."
+                     : "Press the key or keys now. Modifiers on their own (like Right Option, or ⌃⌥) count when you let go. Esc cancels.")
             }
 
             Section("Floating bubble") {
@@ -206,6 +209,10 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .scrollContentBackground(.hidden)
+        .onDisappear {
+            AppDelegate.hotkeys?.cancelRecording()
+            recording = nil
+        }
     }
 
     private var runningApps: [(String, String)] {
@@ -214,6 +221,52 @@ struct SettingsView: View {
             .compactMap { app in app.bundleIdentifier.map { ($0, app.localizedName ?? $0) } }
             .filter { !model.excludedApps.contains($0.0) }
             .sorted { $0.1.localizedCaseInsensitiveCompare($1.1) == .orderedAscending }
+    }
+
+    @ViewBuilder
+    private func shortcutPicker(_ which: String, current: KeyCombo) -> some View {
+        let waiting = recording == which
+        HStack(spacing: 8) {
+            Text(waiting ? "Press keys…" : current.label(name: KeyNames.name))
+                .font(.system(size: 12.5, weight: .medium))
+                .foregroundStyle(waiting ? Color.accentColor : Color.primary)
+                .frame(minWidth: 110)
+                .padding(.horizontal, 10).padding(.vertical, 4)
+                .background(RoundedRectangle(cornerRadius: 7).stroke(waiting ? Color.accentColor : Color.secondary.opacity(0.4)))
+                .accessibilityLabel(waiting ? "Waiting for keys" : current.label(name: KeyNames.name))
+            if waiting {
+                Button("Cancel") {
+                    AppDelegate.hotkeys?.cancelRecording()
+                    recording = nil
+                }
+            } else {
+                Button("Change") {
+                    guard let hotkeys = AppDelegate.hotkeys else { return }
+                    recording = which
+                    shortcutNote = nil
+                    hotkeys.record { combo in recorded(which, combo) }
+                }
+                .disabled(recording != nil || AppDelegate.hotkeys == nil)
+                Button("Turn off") {
+                    shortcutNote = nil
+                    if which == "hold" { model.holdKey = .off } else { model.toggleShortcut = .off }
+                }
+                .disabled(current.isOff || recording != nil)
+            }
+        }
+    }
+
+    private func recorded(_ which: String, _ combo: KeyCombo?) {
+        recording = nil
+        guard let combo else { return }
+        let other = which == "hold" ? model.toggleShortcut : model.holdKey
+        if combo == other && !combo.modifierOnly {
+            shortcutNote = "\(combo.label(name: KeyNames.name)) is already the \(which == "hold" ? "start / stop shortcut" : "hold to talk key"). Pick a different one."
+            return
+        }
+        // The same modifier keys may be both: a tap starts or stops, a hold talks.
+        shortcutNote = nil
+        if which == "hold" { model.holdKey = combo } else { model.toggleShortcut = combo }
     }
 
     private func appName(_ id: String) -> String {

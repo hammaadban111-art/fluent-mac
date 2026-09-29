@@ -156,8 +156,12 @@ struct OnboardingView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("How to dictate").font(FluentFont.title(17)).foregroundStyle(p.ink)
                         howTo("hand.tap", "Click into any text box. A Fluent bubble appears next to it; click it, speak, click Stop.")
-                        howTo("keyboard", "Or hold \(model.holdKey.label), speak, and let go to insert.")
-                        howTo("command", "Or press \(model.toggleShortcut.label) to start, and again to stop.")
+                        if !model.holdKey.isOff {
+                            howTo("keyboard", "Or hold \(model.holdKey.label(name: KeyNames.name)), speak, and let go to insert.")
+                        }
+                        if !model.toggleShortcut.isOff {
+                            howTo("command", "Or press \(model.toggleShortcut.label(name: KeyNames.name)) to start, and again to stop.")
+                        }
                     }
                 }
 

@@ -62,7 +62,7 @@ struct MenuBarContent: View {
         if d.phase.isLive {
             Button("Cancel dictation") { d.cancel() }
         }
-        Text("Hold \(model.holdKey.label) · \(model.toggleShortcut.label)")
+        Text(model.shortcutSummary)
         Divider()
         if model.snoozed {
             Button("Resume Fluent") { model.resume() }

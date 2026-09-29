@@ -137,11 +137,103 @@ struct StyleCategoryTests {
 }
 
 struct ShortcutTests {
-    @Test func holdKeyCodes() {
-        #expect(HoldKey.rightOption.keyCode == 61)
-        #expect(HoldKey.fn.keyCode == 63)
-        #expect(HoldKey.forKeyCode(54) == .rightCommand)
-        #expect(HoldKey.off.keyCode == nil)
+    @Test func combosLabelAndRoundTrip() {
+        #expect(KeyCombo.defaultHold.label == "Right Option")
+        #expect(KeyCombo.defaultToggle.label == "⌃⌥ Space")
+        #expect(KeyCombo(modifiers: [KeyCombo.fn], key: nil).label == "Fn")
+        #expect(KeyCombo(modifiers: [], key: 96).label == "F5")
+        #expect(KeyCombo(modifiers: [KeyCombo.leftCommand, KeyCombo.rightShift], key: 2).label == "⇧⌘ D")
+        #expect(KeyCombo(modifiers: [KeyCombo.rightCommand, KeyCombo.leftCommand], key: nil).label == "Left Command + Right Command")
+        for c in [KeyCombo.defaultHold, .defaultToggle, .off, KeyCombo(modifiers: [KeyCombo.fn, KeyCombo.leftShift], key: nil)] {
+            #expect(KeyCombo.parse(c.code) == c)
+        }
+        #expect(KeyCombo.parse("nonsense") == nil)
+        #expect(KeyCombo.parse("0+1") == nil)   // two ordinary keys
+        // Carbon has no Fn bit, so Fn is dropped from combinations with an ordinary key.
+        #expect(KeyCombo(modifiers: [KeyCombo.fn, KeyCombo.leftOption], key: 49).modifiers == [KeyCombo.leftOption])
+        #expect(KeyCombo.defaultToggle.carbonModifiers == (1 << 12 | 1 << 11))
+        #expect(KeyCombo(modifiers: [], key: 0).warning != nil)   // a lone letter
+        #expect(KeyCombo(modifiers: [KeyCombo.leftCommand], key: 0).warning == nil)
+    }
+
+    @Test func legacySettingsCarryOver() {
+        #expect(KeyCombo.fromLegacyHold("rightOption") == .defaultHold)
+        #expect(KeyCombo.fromLegacyHold("fn").label == "Fn")
+        #expect(KeyCombo.fromLegacyHold("off").isOff)
+        #expect(KeyCombo.fromLegacyToggle("⌃⌥ D").label == "⌃⌥ D")
+        #expect(KeyCombo.fromLegacyToggle("⇧⌘ Space").label == "⇧⌘ Space")
+        #expect(KeyCombo.fromLegacyToggle(nil) == .defaultToggle)
+        let d = UserDefaults(suiteName: "fluent.mac.test.\(UUID().uuidString)")!
+        d.set("rightCommand", forKey: "hold_key")
+        d.set("Off", forKey: "toggle_shortcut")
+        let m = MacSettings(defaults: d)
+        #expect(m.holdKey.label == "Right Command")
+        #expect(m.toggleShortcut.isOff)
+    }
+
+    @Test func recorderCapturesCombos() {
+        var r = KeyComboRecorder()
+        do { let v = r.modifier(KeyCombo.leftControl, isDown: true); #expect(v == .continue) }
+        do { let v = r.modifier(KeyCombo.leftOption, isDown: true); #expect(v == .continue) }
+        do { let v = r.key(2); #expect(v == .done(KeyCombo(modifiers: [KeyCombo.leftControl, KeyCombo.leftOption], key: 2))) }
+        r = KeyComboRecorder()
+        _ = r.modifier(KeyCombo.rightOption, isDown: true)
+        _ = r.modifier(KeyCombo.rightCommand, isDown: true)
+        do { let v = r.modifier(KeyCombo.rightCommand, isDown: false); #expect(v == .continue) }
+        do { let v = r.modifier(KeyCombo.rightOption, isDown: false); #expect(v == .done(KeyCombo(modifiers: [KeyCombo.rightOption, KeyCombo.rightCommand], key: nil))) }
+        r = KeyComboRecorder()
+        do { let v = r.key(KeyCombo.escape); #expect(v == .cancelled) }
+        r = KeyComboRecorder()
+        #expect(r.key(100) == .done(KeyCombo(modifiers: [], key: 100)))   // F8 alone
+    }
+
+    @Test func engineHoldsOnRightOptionAndIgnoresShortcuts() {
+        var e = HotkeyEngine()
+        do { let v = e.modifier(KeyCombo.rightOption, down: true, at: 0); #expect(v == [.armHoldTimer]) }
+        do { let v = e.holdTimerFired(); #expect(v) }
+        do { let v = e.modifier(KeyCombo.rightOption, down: false, at: 2); #expect(v == [.stopHold]) }
+        // ⌥E: the other key spoils the hold.
+        do { let v = e.modifier(KeyCombo.rightOption, down: true, at: 3); #expect(v == [.armHoldTimer]) }
+        do { let v = e.otherKey(14, dictationLive: false); #expect(v == [.cancelHoldTimer]) }
+        do { let v = e.holdTimerFired(); #expect(!v) }
+        do { let v = e.modifier(KeyCombo.rightOption, down: false, at: 3.2); #expect(v == [.cancelHoldTimer]) }
+        // Left Option is not Right Option.
+        do { let v = e.modifier(KeyCombo.leftOption, down: true, at: 4); #expect(v == []) }
+    }
+
+    @Test func engineCarbonHoldAndToggle() {
+        var e = HotkeyEngine(hold: KeyCombo(modifiers: [], key: 100), toggle: .defaultToggle)
+        do { let v = e.hotKey(.hold, pressed: true, at: 0); #expect(v == [.armHoldTimer]) }
+        #expect(e.hotKey(.hold, pressed: true, at: 0.1) == [])   // no double start
+        do { let v = e.holdTimerFired(); #expect(v) }
+        do { let v = e.hotKey(.hold, pressed: false, at: 2); #expect(v == [.stopHold]) }
+        do { let v = e.hotKey(.toggle, pressed: true, at: 3); #expect(v == [.toggle]) }
+        do { let v = e.hotKey(.toggle, pressed: false, at: 3.1); #expect(v == []) }
+        do { let v = e.otherKey(KeyCombo.escape, dictationLive: true); #expect(v == [.cancel]) }
+        e.active = false
+        do { let v = e.hotKey(.toggle, pressed: true, at: 4); #expect(v == []) }
+    }
+
+    @Test func engineModifierTapToggles() {
+        var e = HotkeyEngine(hold: .off, toggle: KeyCombo(modifiers: [KeyCombo.rightCommand], key: nil))
+        _ = e.modifier(KeyCombo.rightCommand, down: true, at: 0)
+        do { let v = e.modifier(KeyCombo.rightCommand, down: false, at: 0.2); #expect(v == [.toggle]) }
+        // ⌘C is not a tap.
+        _ = e.modifier(KeyCombo.rightCommand, down: true, at: 1)
+        _ = e.otherKey(8, dictationLive: false)
+        do { let v = e.modifier(KeyCombo.rightCommand, down: false, at: 1.2); #expect(v == []) }
+        // Held too long is not a tap.
+        _ = e.modifier(KeyCombo.rightCommand, down: true, at: 2)
+        do { let v = e.modifier(KeyCombo.rightCommand, down: false, at: 3); #expect(v == []) }
+    }
+
+    @Test func sameModifiersTapTogglesHoldTalks() {
+        var e = HotkeyEngine(hold: .defaultHold, toggle: .defaultHold)
+        _ = e.modifier(KeyCombo.rightOption, down: true, at: 0)
+        do { let v = e.modifier(KeyCombo.rightOption, down: false, at: 0.1); #expect(v == [.cancelHoldTimer, .toggle]) }
+        _ = e.modifier(KeyCombo.rightOption, down: true, at: 1)
+        do { let v = e.holdTimerFired(); #expect(v) }
+        do { let v = e.modifier(KeyCombo.rightOption, down: false, at: 3); #expect(v == [.stopHold]) }
     }
 
     @Test func holdStartsOnlyAfterTheDelayAndWithoutOtherKeys() {
@@ -169,12 +261,14 @@ struct ShortcutTests {
         #expect(g.handle(.up(at: 3)) == .stopAndInsert)
     }
 
-    @Test func togglePresetsRoundTrip() {
+    @Test func shortcutSettingsPersist() {
         let m = MacSettings(defaults: UserDefaults(suiteName: "fluent.mac.test.\(UUID().uuidString)")!)
-        #expect(m.toggleShortcut == .default)
-        #expect(m.holdKey == .rightOption)
-        m.toggleShortcut = ToggleShortcut.presets[2]
+        #expect(m.toggleShortcut == .defaultToggle)
+        #expect(m.holdKey == .defaultHold)
+        m.toggleShortcut = KeyCombo(modifiers: [KeyCombo.leftControl, KeyCombo.leftOption], key: 2)
         #expect(m.toggleShortcut.label == "⌃⌥ D")
+        m.holdKey = KeyCombo(modifiers: [], key: 96)
+        #expect(m.holdKey.label == "F5")
         m.toggleShortcut = .off
         #expect(m.toggleShortcut.isOff)
     }
@@ -331,5 +425,70 @@ struct GeminiMockServerTests {
         #expect(TranscriptionError.server(code: 500, detail: "").userMessage == "Gemini returned an error (500).")
         #expect(TranscriptionError.unknown("x").userMessage == "Transcription failed.")
         #expect(Constants.termsVersion == "2026-09-24")
+    }
+}
+
+struct TranscriptRaceTests {
+    static func live(_ text: String?, _ ms: UInt64) -> @Sendable () async -> String? {
+        { try? await Task.sleep(nanoseconds: ms * 1_000_000); return text }
+    }
+    static func batch(_ text: String?, _ ms: UInt64) -> @Sendable () async -> Result<String, TranscriptionError> {
+        { try? await Task.sleep(nanoseconds: ms * 1_000_000); return text.map { .success($0) } ?? .failure(.connectionLost) }
+    }
+
+    @Test func fastLiveWins() async {
+        let (r, route) = await TranscriptRace.run(live: Self.live("hello", 20), batch: Self.batch("batch", 10), grace: 0.3)
+        #expect((try? r.get()) == "hello")
+        #expect(route == "live")
+    }
+
+    @Test func failedLiveFallsBackToBatch() async {
+        let (r, route) = await TranscriptRace.run(live: Self.live(nil, 10), batch: Self.batch("batch", 10), grace: 0.3)
+        #expect((try? r.get()) == "batch")
+        #expect(route == "batch")
+        let (r2, _) = await TranscriptRace.run(live: nil, batch: Self.batch("only", 10))
+        #expect((try? r2.get()) == "only")
+    }
+
+    @Test func slowLiveStartsBatchAndFirstAnswerWins() async {
+        let start = Date()
+        let (r, route) = await TranscriptRace.run(live: Self.live("late", 3000), batch: Self.batch("batch", 100), grace: 0.2)
+        #expect((try? r.get()) == "batch")
+        #expect(route.hasPrefix("batch"))
+        #expect(Date().timeIntervalSince(start) < 1.5)
+        let (r2, route2) = await TranscriptRace.run(live: Self.live("live", 400), batch: Self.batch("batch", 3000), grace: 0.2)
+        #expect((try? r2.get()) == "live")
+        #expect(route2 == "live")
+    }
+
+    @Test func batchErrorWaitsForLateLive() async {
+        let (r, route) = await TranscriptRace.run(live: Self.live("late", 600), batch: Self.batch(nil, 50), grace: 0.2)
+        #expect((try? r.get()) == "late")
+        #expect(route == "live")
+        let (r2, _) = await TranscriptRace.run(live: Self.live(nil, 600), batch: Self.batch(nil, 50), grace: 0.2)
+        #expect((try? r2.get()) == nil)
+    }
+}
+
+struct HoldSpoilTests {
+    @Test func carbonToggleSpoilsAModifierHold() {
+        var e = HotkeyEngine(hold: .defaultHold, toggle: .defaultToggle)
+        do { let v = e.modifier(KeyCombo.rightOption, down: true, at: 0); #expect(v == [.armHoldTimer]) }
+        do { let v = e.hotKey(.toggle, pressed: true, at: 0.1); #expect(v == [.cancelHoldTimer, .toggle]) }
+        do { let v = e.holdTimerFired(); #expect(!v) }
+    }
+}
+
+struct ReviewFixTests {
+    @Test func sidesDoNotMatterWithAnOrdinaryKey() {
+        #expect(KeyCombo(modifiers: [KeyCombo.rightControl], key: 49) == KeyCombo(modifiers: [KeyCombo.leftControl], key: 49))
+        #expect(KeyCombo(modifiers: [KeyCombo.rightOption], key: nil) != KeyCombo(modifiers: [KeyCombo.leftOption], key: nil))
+    }
+
+    @Test func shiftThenRightOptionIsNotAHold() {
+        var e = HotkeyEngine(hold: .defaultHold, toggle: .off)
+        do { let v = e.modifier(KeyCombo.leftShift, down: true, at: 0); #expect(v == []) }
+        do { let v = e.modifier(KeyCombo.rightOption, down: true, at: 0.1); #expect(v == []) }
+        do { let v = e.holdTimerFired(); #expect(!v) }
     }
 }

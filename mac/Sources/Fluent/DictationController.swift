@@ -33,6 +33,9 @@ final class DictationController {
     private let settings: FluentCore.Settings
     private let recorder = Recorder()
     private var target: FocusedField?
+    /// The app in front when dictation started (even with no text field Accessibility can see, e.g.
+    /// WhatsApp), so the words can go back to it if Fluent is in front at the end.
+    private var targetPid: pid_t?
     private var category: StyleCategory = .other
     private var runStart: Date?
     private var accumulated: TimeInterval = 0
@@ -64,6 +67,8 @@ final class DictationController {
 
         self.source = source
         self.target = target
+        let front = NSWorkspace.shared.frontmostApplication?.processIdentifier
+        targetPid = target?.pid ?? (front == ProcessInfo.processInfo.processIdentifier ? nil : front)
         targetAppName = target?.appName
         category = AppCategories.category(for: target?.bundleID)
         lastError = nil
@@ -133,17 +138,16 @@ final class DictationController {
         let mode = settings.mode, languages = settings.languageCodes, vocabulary = settings.vocabulary
         let stoppedAt = Date()
         work = Task { [weak self] in
-            // Live first: most of the transcript already arrived while the user was talking.
-            if let client, let text = await client.finish() {
-                await self?.noteRoute("live", since: stoppedAt)
-                await self?.finish(.success(text), duration: duration)
-                return
-            }
-            // The socket never came up or failed: send the whole recording in one request.
-            let wav = WAV.encode(pcm16: samples)
-            let result = await GeminiClient(apiKey: key).transcribe(
-                wav: wav, mode: mode, languageCodes: languages, vocabulary: vocabulary)
-            await self?.noteRoute("batch", since: stoppedAt)
+            // Live first: most of the transcript already arrived while the user was talking. The batch
+            // request (whole recording) covers a socket that never came up, failed, or is slow to finish.
+            let (result, route) = await TranscriptRace.run(
+                live: client.map { c in { @Sendable in await c.finish() } },
+                batch: {
+                    await GeminiClient(apiKey: key).transcribe(
+                        wav: WAV.encode(pcm16: samples), mode: mode, languageCodes: languages, vocabulary: vocabulary)
+                })
+            guard !Task.isCancelled else { return }   // Esc meanwhile: never insert a cancelled dictation
+            self?.noteRoute(route, since: stoppedAt)
             await self?.finish(result, duration: duration)
         }
     }
@@ -183,15 +187,18 @@ final class DictationController {
                 endAfter(0.75)
                 return
             }
-            let outcome = await TextInserter.insert(text, fallback: target)
+            let outcome = await TextInserter.insert(text, fallback: target, appPid: targetPid)
             switch outcome {
             case .accessibility, .pasted:
-                phase = .done("Inserted")
-                endAfter(0.75)
+                phase = .done("Pasted · also copied")
+                endAfter(1.2)
+            case .copied:
+                // Already on the clipboard (marked concealed for a password field).
+                phase = .done("Copied — press ⌘V to paste")
+                endAfter(2.2)
             case .failed:
                 // Never lose a transcript: it stays on the clipboard to paste by hand.
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(text, forType: .string)
+                TextInserter.copy(text)
                 phase = .done("Copied — press ⌘V to paste")
                 endAfter(2.2)
             }

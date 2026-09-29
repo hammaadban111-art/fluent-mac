@@ -1,6 +1,7 @@
 import AppKit
 import Carbon
 import Foundation
+import FluentMacKit
 import Security
 import ServiceManagement
 
@@ -77,31 +78,55 @@ enum Sounds {
     }
 }
 
-/// The press-to-start / press-to-stop shortcut, through Carbon's `RegisterEventHotKey`, which
-/// works without any permission.
-final class ToggleHotKey {
-    private var ref: EventHotKeyRef?
-    private var handler: EventHandlerRef?
-    var action: (() -> Void)?
+/// Shortcuts with an ordinary key (⌃⌥ Space, F5…), through Carbon's `RegisterEventHotKey`: no
+/// permission needed, the key is consumed, and both press and release arrive (no auto-repeat), so
+/// they serve hold-to-talk as well as start/stop.
+final class GlobalHotKeys {
+    enum Slot: UInt32 { case hold = 1, toggle = 2 }
 
-    func register(keyCode: UInt32, modifiers: UInt32) {
-        unregister()
-        var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))
-        let me = Unmanaged.passUnretained(self).toOpaque()
-        InstallEventHandler(GetApplicationEventTarget(), { _, _, userData in
-            guard let userData else { return noErr }
-            let hotKey = Unmanaged<ToggleHotKey>.fromOpaque(userData).takeUnretainedValue()
-            DispatchQueue.main.async { hotKey.action?() }
-            return noErr
-        }, 1, &spec, me, &handler)
-        let id = EventHotKeyID(signature: OSType(0x464C_4E54), id: 1)   // 'FLNT'
-        RegisterEventHotKey(keyCode, modifiers, id, GetApplicationEventTarget(), 0, &ref)
+    private var refs: [Slot: EventHotKeyRef] = [:]
+    private var handler: EventHandlerRef?
+    /// Called on the main queue with the slot and whether it was pressed (false: released).
+    var action: ((Slot, Bool) -> Void)?
+
+    /// Registers `combo` (it must have an ordinary key) for `slot`. False when another app owns it.
+    @discardableResult
+    func register(_ slot: Slot, _ combo: KeyCombo) -> Bool {
+        unregister(slot)
+        guard let key = combo.key else { return true }
+        installHandler()
+        var ref: EventHotKeyRef?
+        let id = EventHotKeyID(signature: OSType(0x464C_4E54), id: slot.rawValue)   // 'FLNT'
+        let status = RegisterEventHotKey(UInt32(key), combo.carbonModifiers, id, GetApplicationEventTarget(), 0, &ref)
+        guard status == noErr, let ref else { return false }
+        refs[slot] = ref
+        return true
     }
 
-    func unregister() {
-        if let ref { UnregisterEventHotKey(ref) }
-        ref = nil
-        if let handler { RemoveEventHandler(handler) }
-        handler = nil
+    func unregister(_ slot: Slot) {
+        if let ref = refs.removeValue(forKey: slot) { UnregisterEventHotKey(ref) }
+    }
+
+    func unregisterAll() {
+        unregister(.hold)
+        unregister(.toggle)
+    }
+
+    private func installHandler() {
+        guard handler == nil else { return }
+        var specs = [EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed)),
+                     EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyReleased))]
+        let me = Unmanaged.passUnretained(self).toOpaque()
+        InstallEventHandler(GetApplicationEventTarget(), { _, event, userData in
+            guard let event, let userData else { return noErr }
+            var id = EventHotKeyID()
+            GetEventParameter(event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID),
+                              nil, MemoryLayout<EventHotKeyID>.size, nil, &id)
+            guard let slot = Slot(rawValue: id.id) else { return noErr }
+            let pressed = GetEventKind(event) == UInt32(kEventHotKeyPressed)
+            let hotKeys = Unmanaged<GlobalHotKeys>.fromOpaque(userData).takeUnretainedValue()
+            DispatchQueue.main.async { hotKeys.action?(slot, pressed) }
+            return noErr
+        }, 2, &specs, me, &handler)
     }
 }

@@ -151,7 +151,7 @@ struct DictateView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Shortcuts").font(FluentFont.title(16)).foregroundStyle(p.ink)
-                        Text("Hold \(model.holdKey.label) to talk · \(model.toggleShortcut.label) to start and stop")
+                        Text(model.shortcutSummary)
                             .font(FluentFont.body(13)).foregroundStyle(p.dim)
                     }
                     Spacer()
