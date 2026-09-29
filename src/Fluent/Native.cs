@@ -158,7 +158,9 @@ static class Native
         if (p == IntPtr.Zero) return null;
         try
         {
-            if (!OpenProcessToken(p, TOKEN_QUERY, out var t)) return null;
+            // Windows won't let a normal process look inside an elevated process's token: being refused
+            // is itself the sign (Fluent isn't elevated when it asks).
+            if (!OpenProcessToken(p, TOKEN_QUERY, out var t)) return Marshal.GetLastWin32Error() == 5 ? true : null;
             try { return GetTokenInformation(t, TokenElevation, out var e, 4, out _) ? e != 0 : null; }
             finally { CloseHandle(t); }
         }

@@ -56,6 +56,13 @@ public partial class App : Application
         {
             var user = Environment.UserName;
             single = new Mutex(true, $@"Local\Fluent.Running.{user}", out var first);
+            // Right after an in-app update the old Fluent may still be closing: wait for it rather
+            // than hand over to it and leave no Fluent running.
+            if (!first && e.Args.Contains("--updated"))
+            {
+                try { first = single.WaitOne(TimeSpan.FromSeconds(15)); }
+                catch (AbandonedMutexException) { first = true; }
+            }
             showSignal = new EventWaitHandle(false, EventResetMode.AutoReset, $@"Local\Fluent.Show.{user}");
             if (!first)
             {

@@ -104,7 +104,7 @@ public sealed class Updater : Observable
             var dir = Path.Combine(Path.GetTempPath(), "Fluent-Update");
             Directory.CreateDirectory(dir);
             foreach (var old in Directory.GetFiles(dir)) try { File.Delete(old); } catch { }
-            var file = Path.Combine(dir, $"Fluent-Setup-{r.Version}.exe");
+            var file = Path.Combine(dir, "Fluent-Setup-update.exe"); // never a name from the manifest
             using (var resp = await Http.GetAsync(r.Url, HttpCompletionOption.ResponseHeadersRead))
             {
                 resp.EnsureSuccessStatusCode();
@@ -136,7 +136,7 @@ public sealed class Updater : Observable
             Status = UpdateStatus.Installing;
             Log.Write($"update: running installer for {r.Version}");
             // Silent install for this user only: it closes Fluent, installs over it and opens the new one.
-            Process.Start(new ProcessStartInfo(file, "/SILENT /SUPPRESSMSGBOXES /NORESTART /CURRENTUSER /CLOSEAPPLICATIONS /UPDATE=1") { UseShellExecute = true });
+            using (Process.Start(new ProcessStartInfo(file, "/SILENT /SUPPRESSMSGBOXES /NORESTART /CURRENTUSER /CLOSEAPPLICATIONS /UPDATE=1") { UseShellExecute = true })) { }
             await Task.Delay(1500);
             quit();
         }

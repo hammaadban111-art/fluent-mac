@@ -15,12 +15,15 @@ public static class Updates
         try
         {
             using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.ValueKind != JsonValueKind.Object) return null;
             if (!doc.RootElement.TryGetProperty(platform, out var p) || p.ValueKind != JsonValueKind.Object) return null;
             string? S(string name) => p.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
             var version = S("version");
             var url = S("url");
             var sha = S("sha256");
             if (string.IsNullOrWhiteSpace(version) || string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(sha)) return null;
+            // A SHA-256 is 64 hex digits; anything else could never match a download.
+            if (sha.Trim().Length != 64 || !sha.Trim().All(Uri.IsHexDigit)) return null;
             if (!Uri.TryCreate(url, UriKind.Absolute, out var u) || u.Scheme != Uri.UriSchemeHttps) return null;
             var size = p.TryGetProperty("size", out var sz) && sz.TryGetInt64(out var n) ? n : 0;
             return new ReleaseInfo(version.Trim(), url, sha.Trim().ToLowerInvariant(), size, S("notes") ?? "");
@@ -43,7 +46,7 @@ public static class Updates
         return false;
     }
 
-    static int[] Parts(string v) => v.Trim().TrimStart('v', 'V').Split('.', '-', '+')
-        .TakeWhile(p => p.Length > 0 && p.All(char.IsDigit))
-        .Select(p => int.Parse(p, CultureInfo.InvariantCulture)).ToArray();
+    static long[] Parts(string v) => v.Trim().TrimStart('v', 'V').Split('.', '-', '+')
+        .TakeWhile(p => p.Length is > 0 and <= 18 && p.All(char.IsDigit))
+        .Select(p => long.Parse(p, CultureInfo.InvariantCulture)).ToArray();
 }

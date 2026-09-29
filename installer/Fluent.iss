@@ -73,7 +73,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 [Run]
 Filename: "{app}\Fluent.exe"; Description: "Open Fluent now"; Flags: nowait postinstall skipifsilent
 ; An in-app update runs this installer silently with /UPDATE=1: open the new version afterwards.
-Filename: "{app}\Fluent.exe"; Flags: nowait; Check: IsInAppUpdate
+Filename: "{app}\Fluent.exe"; Parameters: "--updated"; Flags: nowait; Check: IsInAppUpdate
 
 [UninstallRun]
 Filename: "{cmd}"; Parameters: "/C taskkill /IM Fluent.exe /F"; Flags: runhidden; RunOnceId: "StopFluent"

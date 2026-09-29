@@ -38,8 +38,16 @@ public sealed class SettingsPage : ContentControl
         model.PropertyChanged += (_, e) => { if (e.PropertyName is { } n && Structural.Contains(n)) Build(); };
         model.Vocabulary.CollectionChanged += (_, _) => Build();
         model.ExcludedApps.CollectionChanged += (_, _) => Build();
-        // Leaving Settings mid-recording gives the old shortcut back.
-        Unloaded += (_, _) => { if (recording is null) return; (App.Current as App)?.Hotkeys?.CancelRecording(); recording = null; };
+        // Leaving Settings mid-recording gives the old shortcut back, and the page stops listening
+        // to the updater (which lives as long as the app).
+        Unloaded += (_, _) =>
+        {
+            if ((App.Current as App)?.Updates is { } u && updatesHandler is not null) u.PropertyChanged -= updatesHandler;
+            updatesHandler = null;
+            if (recording is null) return;
+            (App.Current as App)?.Hotkeys?.CancelRecording();
+            recording = null;
+        };
         Build();
     }
 
