@@ -3,6 +3,17 @@
 Speak in any app; Fluent writes it for you. The Windows edition of Fluent (Android, iPhone, Mac), with the
 same Gemini Live streaming, Style formatter, six themes and clickwrap terms.
 
+## 2.2 / 2.2.1 (2026-09-29)
+
+- A modifier on its own (Right Ctrl, Left Ctrl, Shift, Alt) can be recorded as a shortcut again: the
+  hook's recording mode (`KeyRecordingSession` in `Fluent.Core/Shortcuts.cs`) gives every event,
+  key-ups included, to the recorder first. 1.2–1.3 swallowed the release before the recorder saw it,
+  so the next key was always added ("Ctrl + L").
+- Settings → Shortcuts → Reset to defaults (Right Ctrl, Ctrl + Alt + Space).
+- 2.2.1: review fixes to the updater (fixed download name, SHA format check, --updated waits for the
+  old instance) and elevation detection (a refused token query counts as elevated).
+- E2E records Right/Left Ctrl, Left/Right Shift and Ctrl + L and presses Reset on a real runner.
+
 ## 1.3 (2026-09-29)
 
 - In-app updates (`Updater.cs`, `Fluent.Core/Updates.cs`): updates.json at start + every 6 h, a
