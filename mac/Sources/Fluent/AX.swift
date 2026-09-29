@@ -64,10 +64,30 @@ extension AXUIElement {
 }
 
 enum AccessibilityAccess {
-    static var trusted: Bool { AXIsProcessTrusted() }
+    static var trusted: Bool {
+        let ok = AXIsProcessTrusted()
+        if ok { UserDefaults.standard.set(true, forKey: wasTrustedKey) }
+        return ok
+    }
 
-    /// Shows the system "allow Fluent to control this computer" prompt once, and opens the pane.
+    private static let wasTrustedKey = "ax_was_trusted"
+
+    /// Fluent had Accessibility before but not now: almost always an update. macOS ties the switch
+    /// to the exact build, so the old switch still looks on in System Settings but no longer applies.
+    static var lostAfterUpdate: Bool { !AXIsProcessTrusted() && UserDefaults.standard.bool(forKey: wasTrustedKey) }
+
+    /// Shows the system "allow Fluent to control this computer" prompt, and opens the pane. An old
+    /// build's switch still listed is removed first, so the one switch shown is this build's.
     static func request() {
+        // Not trusted: any Fluent switch listed is stale (an older build's). Clearing it is harmless
+        // when there is none, and needed when there is, or the switch looks on but does nothing.
+        if !AXIsProcessTrusted(), let id = Bundle.main.bundleIdentifier {
+            let reset = Process()
+            reset.executableURL = URL(fileURLWithPath: "/usr/bin/tccutil")
+            reset.arguments = ["reset", "Accessibility", id]
+            try? reset.run()
+            reset.waitUntilExit()
+        }
         _ = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
     }
 }

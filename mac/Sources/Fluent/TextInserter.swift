@@ -26,6 +26,9 @@ enum TextInserter {
     static func insert(_ text: String, fallback: FocusedField?, appPid: pid_t? = nil) async -> InsertOutcome {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return .failed("empty transcription") }
+        // Without Accessibility macOS silently drops the ⌘V Fluent posts (and hides every text box),
+        // so saying "Pasted" would be a lie: copy, and say why.
+        guard AXIsProcessTrusted() else { return copyOnly(trimmed, noAccessibility) }
 
         // Fluent's own window in front (the user clicked it while talking): go back to the app the words are for.
         if NSWorkspace.shared.frontmostApplication?.processIdentifier == ProcessInfo.processInfo.processIdentifier {
@@ -121,6 +124,8 @@ enum TextInserter {
         }
         return copyOnly(trimmed, "paste failed")
     }
+
+    static let noAccessibility = "Accessibility is off"
 
     private static func copyOnly(_ text: String, _ why: String, concealed: Bool = false) -> InsertOutcome {
         copy(text, concealed: concealed)

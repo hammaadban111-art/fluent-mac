@@ -14,6 +14,7 @@ struct SettingsView: View {
     /// Which shortcut is waiting for keys: "hold", "toggle" or nil.
     @State private var recording: String?
     @State private var shortcutNote: String?
+    private var updater: Updater { Updater.shared }
 
     var body: some View {
         @Bindable var model = model
@@ -190,6 +191,26 @@ struct SettingsView: View {
                 Text("Privacy")
             } footer: {
                 Text("Off by default. History stays on this Mac and holds text only. Audio is never saved.")
+            }
+
+            Section {
+                LabeledContent(updater.summary) {
+                    if updater.status == .available {
+                        Button("Update to \(updater.latest?.version ?? "")") { Task { await updater.update() } }
+                            .buttonStyle(.borderedProminent)
+                    } else {
+                        Button("Check for updates") { Task { await updater.check(announce: false) } }
+                            .disabled([.checking, .downloading, .installing].contains(updater.status))
+                    }
+                }
+                if updater.status == .available, let notes = updater.latest?.notes, !notes.isEmpty {
+                    Text(notes).font(.callout).foregroundStyle(.secondary)
+                }
+                if updater.status == .downloading { ProgressView(value: updater.progress) }
+            } header: {
+                Text("Updates")
+            } footer: {
+                Text("Fluent checks the website for new versions and tells you. Each download is checked against its published SHA-256 before it replaces this copy.")
             }
 
             Section("General") {

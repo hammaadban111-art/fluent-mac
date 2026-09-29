@@ -27,8 +27,13 @@ sed -e "s/__VERSION__/$VERSION/" -e "s/__BUILD__/$BUILD/" Resources/Info.plist >
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 plutil -lint "$APP/Contents/Info.plist"
 
-# No paid Apple Developer account: ad-hoc signature, no notarization.
-codesign --force --deep -s - --identifier com.hammaad.fluent.mac "$APP"
+# No paid Apple Developer account, so no notarization. Releases are signed with Fluent's own
+# certificate (SIGN_ID, set up by mac-release.yml): its identity never changes, so macOS keeps the
+# Accessibility switch across updates. Without it (local builds) the signature is ad-hoc, which ties
+# that switch to this exact build.
+SIGN_ID="${SIGN_ID:--}"
+codesign --force --deep -s "$SIGN_ID" ${SIGN_KEYCHAIN:+--keychain "$SIGN_KEYCHAIN"} --identifier com.hammaad.fluent.mac "$APP"
+codesign -d -r- "$APP" 2>&1 | grep designated || true
 codesign --verify --verbose=2 "$APP"
 echo "Architectures: $(lipo -archs "$APP/Contents/MacOS/Fluent")"
 rm -f "$BIN"

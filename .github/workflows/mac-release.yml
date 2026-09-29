@@ -33,7 +33,32 @@ jobs:
           sudo xcode-select -s "$X"
           mkdir -p "$OUT"
 
-      - name: Build Fluent-mac.zip
+      - name: Fluent's signing certificate (same identity every release)
+        env:
+          P12: ${{ secrets.MAC_SIGN_P12 }}
+          P12_PASSWORD: ${{ secrets.MAC_SIGN_P12_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "$P12" ]; then echo "No MAC_SIGN_P12 secret: ad-hoc signature"; exit 0; fi
+          KC="$RUNNER_TEMP/fluent-signing.keychain-db"
+          KCP="$(openssl rand -hex 16)"
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/fluent.p12"
+          security create-keychain -p "$KCP" "$KC"
+          security set-keychain-settings "$KC"
+          security unlock-keychain -p "$KCP" "$KC"
+          security import "$RUNNER_TEMP/fluent.p12" -k "$KC" -P "$P12_PASSWORD" -T /usr/bin/codesign >/dev/null
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KCP" "$KC" >/dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          # Self-signed, so codesign only accepts it once it is trusted for code signing.
+          openssl pkcs12 -in "$RUNNER_TEMP/fluent.p12" -passin "pass:$P12_PASSWORD" -nokeys -clcerts -legacy 2>/dev/null > "$RUNNER_TEMP/fluent.pem" \
+            || openssl pkcs12 -in "$RUNNER_TEMP/fluent.p12" -passin "pass:$P12_PASSWORD" -nokeys -clcerts > "$RUNNER_TEMP/fluent.pem"
+          sudo security add-trusted-cert -d -r trustRoot -p codeSign -k /Library/Keychains/System.keychain "$RUNNER_TEMP/fluent.pem"
+          rm -f "$RUNNER_TEMP/fluent.p12"
+          security find-identity -v -p codesigning "$KC"
+          echo "SIGN_ID=Fluent Code Signing" >> "$GITHUB_ENV"
+          echo "SIGN_KEYCHAIN=$KC" >> "$GITHUB_ENV"
+
+      - name: Build Fluent-mac.zip and the DMG
         working-directory: mac
         run: |
           set -o pipefail
@@ -41,6 +66,9 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           OUT="$PWD/dist" scripts/build-app.sh "$VERSION" ${{ github.run_number }} 2>&1 | tee "$OUT/build.txt" | tail -15
           shasum -a 256 dist/Fluent-mac.zip | tee "$OUT/sha256.txt"
+          pip3 install --quiet --break-system-packages dmgbuild || pip3 install --quiet dmgbuild
+          OUT="$PWD/dist" scripts/build-dmg.sh "$VERSION" 2>&1 | tail -3
+          shasum -a 256 "dist/Fluent-$VERSION.dmg" | tee "$OUT/dmg-sha256.txt"
 
       - name: Upload the zip and the installer
         id: upload
@@ -63,7 +91,7 @@ jobs:
           sed -e "s|__ZIP_URL__|$ZIP_URL|" -e "s|__VERSION__|$VERSION|" scripts/install.sh.template > dist/install.sh
           bash -n dist/install.sh
           gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag >/dev/null 2>&1 || true
-          gh release create "$TAG" dist/Fluent-mac.zip dist/install.sh --repo "$GITHUB_REPOSITORY" \
+          gh release create "$TAG" dist/Fluent-mac.zip dist/install.sh "dist/Fluent-$VERSION.dmg" --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" --latest --title "Fluent for Mac $VERSION" \
             --notes "Install on a Mac (macOS 14 or later): open Terminal and run
           \`curl -fsSL $INSTALL_URL | bash\`"

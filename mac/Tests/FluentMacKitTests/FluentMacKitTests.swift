@@ -492,3 +492,24 @@ struct ReviewFixTests {
         do { let v = e.holdTimerFired(); #expect(!v) }
     }
 }
+
+struct UpdatesTests {
+    @Test func readsTheMacEntry() {
+        let json = #"{"mac":{"version":"1.3","url":"https://fluent-voice-v2.vercel.app/download/Fluent-1.3.dmg","sha256":"ABC","size":42,"notes":"Faster"},"windows":{"version":"1.3","url":"https://x/y.exe","sha256":"d"}}"#
+        let r = Updates.parse(Data(json.utf8))
+        #expect(r?.version == "1.3")
+        #expect(r?.sha256 == "abc")
+        #expect(r?.size == 42)
+        #expect(Updates.parse(Data(json.utf8), platform: "android") == nil)
+        #expect(Updates.parse(Data(#"{"mac":{"version":"1.3","url":"http://x/y.dmg","sha256":"a"}}"#.utf8)) == nil)
+        #expect(Updates.parse(Data("nope".utf8)) == nil)
+    }
+
+    @Test func comparesVersions() {
+        #expect(Updates.isNewer("1.3", than: "1.2"))
+        #expect(!Updates.isNewer("1.2", than: "1.2.0"))
+        #expect(Updates.isNewer("1.10", than: "1.9"))
+        #expect(Updates.isNewer("1.2.1", than: "1.2"))
+        #expect(!Updates.isNewer("1.2", than: "1.3"))
+    }
+}

@@ -1,4 +1,5 @@
 import AppKit
+import UserNotifications
 import FluentCore
 import FluentMacKit
 import SwiftUI
@@ -126,6 +127,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         hotkeys.install()
         Self.hotkeys = hotkeys
+        UNUserNotificationCenter.current().delegate = NotificationOpener.shared
+        Updater.shared.start()
+        // Test hook: update straight away if the website has a newer version (no clicks needed).
+        if CommandLine.arguments.contains("--auto-update") {
+            Task { @MainActor in
+                await Updater.shared.check(announce: false)
+                if Updater.shared.status == .available { await Updater.shared.update() }
+            }
+        }
         Self.showMainWindow()
     }
 

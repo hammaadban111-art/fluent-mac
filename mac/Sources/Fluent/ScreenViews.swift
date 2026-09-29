@@ -56,7 +56,11 @@ struct DictateView: View {
 
     private var blocker: (String, String, () -> Void)? {
         if !model.micGranted { return ("Fluent needs the microphone", "Allow", { model.requestMicrophone() }) }
-        if !model.axTrusted { return ("Turn on Fluent in Accessibility so it can type into other apps", "Open Settings", { model.requestAccessibility() }) }
+        if !model.axTrusted {
+            return AccessibilityAccess.lostAfterUpdate
+                ? ("Fluent was updated: turn Accessibility on again so it can paste into other apps", "Turn on", { model.requestAccessibility() })
+                : ("Turn on Fluent in Accessibility so it can type into other apps", "Open Settings", { model.requestAccessibility() })
+        }
         if !model.hasApiKey { return ("Add your Gemini API key to start dictating", "Add key", { model.tab = .settings }) }
         return nil
     }

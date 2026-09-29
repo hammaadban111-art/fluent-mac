@@ -36,6 +36,8 @@ final class DictationController {
     /// The app in front when dictation started (even with no text field Accessibility can see, e.g.
     /// WhatsApp), so the words can go back to it if Fluent is in front at the end.
     private var targetPid: pid_t?
+    /// The Accessibility prompt opens by itself once per launch, not after every dictation.
+    private static var askedForAccessibility = false
     private var category: StyleCategory = .other
     private var runStart: Date?
     private var accumulated: TimeInterval = 0
@@ -192,6 +194,15 @@ final class DictationController {
             case .accessibility, .pasted:
                 phase = .done("Pasted · also copied")
                 endAfter(1.2)
+            case .copied(let why) where why == TextInserter.noAccessibility:
+                // Usually right after an update: macOS needs the Accessibility switch again.
+                phase = .done("Copied — turn on Accessibility to paste")
+                model?.refreshPermissions()
+                if !Self.askedForAccessibility {
+                    Self.askedForAccessibility = true
+                    model?.requestAccessibility()
+                }
+                endAfter(3.5)
             case .copied:
                 // Already on the clipboard (marked concealed for a password field).
                 phase = .done("Copied — press ⌘V to paste")

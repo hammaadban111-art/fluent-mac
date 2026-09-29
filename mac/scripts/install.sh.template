@@ -44,9 +44,9 @@ main() {
     # Downloaded outside the App Store and not notarized: remove the quarantine flag so macOS opens it.
     xattr -dr com.apple.quarantine "$dest/Fluent.app" 2>/dev/null || true
 
-    if [ "$updating" = 1 ]; then
-        # A new build has a new signature, so the old Accessibility switch no longer applies.
-        # Clear it so Fluent can ask again cleanly.
+    if [ "$updating" = 1 ] && codesign -d -r- "$dest/Fluent.app" 2>&1 | grep -q cdhash; then
+        # An ad-hoc build: its signature is new, so the old Accessibility switch no longer applies.
+        # Clear it so Fluent can ask again cleanly. (Builds signed with Fluent's certificate keep it.)
         tccutil reset Accessibility "$BUNDLE_ID" >/dev/null 2>&1 || true
     fi
 
