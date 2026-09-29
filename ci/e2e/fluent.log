@@ -1,0 +1,26 @@
+2026-09-29 12:58:11.904 Fluent 2.2.1.0 starting on Microsoft Windows NT 10.0.26100.0
+2026-09-29 12:58:32.711 update check: latest 2.2.1, have 2.2.1
+2026-09-29 12:58:34.137 start via Toggle into notepad (Other)
+2026-09-29 12:58:37.614 transcript via live 211 ms after stop
+2026-09-29 12:58:43.322 insert Pasted
+2026-09-29 12:58:44.822 start via Bubble into notepad (Other)
+2026-09-29 12:58:47.693 transcript via live 213 ms after stop
+2026-09-29 12:58:47.773 insert Pasted
+2026-09-29 12:58:48.125 start via HoldKey into notepad (Other)
+2026-09-29 12:58:50.844 transcript via live 207 ms after stop
+2026-09-29 12:58:50.914 insert Pasted
+2026-09-29 12:58:51.563 start via HoldKey into notepad (Other)
+2026-09-29 12:58:54.287 transcript via live 203 ms after stop
+2026-09-29 12:58:54.361 insert Pasted
+2026-09-29 12:58:54.400 start via Toggle into notepad (Other)
+2026-09-29 12:58:57.014 transcript via live 202 ms after stop
+2026-09-29 12:58:57.094 insert Pasted
+2026-09-29 12:58:57.476 start via Toggle into notepad (Other)
+2026-09-29 12:59:00.084 transcript via live 202 ms after stop
+2026-09-29 12:59:00.158 insert Pasted
+2026-09-29 12:59:00.952 start via Toggle into notepad (Other)
+2026-09-29 12:59:02.775 live failed: InvalidApiKey
+2026-09-29 12:59:02.776 transcript via batch 30 ms after stop
+2026-09-29 12:59:02.873 insert Pasted
+2026-09-29 12:59:02.920 start via Toggle into notepad (Other)
+2026-09-29 12:59:21.108 field Group in msedge, pasting anyway

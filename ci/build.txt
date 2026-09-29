@@ -1,0 +1,28 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Fluent.Core -> D:\a\fluent-mac\fluent-mac\src\Fluent.Core\bin\Release\net10.0\Fluent.Core.dll
+  Fluent.Core.Tests -> D:\a\fluent-mac\fluent-mac\tests\Fluent.Core.Tests\bin\Release\net10.0\Fluent.Core.Tests.dll
+Test run for D:\a\fluent-mac\fluent-mac\tests\Fluent.Core.Tests\bin\Release\net10.0\Fluent.Core.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    85, Skipped:     0, Total:    85, Duration: 5 s - Fluent.Core.Tests.dll (net10.0)
+  Determining projects to restore...
+D:\a\fluent-mac\fluent-mac\src\Fluent\Fluent.csproj : warning NU1510: PackageReference System.Security.Cryptography.ProtectedData will not be pruned. This package is automatically available and does not need to be referenced explicitly. Remove the PackageReference item.
+  Restored D:\a\fluent-mac\fluent-mac\src\Fluent.Core\Fluent.Core.csproj (in 10.5 sec).
+  Restored D:\a\fluent-mac\fluent-mac\src\Fluent\Fluent.csproj (in 10.51 sec).
+D:\a\fluent-mac\fluent-mac\src\Fluent\Fluent.csproj : warning NU1510: PackageReference System.Security.Cryptography.ProtectedData will not be pruned. This package is automatically available and does not need to be referenced explicitly. Remove the PackageReference item.
+  Fluent.Core -> D:\a\fluent-mac\fluent-mac\src\Fluent.Core\bin\Release\net10.0\Fluent.Core.dll
+  Fluent -> D:\a\fluent-mac\fluent-mac\src\Fluent\bin\Release\net10.0-windows10.0.17763.0\win-x64\Fluent.dll
+  Fluent -> D:\a\fluent-mac\fluent-mac\dist\win-x64\
+  Determining projects to restore...
+D:\a\fluent-mac\fluent-mac\src\Fluent\Fluent.csproj : warning NU1510: PackageReference System.Security.Cryptography.ProtectedData will not be pruned. This package is automatically available and does not need to be referenced explicitly. Remove the PackageReference item.
+  Restored D:\a\fluent-mac\fluent-mac\src\Fluent.Core\Fluent.Core.csproj (in 15.08 sec).
+  Restored D:\a\fluent-mac\fluent-mac\src\Fluent\Fluent.csproj (in 15.08 sec).
+D:\a\fluent-mac\fluent-mac\src\Fluent\Fluent.csproj : warning NU1510: PackageReference System.Security.Cryptography.ProtectedData will not be pruned. This package is automatically available and does not need to be referenced explicitly. Remove the PackageReference item.
+  Fluent.Core -> D:\a\fluent-mac\fluent-mac\src\Fluent.Core\bin\Release\net10.0\Fluent.Core.dll
+  Fluent -> D:\a\fluent-mac\fluent-mac\src\Fluent\bin\Release\net10.0-windows10.0.17763.0\win-arm64\Fluent.dll
+  Fluent -> D:\a\fluent-mac\fluent-mac\dist\win-arm64\
+dist\win-arm64\Fluent.exe                                        69.0 MB
+dist\win-x64\Fluent.exe                                          73.1 MB
+dist\Fluent-2.2.1-portable-x64.zip                               67.4 MB
+dist\Fluent-Setup-2.2.1.exe                                      67.6 MB
