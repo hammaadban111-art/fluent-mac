@@ -3,6 +3,12 @@
 Speak in any app; Fluent writes it for you. The Windows edition of Fluent (Android, iPhone, Mac), with the
 same Gemini Live streaming, Style formatter, six themes and clickwrap terms.
 
+## 2.2.2 (2026-10-22)
+
+- If putting the text into the app ever throws (UI Automation errors when a window closes, odd
+  selection ranges), the transcript is copied instead and the capsule finishes, rather than staying on
+  "Writing it up…" and blocking every later dictation.
+
 ## 2.2 / 2.2.1 (2026-09-29)
 
 - A modifier on its own (Right Ctrl, Left Ctrl, Shift, Alt) can be recorded as a shortcut again: the

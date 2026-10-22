@@ -218,7 +218,18 @@ public sealed class DictationController : Observable
             Done("Done", 0.75);
             return;
         }
-        var outcome = await TextInserter.InsertAsync(text, target, targetWindow);
+        InsertOutcome outcome;
+        try
+        {
+            outcome = await TextInserter.InsertAsync(text, target, targetWindow);
+        }
+        catch (Exception e)
+        {
+            // UI Automation can throw (a window closing, an odd selection range): an exception here would
+            // leave the capsule on "Writing it up…" and block every later dictation.
+            Log.Write("insert threw: " + e.GetType().Name);
+            outcome = new(InsertKind.Failed, e.GetType().Name);
+        }
         LastInsert = outcome.Kind + ": " + outcome.Detail;
         Log.Write("insert " + outcome.Kind + (outcome.Kind == InsertKind.Failed ? " (" + outcome.Detail + ")" : ""));
         switch (outcome.Kind)
