@@ -1,0 +1,25 @@
+Building for production...
+[0/6] Write sources
+[3/6] Write swift-version-7974D3F7F03D5E95.txt
+[5/7] Compiling FluentCore Constants.swift
+[6/8] Compiling FluentMacKit AppCategories.swift
+[7/9] Compiling Fluent AX.swift
+[7/9] Write Objects.LinkFileList
+[8/9] Linking Fluent
+Build of product 'Fluent' complete! (40.29s)
+Building for production...
+[0/6] Write sources
+[3/6] Write swift-version-7974D3F7F03D5E95.txt
+[5/7] Compiling FluentCore Constants.swift
+[6/8] Compiling FluentMacKit AppCategories.swift
+[7/9] Compiling Fluent AX.swift
+[7/9] Write Objects.LinkFileList
+[8/9] Linking Fluent
+Build of product 'Fluent' complete! (51.43s)
+/Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app/Contents/Info.plist: OK
+/Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app: replacing existing signature
+# designated => cdhash H"7ed22e090bbad5b17a6a64a1b9db947dce65f524" or cdhash H"dc76f39a0d4a17e9e579d9cc930b778cad84c3e0"
+/Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app: valid on disk
+/Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app: satisfies its Designated Requirement
+Architectures: x86_64 arm64
+Built /Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent.app (1.0.0 build 14) and /Users/runner/work/fluent-mac/fluent-mac/mac/dist/Fluent-mac.zip

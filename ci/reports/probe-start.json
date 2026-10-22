@@ -1,0 +1,10 @@
+{
+  "appFocusedRole" : null,
+  "field" : null,
+  "focusedWindowRole" : null,
+  "frontmost" : "com.apple.AccessibilityUIServer",
+  "lookups" : 8,
+  "mode" : "probe",
+  "systemFocusedRole" : null,
+  "trusted" : true
+}

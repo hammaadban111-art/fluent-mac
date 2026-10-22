@@ -1,0 +1,2 @@
+/Applications/Fluent.app: valid on disk
+/Applications/Fluent.app: satisfies its Designated Requirement

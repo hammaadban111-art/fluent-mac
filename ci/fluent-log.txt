@@ -1,0 +1,300 @@
+2026-10-22 11:30:11.669 Df Fluent[11258:92d0] [com.apple.xpc:connection] [0x715040f00] activating connection: mach=true listener=false peer=false name=com.apple.linkd.autoShortcut
+2026-10-22 11:30:11.669 Df Fluent[11258:92d0] [com.apple.appintents:Connection] Activated connection to linkd (ApplicationService)
+2026-10-22 11:30:11.669 Df Fluent[11258:92d0] [com.apple.xpc:connection] [0x715040a00] Connection returned listener port: 0x6b03
+2026-10-22 11:30:11.669 A  Fluent[11258:92c8] (libsystem_info.dylib) Membership API: translate identifier
+2026-10-22 11:30:11.670 Df Fluent[11258:92d1] [com.apple.xpc:connection] [0x715040f00] Re-initialization successful; calling out to event handler with XPC_ERROR_CONNECTION_INTERRUPTED
+2026-10-22 11:30:11.670 Df Fluent[11258:92d1] [com.apple.appintents:Connection] Process Instance Registry XPC connection has been interrupted
+2026-10-22 11:30:11.670 Df Fluent[11258:92d3] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:11.670 A  Fluent[11258:92d3] (AppIntents) appintents:register process
+2026-10-22 11:30:11.670 E  Fluent[11258:92d0] [com.apple.appintents:Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:11.670 Df Fluent[11258:92d3] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:11.670 Df Fluent[11258:92d3] [com.apple.xpc:connection] [0x715041180] activating connection: mach=true listener=false peer=false name=com.apple.linkd.autoShortcut
+2026-10-22 11:30:11.670 E  Fluent[11258:92d0] [com.apple.appintents:Connection] Unable to re-register with Process Instance Registry, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:11.670 Df Fluent[11258:92d3] [com.apple.appintents:Connection] Activated connection to linkd (ApplicationService)
+2026-10-22 11:30:11.670 Df Fluent[11258:92d3] [com.apple.xpc:connection] [0x715040a00] Connection returned listener port: 0x6b03
+2026-10-22 11:30:11.671 Df Fluent[11258:92d1] [com.apple.xpc:connection] [0x715041180] Re-initialization successful; calling out to event handler with XPC_ERROR_CONNECTION_INTERRUPTED
+2026-10-22 11:30:11.671 Df Fluent[11258:92d1] [com.apple.appintents:Connection] Process Instance Registry XPC connection has been interrupted
+2026-10-22 11:30:11.671 E  Fluent[11258:92d1] [com.apple.appintents:Connection] Will NOT re-try to establish the connection
+2026-10-22 11:30:11.671 E  Fluent[11258:92d3] [com.apple.appintents:Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:11.671 E  Fluent[11258:92d3] [com.apple.appintents:Connection] Unable to re-register with Process Instance Registry, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:11.673 Df Fluent[11258:92d3] [com.apple.CoreAnalytics:client] Received configuration update from daemon (initial)
+2026-10-22 11:30:11.675 A  Fluent[11258:92c8] (TCC) TCCAccessRequest() IPC
+2026-10-22 11:30:11.675 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x7150412c0] activating connection: mach=true listener=false peer=false name=com.apple.tccd
+2026-10-22 11:30:11.683 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x7150412c0] invalidated after the last release of the connection object
+2026-10-22 11:30:11.683 A  Fluent[11258:92c8] (TCC) TCCAccessRequest() IPC
+2026-10-22 11:30:11.683 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x7150412c0] activating connection: mach=true listener=false peer=false name=com.apple.tccd.system
+2026-10-22 11:30:11.685 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x7150412c0] invalidated after the last release of the connection object
+2026-10-22 11:30:11.687 A  Fluent[11258:92d0] (CoreFoundation) Loading Preferences From User CFPrefsD
+2026-10-22 11:30:11.687 Df Fluent[11258:92c8] [com.apple.dt.xctest:Default] Registering for test daemon availability notify post.
+2026-10-22 11:30:11.687 Df Fluent[11258:92c8] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-10-22 11:30:11.687 Df Fluent[11258:92c8] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-10-22 11:30:11.687 Df Fluent[11258:92c8] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-10-22 11:30:11.729 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From System CFPrefsD
+2026-10-22 11:30:11.730 Df Fluent[11258:92c8] (libMobileGestalt.dylib) couldn't load support library
+2026-10-22 11:30:11.730 Df Fluent[11258:92c8] (libMobileGestalt.dylib) called dummy function!
+2026-10-22 11:30:11.730 Df Fluent[11258:92c8] [com.apple.GenerativeModels:availability] registering darwin observer for name: com.apple.gms.availability.notification
+2026-10-22 11:30:11.730 Df Fluent[11258:92c8] [com.apple.GenerativeModels:availability] registering darwin observer for name: com.apple.os-eligibility-domain.change.greymatter
+2026-10-22 11:30:11.730 Df Fluent[11258:92c8] [com.apple.GenerativeModels:availability] registering darwin observer for name: com.apple.language.changed
+2026-10-22 11:30:11.730 Df Fluent[11258:92c8] [com.apple.WritingTools:Default] isAvailable value changed: isMDMAllowed = true, gmAvailable (current) = false
+2026-10-22 11:30:11.732 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From User CFPrefsD
+2026-10-22 11:30:11.737 Df Fluent[11258:92c8] [com.apple.AppKit:Appearance] NSApp cache appearance:
+-NSRequiresAquaSystemAppearance: 0
+-appearance: (null)
+-effectiveAppearance: <NSCompositeAppearance: 0x714c54780
+ (
+    "<NSAquaAppearance: 0x714c54820>",
+    "<NSSystemAppearance: 0x714c546e0>"
+)>
+2026-10-22 11:30:11.742 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From User CFPrefsD
+2026-10-22 11:30:11.742 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From User CFPrefsD
+2026-10-22 11:30:11.759 A  Fluent[11258:92cb] (RunningBoardServices) didChangeInheritances
+2026-10-22 11:30:11.767 Df Fluent[11258:92d0] [com.apple.xpc:connection] [0x7150417c0] activating connection: mach=true listener=false peer=false name=com.apple.dock.fullscreen
+2026-10-22 11:30:11.769 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041900] activating connection: mach=true listener=false peer=false name=com.apple.fonts
+2026-10-22 11:30:11.782 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041a40] activating connection: mach=true listener=false peer=false name=com.apple.appkit.restoration_storage
+2026-10-22 11:30:11.783 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041b80] activating connection: mach=true listener=false peer=false name=com.apple.coreservices.appleevents
+2026-10-22 11:30:11.784 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715040280] Connection returned listener port: 0x5203
+2026-10-22 11:30:11.784 Df Fluent[11258:92c8] [com.apple.processmanager:front-35286506] SignalReady: pid=11258 asn=0x0-0x7c07c
+2026-10-22 11:30:11.785 Df Fluent[11258:92c8] [com.apple.processmanager:front-35286506] SIGNAL: pid=11258 asn=0x0x-0x7c07c
+2026-10-22 11:30:11.787 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From System CFPrefsD
+2026-10-22 11:30:11.794 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041e00] activating connection: mach=false listener=false peer=false name=com.apple.ViewBridgeAuxiliary
+2026-10-22 11:30:11.808 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041cc0] activating connection: mach=false listener=false peer=false name=(anonymous)
+2026-10-22 11:30:11.808 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041f40] activating connection: mach=false listener=true peer=false name=(anonymous)
+2026-10-22 11:30:11.808 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041f40] Connection returned listener port: 0xf103
+2026-10-22 11:30:11.808 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041e00] invalidated after the last release of the connection object
+2026-10-22 11:30:11.811 Df Fluent[11258:92c8] [com.apple.AppKit:AutomaticTermination] void _NSDisableAutomaticTerminationAndLog(NSString *) Restoring windows
+2026-10-22 11:30:11.812 Df Fluent[11258:92c8] [com.apple.AppKit:StateRestoration] -[NSApplication _reopenWindowsAsNecessaryIncludingRestorableState:withFullFidelity:completionHandler:] shouldRestoreState=1 hasPersistentStateToRestore=1 shouldStillRestoreStateAfterPrompting=1
+2026-10-22 11:30:11.812 Df Fluent[11258:92c8] [com.apple.AppKit:StateRestoration] -[NSApplication(NSPersistentUIRestorationSupport) _restoreWindowWithRestoration:completionHandler:] restoration=<NSPersistentUIWindowRestoration: 0x7150d6c60> savedIdentifier=(null)
+2026-10-22 11:30:11.812 Df Fluent[11258:92c8] [com.apple.AppKit:StateRestoration] -[NSApplication(NSWindowRestoration) restoreWindowWithIdentifier:state:completionHandler:] identifier=(null) className=(null)
+2026-10-22 11:30:11.812 E  Fluent[11258:92c8] [com.apple.AppKit:StateRestoration] -[NSApplication(NSWindowRestoration) restoreWindowWithIdentifier:state:completionHandler:] Unable to find className=(null)
+2026-10-22 11:30:11.812 Df Fluent[11258:92c8] [com.apple.AppKit:StateRestoration] -[NSApplication(NSPersistentUIRestorationSupport) _restoreWindowWithRestoration:completionHandler:] restoration=<NSPersistentUIWindowRestoration: 0x7150d6c60> savedIdentifier=(null) heuristicsWindow=0x0
+2026-10-22 11:30:11.812 Df Fluent[11258:92c8] [com.apple.AppKit:StateRestoration] -[NSApplication(NSPersistentUIRestorationSupport) _restoreWindowWithRestoration:completionHandler:] restoration=<NSPersistentUIWindowRestoration: 0x7150d6c60> savedIdentifier=(null) isHandlingOdocEvent=0
+2026-10-22 11:30:11.817 Df Fluent[11258:92cb] [com.apple.corespotlight:index] (<private>) deleteSearchableItemsWithDomainIdentifiers, protectionClass:(null), domainIdentifiers number:1
+2026-10-22 11:30:11.818 A  Fluent[11258:92cb] (CoreSpotlight) delete-domains
+2026-10-22 11:30:11.818 Df Fluent[11258:92cb] [com.apple.corespotlight:index] CSInlineDonation:<private>: Skipping donation (feature flag disabled)
+2026-10-22 11:30:11.818 Df Fluent[11258:92cb] (CoreSpotlight) sConnectionName: com.apple.spotlight.IndexAgent
+2026-10-22 11:30:11.818 Df Fluent[11258:92cb] (CoreSpotlight) Start service name com.apple.spotlight.IndexAgent
+2026-10-22 11:30:11.818 Df Fluent[11258:92cb] [com.apple.xpc:connection] [0x715042080] activating connection: mach=true listener=false peer=false name=com.apple.spotlight.IndexAgent
+2026-10-22 11:30:11.818 Df Fluent[11258:92c8] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.controlcenter.statusitems
+2026-10-22 11:30:11.818 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715042300] activating connection: mach=false listener=false peer=false name=(anonymous)
+2026-10-22 11:30:11.819 Df Fluent[11258:92c8] [com.apple.FrontBoard:Common] FBSWorkspace registering source: <private>
+2026-10-22 11:30:11.821 Df Fluent[11258:92c8] [com.apple.FrontBoard:Common] FBSWorkspace connected to endpoint : <private>
+2026-10-22 11:30:11.821 Df Fluent[11258:92c8] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0x714c57ac0 <private>> attempting immediate handshake from activate
+2026-10-22 11:30:11.821 Df Fluent[11258:92c8] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0x714c57ac0 <private>> sent handshake
+2026-10-22 11:30:11.822 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSStatusItemSceneHostSettings__ on FBSSceneSettings
+2026-10-22 11:30:11.823 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSStatusItemSceneClientSettings__ on FBSSceneClientSettings
+2026-10-22 11:30:11.825 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension FBSSceneSettingsCore on FBSSceneSettings
+2026-10-22 11:30:11.826 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension FBSSceneClientSettingsCore on FBSSceneClientSettings
+2026-10-22 11:30:11.827 A  Fluent[11258:92cb] (RunningBoardServices) didChangeInheritances
+2026-10-22 11:30:11.828 Df Fluent[11258:92c8] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0x714c57c00; com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980> from com.apple.controlcenter.statusitems
+2026-10-22 11:30:11.828 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension FBSSceneTransitionContextCore on FBSSceneTransitionContext
+2026-10-22 11:30:11.829 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSHostedViewSceneSettings__ on FBSSceneSettings
+2026-10-22 11:30:11.829 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSClientHostedViewSceneSettings__ on FBSSceneClientSettings
+2026-10-22 11:30:11.830 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSStatusItemAuxiliaryViewSceneSettings__ on FBSSceneSettings
+2026-10-22 11:30:11.830 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneExtension] Realizing settings extension __NSClientStatusItemAuxiliaryViewSceneSettings__ on FBSSceneClientSettings
+2026-10-22 11:30:11.830 Df Fluent[11258:92c8] [com.apple.FrontBoard:Common] Requesting scene <FBSScene: 0x714c57d40; com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView> from com.apple.controlcenter.statusitems
+2026-10-22 11:30:11.830 Df Fluent[11258:92cb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0x714c57c00; com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980> complete!
+2026-10-22 11:30:11.832 Df Fluent[11258:92cb] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0x714c57ac0 <private>> Reconnecting scene com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980
+2026-10-22 11:30:11.832 Df Fluent[11258:92cb] [com.apple.FrontBoard:Common] Request for <FBSScene: 0x714c57d40; com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView> complete!
+2026-10-22 11:30:11.832 Df Fluent[11258:92d3] [com.apple.FrontBoard:Common] <FBSWorkspaceScenesClient:0x714c57ac0 <private>> Reconnecting scene com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView
+2026-10-22 11:30:11.832 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2026-10-22 11:30:11.838 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2026-10-22 11:30:11.853 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2026-10-22 11:30:11.865 Df Fluent[11258:92c8] [com.apple.BoardServices:XPCErrors] [C:2] Alloc <private>
+2026-10-22 11:30:11.866 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715042440] activating connection: mach=false listener=false peer=false name=(anonymous)
+2026-10-22 11:30:11.902 Df Fluent[11258:92c8] [com.apple.AppKit:AutomaticTermination] void _NSEnableAutomaticTerminationAndLog(NSString *) No windows open yet
+2026-10-22 11:30:11.902 Df Fluent[11258:92d3] [com.apple.UIIntelligenceSupport:xpc] establishing connection to agent
+2026-10-22 11:30:11.902 Df Fluent[11258:92d3] [com.apple.xpc:session] [0x715855950] Session created.
+2026-10-22 11:30:11.902 Df Fluent[11258:92d3] [com.apple.xpc:session] [0x715855950] Session created from connection [0x715042a80]
+2026-10-22 11:30:11.902 Df Fluent[11258:92d3] [com.apple.xpc:connection] [0x715042a80] activating connection: mach=true listener=false peer=false name=com.apple.uiintelligencesupport.agent
+2026-10-22 11:30:11.902 Df Fluent[11258:92d3] [com.apple.xpc:session] [0x715855950] Session activated
+2026-10-22 11:30:11.904 Df Fluent[11258:92cb] [com.apple.UIIntelligenceSupport:xpc] Connection established with agent PID: 5328
+2026-10-22 11:30:11.931 Df Fluent[11258:92c8] [com.apple.AppKit:StateRestoration] -[NSApplication(NSPersistentUIRestorationSupport) _restoreWindowWithRestoration:completionHandler:]_block_invoke restoration=<NSPersistentUIWindowRestoration: 0x7150d6c60> savedIdentifier=(null) heuristicsWindow=0x0
+2026-10-22 11:30:11.931 Df Fluent[11258:92c8] [com.apple.AppKit:StateRestoration] -[NSApplication(NSPersistentUIRestorationSupport) _restoreWindowWithRestoration:completionHandler:]_block_invoke restoration=<NSPersistentUIWindowRestoration: 0x7150d6c60> window=0x0 savedIdentifier=(null) error=(null)
+2026-10-22 11:30:11.932 Df Fluent[11258:92cb] [com.apple.libsystem.libdispatch:] BUG in libdispatch client: mach_recv, monitored resource vanished before the source cancel handler was invoked { 0x71538f600[source], ident: 56323 / 0xdc03, handler: 0x1886187d8 }
+2026-10-22 11:30:11.935 Df Fluent[11258:92c8] [com.apple.AppKit:AutomaticTermination] void _NSEnableAutomaticTerminationAndLog(NSString *) Restoring windows
+2026-10-22 11:30:11.939 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2026-10-22 11:30:11.940 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041e00] activating connection: mach=true listener=false peer=false name=com.apple.window_proxies
+2026-10-22 11:30:11.940 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041e00] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2026-10-22 11:30:11.946 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2026-10-22 11:30:11.956 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView] Received action(s) in scene-update: NSSceneFenceAction
+2026-10-22 11:30:11.957 E  Fluent[11258:92c8] [com.apple.AppKit:WarnOnce] It's not legal to call -layoutSubtreeIfNeeded on a view which is already being laid out.  If you are implementing the view's -layout method, you can call -[super layout] instead.  Break on void _NSDetectedLayoutRecursion(void) to debug.  This will be logged only once.  This may break in the future.
+2026-10-22 11:30:11.957 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980-Aux[1]-NSStatusItemView] Sending action(s) in update: NSSceneFenceAction
+2026-10-22 11:30:11.959 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980] Sending action(s) in update: NSSceneFenceAction
+2026-10-22 11:30:11.992 A  Fluent[11258:92d3] (RunningBoardServices) didChangeInheritances
+2026-10-22 11:30:12.162 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715041e00] activating connection: mach=false listener=false peer=false name=com.apple.hiservices-xpcservice
+2026-10-22 11:30:12.320 A  Fluent[11258:92d3] (CoreSpotlight) end-index-batch
+2026-10-22 11:30:12.320 Df Fluent[11258:92d3] [com.apple.corespotlight:index] *warn* MailCS ======%%% _setMailMessageAttributes skip:1
+2026-10-22 11:30:12.320 A  Fluent[11258:92d3] (CoreSpotlight) index-items
+2026-10-22 11:30:12.321 Df Fluent[11258:92d3] [com.apple.corespotlight:index] CSInlineDonation:<private>: Skipping donation (feature flag disabled)
+2026-10-22 11:30:15.839 Df Fluent[11258:92d0] [com.apple.launchservices:db] NotifyToken::RegisterDispatch(user.uid.501.com.apple.LaunchServices.database) fired for session key <private>
+2026-10-22 11:30:15.896 A  Fluent[11278:9343] (libsystem_info.dylib) Retrieve User by ID
+2026-10-22 11:30:15.898 Df Fluent[11278:9343] [com.apple.xpc:connection] [0x1054976c0] activating connection: mach=true listener=false peer=false name=com.apple.cfprefsd.daemon
+2026-10-22 11:30:15.898 Df Fluent[11278:9346] [com.apple.xpc:connection] [0x1054983f0] activating connection: mach=true listener=false peer=false name=com.apple.cfprefsd.agent
+2026-10-22 11:30:15.909 Df Fluent[11278:9343] [com.apple.xpc:connection] [0x105499f90] activating connection: mach=true listener=false peer=false name=com.apple.coreservices.launchservicesd
+2026-10-22 11:30:15.912 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040000] activating connection: mach=true listener=false peer=false name=com.apple.pasteboard.1
+2026-10-22 11:30:15.913 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040140] activating connection: mach=true listener=false peer=false name=com.apple.distributed_notifications@Uv3
+2026-10-22 11:30:15.916 Df Fluent[11278:9343] [com.apple.AppKit:AutomaticTermination] void _NSDisableAutomaticTerminationAndLog(NSString *) No windows open yet
+2026-10-22 11:30:15.917 A  Fluent[11278:9343] (TCC) TCCAccessRequest() IPC
+2026-10-22 11:30:15.917 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040280] activating connection: mach=true listener=false peer=false name=com.apple.tccd.system
+2026-10-22 11:30:15.922 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040280] invalidated after the last release of the connection object
+2026-10-22 11:30:15.929 Df Fluent[11278:9343] [com.apple.SkyLight:default] server port 0x00002e13, session port 0x00002e13
+2026-10-22 11:30:15.935 Df Fluent[11278:9343] [com.apple.SkyLight:default] New connection 0x376eb main
+2026-10-22 11:30:15.937 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] CHECKIN: pid=11278
+2026-10-22 11:30:15.943 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] CHECKEDIN: pid=11278 asn=0x0-0x7d07d foreground=1
+2026-10-22 11:30:15.944 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040280] activating connection: mach=false listener=true peer=false name=(anonymous)
+2026-10-22 11:30:15.944 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040280] Connection returned listener port: 0x5303
+2026-10-22 11:30:15.945 Df Fluent[11278:9347] [com.apple.xpc:connection] [0xa62cac180] activating connection: mach=false listener=false peer=true name=com.apple.xpc.anonymous.0xa63040280.peer[127].0xa62cac180
+2026-10-22 11:30:15.952 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] FRONTLOGGING: version 1
+2026-10-22 11:30:15.952 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] Registered, pid=11278 ASN=0x0,0x7d07d
+2026-10-22 11:30:15.952 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa630403c0] activating connection: mach=true listener=false peer=false name=com.apple.analyticsd
+2026-10-22 11:30:15.953 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040280] Connection returned listener port: 0x5303
+2026-10-22 11:30:15.954 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] BringForward: pid=11278 asn=0x0-0x7d07d bringForward=1 foreground=1 uiElement=0 launchedByLS=1 modifiersCount=1 allDisabled=0
+2026-10-22 11:30:15.954 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] BringFrontModifier: pid=11278 asn=0x0-0x7d07d Modifier 0 hideAfter=0 hideOthers=0 dontMakeFrontmost=1 mouseDown=0/0 seed=0/0
+2026-10-22 11:30:15.955 Df Fluent[11278:9343] [com.apple.AppKit:Appearance] Current system appearance, (HLTB: 1), (SLS: 0)
+2026-10-22 11:30:15.955 Df Fluent[11278:9347] [com.apple.xpc:connection] [0xa63040500] activating connection: mach=true listener=false peer=false name=com.apple.lsd.mapdb
+2026-10-22 11:30:15.958 Df Fluent[11278:9343] (libMobileGestalt.dylib) No persisted cache on this platform.
+2026-10-22 11:30:15.960 Df Fluent[11278:9343] (libMobileGestalt.dylib) Could not get size of EAN data (IOConnectCallScalarMethod kAppleNVMeEANGetSize returned 0xE00002E2)
+2026-10-22 11:30:15.960 Df Fluent[11278:9343] (libMobileGestalt.dylib) Failed to copy 'aptk' from EAN
+2026-10-22 11:30:15.960 Df Fluent[11278:9343] (libMobileGestalt.dylib) Failed to copy APTicket properties. Falling back to default policy.
+2026-10-22 11:30:15.960 Df Fluent[11278:9343] (libMobileGestalt.dylib) Creating default MGSysConfigPolicy
+2026-10-22 11:30:15.960 Df Fluent[11278:9343] (libMobileGestalt.dylib) CFDictionaryRef copySyscfgDictionary(void) enumeration of <private> failed.
+2026-10-22 11:30:15.960 Df Fluent[11278:9343] (libMobileGestalt.dylib) Failed to find key <private>
+2026-10-22 11:30:15.964 Df Fluent[11278:9347] [com.apple.CoreAnalytics:client] Received configuration update from daemon (initial)
+2026-10-22 11:30:15.968 Df Fluent[11278:9343] [com.apple.AppKit:Appearance] Current system appearance, (HLTB: 1), (SLS: 0)
+2026-10-22 11:30:15.970 Df Fluent[11278:9343] [com.apple.AppKit:Appearance] Post-registration system appearance: (HLTB: 1)
+2026-10-22 11:30:15.974 Df Fluent[11278:9343] [com.apple.FrontBoard:Common] FBSWorkspace: endpoint monitoring is disabled.
+2026-10-22 11:30:15.974 Df Fluent[11278:9343] [com.apple.FrontBoard:Common] FBSWorkspace: default shell endpoint is disabled.
+2026-10-22 11:30:15.974 Df Fluent[11278:9343] [com.apple.runningboard:connection] Initializing connection
+2026-10-22 11:30:15.974 Df Fluent[11278:9343] [com.apple.runningboard:process] Removing all cached process handles
+2026-10-22 11:30:15.974 Df Fluent[11278:934b] [com.apple.runningboard:connection] Sending handshake request attempt #1 to server
+2026-10-22 11:30:15.974 Df Fluent[11278:934b] [com.apple.runningboard:connection] Creating connection to com.apple.runningboard
+2026-10-22 11:30:15.974 Df Fluent[11278:934b] [com.apple.xpc:connection] [0xa63040640] activating connection: mach=true listener=false peer=false name=com.apple.runningboard
+2026-10-22 11:30:15.975 A  Fluent[11278:9347] (RunningBoardServices) didChangeInheritances
+2026-10-22 11:30:15.976 Df Fluent[11278:934b] [com.apple.runningboard:connection] Handshake succeeded
+2026-10-22 11:30:15.976 Df Fluent[11278:934b] [com.apple.runningboard:connection] Identity resolved as app<application.com.hammaad.fluent.mac.2984239.2984244.4C558E75-5F69-4305-B10E-45E14CEB6082(501)>
+2026-10-22 11:30:15.986 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040280] Connection returned listener port: 0x5303
+2026-10-22 11:30:15.989 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040280] Connection returned listener port: 0x5303
+2026-10-22 11:30:16.002 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] PostHideProcess: pid=11278 processToShow=0x0-0x2 (ourselves)
+2026-10-22 11:30:16.005 Df Fluent[11278:9343] [com.apple.dt.xctest:Default] Registering for test daemon availability notify post.
+2026-10-22 11:30:16.005 Df Fluent[11278:9343] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-10-22 11:30:16.005 Df Fluent[11278:9343] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-10-22 11:30:16.006 Df Fluent[11278:9343] [com.apple.dt.xctest:Default] notify_get_state check indicated test daemon not ready.
+2026-10-22 11:30:16.009 A  Fluent[11278:9346] (AppIntents) appintents:register process
+2026-10-22 11:30:16.010 Df Fluent[11278:9346] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:16.010 Df Fluent[11278:9346] [com.apple.xpc:connection] [0xa630408c0] activating connection: mach=true listener=false peer=false name=com.apple.linkd.autoShortcut
+2026-10-22 11:30:16.010 Df Fluent[11278:9346] [com.apple.appintents:Connection] Activated connection to linkd (ApplicationService)
+2026-10-22 11:30:16.010 Df Fluent[11278:9346] [com.apple.xpc:connection] [0xa63040a00] activating connection: mach=false listener=true peer=false name=(anonymous)
+2026-10-22 11:30:16.011 Df Fluent[11278:9346] [com.apple.xpc:connection] [0xa63040a00] Connection returned listener port: 0x6603
+2026-10-22 11:30:16.013 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040b40] activating connection: mach=true listener=false peer=false name=com.apple.coreservices.appleevents
+2026-10-22 11:30:16.013 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63040280] Connection returned listener port: 0x5303
+2026-10-22 11:30:16.014 Df Fluent[11278:934b] [com.apple.xpc:connection] [0xa630408c0] Re-initialization successful; calling out to event handler with XPC_ERROR_CONNECTION_INTERRUPTED
+2026-10-22 11:30:16.014 Df Fluent[11278:934b] [com.apple.appintents:Connection] Process Instance Registry XPC connection has been interrupted
+2026-10-22 11:30:16.014 Df Fluent[11278:934b] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:16.014 A  Fluent[11278:934b] (AppIntents) appintents:register process
+2026-10-22 11:30:16.014 Df Fluent[11278:934b] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:16.014 Df Fluent[11278:934b] [com.apple.xpc:connection] [0xa63040c80] activating connection: mach=true listener=false peer=false name=com.apple.linkd.autoShortcut
+2026-10-22 11:30:16.014 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] SignalReady: pid=11278 asn=0x0-0x7d07d
+2026-10-22 11:30:16.014 Df Fluent[11278:9343] [com.apple.processmanager:front-35286506] SIGNAL: pid=11278 asn=0x0x-0x7d07d
+2026-10-22 11:30:16.017 A  Fluent[11278:9343] (CoreFoundation) Loading Preferences From User CFPrefsD
+2026-10-22 11:30:16.017 A  Fluent[11278:9343] (CoreFoundation) Loading Preferences From System CFPrefsD
+2026-10-22 11:30:16.018 E  Fluent[11278:9346] [com.apple.appintents:Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:16.018 E  Fluent[11278:9346] [com.apple.AppKit:Application] Error registering app with intents framework: Error Domain=NSCocoaErrorDomain Code=4097 UserInfo={NSDebugDescription=<private>}
+2026-10-22 11:30:16.018 A  Fluent[11278:9343] (libsystem_info.dylib) Membership API: translate identifier
+2026-10-22 11:30:16.018 Df Fluent[11278:934b] [com.apple.appintents:Connection] Activated connection to linkd (ApplicationService)
+2026-10-22 11:30:16.018 Df Fluent[11278:934b] [com.apple.xpc:connection] [0xa63040a00] Connection returned listener port: 0x6603
+2026-10-22 11:30:16.019 Df Fluent[11278:934d] [com.apple.xpc:connection] [0xa63040c80] Re-initialization successful; calling out to event handler with XPC_ERROR_CONNECTION_INTERRUPTED
+2026-10-22 11:30:16.019 Df Fluent[11278:934d] [com.apple.appintents:Connection] Process Instance Registry XPC connection has been interrupted
+2026-10-22 11:30:16.020 E  Fluent[11278:934b] [com.apple.appintents:Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:16.020 E  Fluent[11278:934b] [com.apple.appintents:Connection] Unable to re-register with Process Instance Registry, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:16.020 Df Fluent[11278:934d] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:16.020 A  Fluent[11278:934d] (AppIntents) appintents:register process
+2026-10-22 11:30:16.020 Df Fluent[11278:934d] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:16.020 Df Fluent[11278:934d] [com.apple.xpc:connection] [0xa63041040] activating connection: mach=true listener=false peer=false name=com.apple.linkd.autoShortcut
+2026-10-22 11:30:16.020 Df Fluent[11278:934d] [com.apple.appintents:Connection] Activated connection to linkd (ApplicationService)
+2026-10-22 11:30:16.020 Df Fluent[11278:934d] [com.apple.xpc:connection] [0xa63040a00] Connection returned listener port: 0x6603
+2026-10-22 11:30:16.023 Df Fluent[11278:9346] [com.apple.xpc:connection] [0xa63041040] Re-initialization successful; calling out to event handler with XPC_ERROR_CONNECTION_INTERRUPTED
+2026-10-22 11:30:16.023 Df Fluent[11278:9346] [com.apple.appintents:Connection] Process Instance Registry XPC connection has been interrupted
+2026-10-22 11:30:16.023 Df Fluent[11278:9346] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:16.023 A  Fluent[11278:9346] (AppIntents) appintents:register process
+2026-10-22 11:30:16.023 Df Fluent[11278:9346] [com.apple.appintents:Connection] Created a new Process Instance Registry XPC connection (inactive)
+2026-10-22 11:30:16.023 Df Fluent[11278:9346] [com.apple.xpc:connection] [0xa630412c0] activating connection: mach=true listener=false peer=false name=com.apple.linkd.autoShortcut
+2026-10-22 11:30:16.024 A  Fluent[11278:9343] (TCC) TCCAccessRequest() IPC
+2026-10-22 11:30:16.024 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63041540] activating connection: mach=true listener=false peer=false name=com.apple.tccd.system
+2026-10-22 11:30:16.025 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63041540] invalidated after the last release of the connection object
+2026-10-22 11:30:16.027 E  Fluent[11278:934d] [com.apple.appintents:Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:16.027 E  Fluent[11278:934d] [com.apple.appintents:Connection] Unable to re-register with Process Instance Registry, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:16.028 Df Fluent[11278:9346] [com.apple.appintents:Connection] Activated connection to linkd (ApplicationService)
+2026-10-22 11:30:16.028 Df Fluent[11278:9346] [com.apple.xpc:connection] [0xa63040a00] Connection returned listener port: 0x6603
+2026-10-22 11:30:16.028 Df Fluent[11278:934b] [com.apple.xpc:connection] [0xa630412c0] Re-initialization successful; calling out to event handler with XPC_ERROR_CONNECTION_INTERRUPTED
+2026-10-22 11:30:16.028 Df Fluent[11278:934b] [com.apple.appintents:Connection] Process Instance Registry XPC connection has been interrupted
+2026-10-22 11:30:16.028 E  Fluent[11278:934b] [com.apple.appintents:Connection] Will NOT re-try to establish the connection
+2026-10-22 11:30:16.028 E  Fluent[11278:9346] [com.apple.appintents:Connection] Unable to get synchronousRemoteObjectProxy, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:16.028 E  Fluent[11278:9346] [com.apple.appintents:Connection] Unable to re-register with Process Instance Registry, error: Error Domain=NSCocoaErrorDomain Code=4097 "connection to service named com.apple.linkd.autoShortcut" UserInfo={NSDebugDescription=connection to service named com.apple.linkd.autoShortcut}
+2026-10-22 11:30:16.033 Df Fluent[11278:9343] [com.apple.AppKit:AutomaticTermination] void _NSDisableAutomaticTerminationAndLog(NSString *) Restoring windows
+2026-10-22 11:30:16.033 Df Fluent[11278:9343] [com.apple.AppKit:StateRestoration] -[NSApplication _reopenWindowsAsNecessaryIncludingRestorableState:withFullFidelity:completionHandler:] shouldRestoreState=1 hasPersistentStateToRestore=0 shouldStillRestoreStateAfterPrompting=0
+2026-10-22 11:30:16.033 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63041400] activating connection: mach=true listener=false peer=false name=com.apple.window_proxies
+2026-10-22 11:30:16.033 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63041400] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2026-10-22 11:30:16.035 Df Fluent[11278:9343] [com.apple.AppKit:AutomaticTermination] void _NSEnableAutomaticTerminationAndLog(NSString *) Restoring windows
+2026-10-22 11:30:16.037 Df Fluent[11278:9346] [com.apple.BoardServices:XPCErrors] [C:1] Alloc <private>
+2026-10-22 11:30:16.037 Df Fluent[11278:9346] [com.apple.xpc:connection] [0xa63041540] activating connection: mach=false listener=false peer=false name=(anonymous)
+2026-10-22 11:30:16.059 A  Fluent[11278:9346] (RunningBoardServices) didChangeInheritances
+2026-10-22 11:30:16.454 A  Fluent[11278:9343] (TCC) TCCAccessRequest() IPC
+2026-10-22 11:30:16.454 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63041680] activating connection: mach=true listener=false peer=false name=com.apple.tccd.system
+2026-10-22 11:30:16.456 Df Fluent[11278:9343] [com.apple.xpc:connection] [0xa63041680] invalidated after the last release of the connection object
+2026-10-22 11:30:16.457 A  Fluent[11258:92c8] (TCC) TCCAccessRequest() IPC
+2026-10-22 11:30:16.457 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715042bc0] activating connection: mach=true listener=false peer=false name=com.apple.tccd.system
+2026-10-22 11:30:16.459 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715042bc0] invalidated after the last release of the connection object
+2026-10-22 11:30:16.460 Df Fluent[11258:92c8] [com.apple.AppKit:AutomaticTermination] void _NSDisableAutomaticTerminationAndLog(NSString *) NSAccessibility Request Received
+2026-10-22 11:30:16.492 Df Fluent[11258:92c8] (libMobileGestalt.dylib) Failed to find key <private>
+2026-10-22 11:30:16.503 A  Fluent[11258:92c8] (SharedFileList) #SFLAPI LSSharedFileListCreate
+2026-10-22 11:30:16.504 Df Fluent[11258:92d0] [com.apple.xpc:connection] [0x715042bc0] activating connection: mach=true listener=false peer=false name=com.apple.coreservices.sharedfilelistd.xpc
+2026-10-22 11:30:16.507 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From System CFPrefsD
+2026-10-22 11:30:16.509 Df Fluent[11258:92c8] [com.apple.FrontBoard:SceneClient] [com.apple.controlcenter:44C23BE7-90C5-41E6-84AA-1745BDE91980] Sending action(s) in update: NSSceneFenceAction
+2026-10-22 11:30:16.519 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From User CFPrefsD
+2026-10-22 11:30:16.519 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From System CFPrefsD
+2026-10-22 11:30:16.587 A  Fluent[11258:92c8] (SharedFileList) #SFLAPI LSSharedFileListCreate
+2026-10-22 11:30:16.587 A  Fluent[11258:92c8] (SharedFileList) #SFLAPI LSSharedFileListCreate
+2026-10-22 11:30:16.587 A  Fluent[11258:92c8] (SharedFileList) #SFLAPI LSSharedFileListCreate
+2026-10-22 11:30:16.588 A  Fluent[11258:92c8] (SharedFileList) #SFLAPI LSSharedFileListCopySnapshot
+2026-10-22 11:30:16.589 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715042940] activating connection: mach=true listener=false peer=false name=com.apple.iconservices
+2026-10-22 11:30:16.590 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715042d00] activating connection: mach=true listener=false peer=false name=com.apple.iconservices.store
+2026-10-22 11:30:16.592 Df Fluent[11258:92c8] [com.apple.GenerativeModels:availability] isOkayToHaveAsset: False
+2026-10-22 11:30:16.592 E  Fluent[11258:92c8] [com.apple.siri:Utility] AFIsDeviceGreymatterEligible Missing entitlements for os_eligibility lookup
+2026-10-22 11:30:16.593 Df Fluent[11258:92c8] [com.apple.GenerativeModels:availability] isOkayToHaveAsset: False
+2026-10-22 11:30:16.593 Df Fluent[11258:92c8] [com.apple.siri:Utility] -[AFSystemAssistantExperienceStatusManager fetchGenerativeModelsAvailability] #SAEStatus #cacheUpdate Updating cache:
+deviceSupportsSAE: 0 (0)
+       saeEnabled: 0 (0)
+     saeAvailable: 0 (0)
+      swaiEnabled: 0 (0)
+        viEnabled: 0 (0)
+        siriAvailability:
+        <private>
+        ((null))
+2026-10-22 11:30:16.594 A  Fluent[11258:92c8] (SharedFileList) #SFLAPI LSSharedFileListCopySnapshot
+2026-10-22 11:30:16.594 A  Fluent[11258:92c8] (SharedFileList) #SFLAPI LSSharedFileListCopySnapshot
+2026-10-22 11:30:16.594 E  Fluent[11258:92c8] [com.apple.libsqlite3:logging-persist] cannot open file at line 51044 of [f0ca7bba1c]
+2026-10-22 11:30:16.594 E  Fluent[11258:92c8] [com.apple.libsqlite3:logging-persist] os_unix.c:51044: (2) open(/private/var/db/DetachedSignatures) - No such file or directory
+2026-10-22 11:30:16.595 A  Fluent[11258:92c8] (SharedFileList) GenericList.resolveItemWithIdentifier
+2026-10-22 11:30:16.595 Df Fluent[11258:92c8] [com.apple.sharedfilelist:XPC] Resolve item A2857EE5-39C8-4EC6-A387-A40BDF47D0EE, options: 768, list: com.apple.LSSharedFileList.RecentApplications
+2026-10-22 11:30:16.595 Df Fluent[11258:92c8] [com.apple.sharedfilelist:XPC] received: com.apple.LSSharedFileList.RecentApplications
+2026-10-22 11:30:16.595 A  Fluent[11258:92c8] (SharedFileList) GenericList.resolveItemWithIdentifier
+2026-10-22 11:30:16.595 Df Fluent[11258:92c8] [com.apple.sharedfilelist:XPC] Resolve item 3F0893D3-2865-4D93-BD4A-CCC40231E660, options: 768, list: com.apple.LSSharedFileList.RecentApplications
+2026-10-22 11:30:16.596 Df Fluent[11258:92c8] [com.apple.sharedfilelist:XPC] received: com.apple.LSSharedFileList.RecentApplications
+2026-10-22 11:30:16.596 A  Fluent[11258:92c8] (SharedFileList) GenericList.resolveItemWithIdentifier
+2026-10-22 11:30:16.596 Df Fluent[11258:92c8] [com.apple.sharedfilelist:XPC] Resolve item D03B5DAC-4B85-4028-9B33-157A33FED05D, options: 768, list: com.apple.LSSharedFileList.RecentApplications
+2026-10-22 11:30:16.596 Df Fluent[11258:92c8] [com.apple.sharedfilelist:XPC] received: com.apple.LSSharedFileList.RecentApplications
+2026-10-22 11:30:16.596 A  Fluent[11258:92c8] (SharedFileList) GenericList.resolveItemWithIdentifier
+2026-10-22 11:30:16.596 Df Fluent[11258:92c8] [com.apple.sharedfilelist:XPC] Resolve item 23E24184-4270-4431-82A3-8164C71C3DFD, options: 768, list: com.apple.LSSharedFileList.RecentApplications
+2026-10-22 11:30:16.596 Df Fluent[11258:92c8] [com.apple.sharedfilelist:XPC] received: com.apple.LSSharedFileList.RecentApplications
+2026-10-22 11:30:16.600 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715042e40] activating connection: mach=true listener=false peer=false name=com.apple.pbs.fetch_services
+2026-10-22 11:30:16.601 A  Fluent[11258:92c8] (CoreFoundation) Loading Preferences From User CFPrefsD
+2026-10-22 11:30:16.601 Df Fluent[11258:92c8] [com.apple.xpc:connection] [0x715042e40] invalidated after the last release of the connection object
+2026-10-22 11:30:16.631 Df Fluent[11278:9343] [com.apple.CoreAnalytics:client] Entering exit handler.
+2026-10-22 11:30:16.631 Df Fluent[11278:9343] [com.apple.CoreAnalytics:client] Queueing exit procedure onto XPC queue. Any further messages sent will be discarded. activeSendTransactions=0
+2026-10-22 11:30:16.631 Df Fluent[11278:9346] [com.apple.CoreAnalytics:client] Cancelling XPC connection. Any further reply handler invocations will not retry messages
+2026-10-22 11:30:16.631 Df Fluent[11278:9346] [com.apple.xpc:connection] [0xa630403c0] invalidated because the current process cancelled the connection by calling xpc_connection_cancel()
+2026-10-22 11:30:16.631 Df Fluent[11278:9343] [com.apple.CoreAnalytics:client] Exiting exit handler.
+2026-10-22 11:30:16.631 Df Fluent[11278:9346] [com.apple.CoreAnalytics:client] XPC connection invalidated (daemon unloaded/disabled)
+2026-10-22 11:30:16.762 Df Fluent[11258:92c8] [com.apple.AppKit:AutomaticTermination] void _updateToReflectAutomaticTerminationState(void) Setting _kLSApplicationWouldBeTerminatedByTALKey=0
+2026-10-22 11:30:17.363 Df Fluent[11258:92cc] [com.apple.CoreAnalytics:client] Entering exit handler.
+2026-10-22 11:30:17.363 Df Fluent[11258:92cc] [com.apple.CoreAnalytics:client] Queueing exit procedure onto XPC queue. Any further messages sent will be discarded. activeSendTransactions=0

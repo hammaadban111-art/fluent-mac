@@ -1,0 +1,231 @@
+[0/1] Planning build
+Building for debugging...
+[0/12] /Users/runner/work/fluent-mac/fluent-mac/mac/.build/arm64-apple-macosx/debug/FluentMacPackageTests.derived/runner.swift
+[1/13] Write sources
+[4/13] Write swift-version-7974D3F7F03D5E95.txt
+[6/14] Compiling FluentCoreTests StyleFormatterTests.swift
+[7/15] Compiling FluentCoreTests TypingRulesTests.swift
+[8/15] Emitting module FluentCoreTests
+[9/15] Compiling FluentCoreTests CoreTests.swift
+[10/15] Compiling FluentCoreTests GeminiLiveClientTests.swift
+[11/15] Compiling FluentMacKitTests MockHTTPServer.swift
+[12/15] Emitting module FluentMacKitTests
+[13/15] Compiling FluentMacKitTests FluentMacKitTests.swift
+[14/17] Compiling FluentMacPackageTests runner.swift
+[15/17] Emitting module FluentMacPackageTests
+[15/17] Write Objects.LinkFileList
+[16/17] Linking FluentMacPackageTests
+Build complete! (11.16s)
+Test Suite 'All tests' started at 2026-10-22 11:25:08.226.
+Test Suite 'All tests' passed at 2026-10-22 11:25:08.230.
+	 Executed 0 tests, with 0 failures (0 unexpected) in 0.000 (0.004) seconds
+◇ Test run started.
+↳ Testing Library Version: 1902
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite GeminiMockServerTests started.
+◇ Suite UpdatesTests started.
+◇ Suite SettingsTests started.
+◇ Suite GeminiLiveClientTests started.
+◇ Suite StyleCategoryTests started.
+◇ Suite TypingRulesTests started.
+◇ Suite StyleFormatterTests started.
+◇ Suite ShortcutTests started.
+◇ Suite ReviewFixTests started.
+◇ Suite GeminiClientTests started.
+◇ Suite MacSettingsTests started.
+◇ Suite HistoryTests started.
+◇ Suite BubblePlacementTests started.
+◇ Suite WAVTests started.
+◇ Suite InsertionRulesTests started.
+◇ Suite FieldDetectionTests started.
+◇ Suite SnapshotTimerTests started.
+◇ Suite TranscriptRaceTests started.
+◇ Suite HandoffTests started.
+◇ Suite HoldSpoilTests started.
+◇ Test sendsTheAndroidRequestAndReadsTheTranscript() started.
+◇ Test serverErrorsBecomeTheAndroidMessages() started.
+◇ Test errorMessagesMatchAndroidConstants() started.
+◇ Test verbatimModeIsAnObject() started.
+◇ Test testConnectionHitsTheModel() started.
+◇ Test readsTheMacEntry() started.
+◇ Test comparesVersions() started.
+◇ Test serverErrorBecomesInvalidKey() started.
+◇ Test defaultsAndStyleRules() started.
+◇ Test finishWithoutASocketMeansFallback() started.
+◇ Test audioIsBase64Pcm16At16k() started.
+◇ Test setupMatchesAndroid() started.
+◇ Test noBundleIsInTwoCategories() started.
+◇ Test macAppsMapLikeAndroidPackages() started.
+◇ Test styleOnlyTouchesCapsAndPunctuation() started.
+◇ Test unicodeTextSurvivesVeryCasual() started.
+◇ Test capitalisesAtSentenceStarts() started.
+◇ Test blankInputStaysBlank() started.
+◇ Test correctsOnlyNearMisses() started.
+◇ Test fixesContractionsAndLoneI() started.
+◇ Test emailWithoutGreetingOrSignOffIsNotRestructured() started.
+◇ Test findsTheWordBeingTyped() started.
+◇ Test casualEmailKeepsGreetingInline() started.
+◇ Test abbreviationsAndEllipsesKeepTheirDots() started.
+◇ Test editDistance() started.
+◇ Test doubleSpaceMakesAFullStop() started.
+◇ Test formalEmailIsLaidOut() started.
+◇ Test excitedOnlyChangesClosingFullStop() started.
+◇ Test engineCarbonHoldAndToggle() started.
+◇ Test emailLayoutOnlyInEmailApps() started.
+◇ Test holdStartsOnlyAfterTheDelayAndWithoutOtherKeys() started.
+◇ Test engineHoldsOnRightOptionAndIgnoresShortcuts() started.
+◇ Test existingLineBreaksSurvive() started.
+◇ Test everyCategoryDefaultIsOneOfItsStyles() started.
+◇ Test combosLabelAndRoundTrip() started.
+◇ Test casualDropsIntroCommaAndFinalPeriod() started.
+◇ Test recorderCapturesCombos() started.
+◇ Test sameModifiersTapTogglesHoldTalks() started.
+◇ Test veryCasualLowercasesAndStripsButKeepsQuestions() started.
+◇ Test casualKeepsNumbersAndNamedGreetings() started.
+◇ Test engineModifierTapToggles() started.
+◇ Test formalLeavesSmartTranscriptAlone() started.
+◇ Test legacySettingsCarryOver() started.
+◇ Test veryCasualKeepsPronounAcronymsAndInTokenPunctuation() started.
+◇ Test excitedEmailExclaimsBodyNotSignOff() started.
+◇ Test shiftThenRightOptionIsNotAHold() started.
+◇ Test emailGreetingNeverSwallowsPronounI() started.
+◇ Test mapsErrors() started.
+◇ Test sidesDoNotMatterWithAnOrdinaryKey() started.
+◇ Test shortcutSettingsPersist() started.
+◇ Test requestMatchesAndroidShape() started.
+◇ Test extractsTextFromEveryResponseShape() started.
+◇ Test smartModeIsAPlainStringAndEmptyVocabularyIsOmitted() started.
+◇ Test snooze() started.
+◇ Test bubbleVisibilityRules() started.
+◇ Test addDeleteAndCap() started.
+◇ Test sizesAreClamped() started.
+◇ Test oneLineFieldGetsTheBubbleOnItsRight() started.
+◇ Test tallFieldGetsItInsideTheBottomRight() started.
+◇ Test staysOnScreenAndHonoursTheDragOffset() started.
+◇ Test flipsToAppKit() started.
+◇ Test selectionIsReplacedAndOffsetsAreUTF16() started.
+◇ Test headerIsValid() started.
+◇ Test landedOnlyWhenTheValueMoved() started.
+◇ Test addsSpaceAfterAWordAndBeforeTheNext() started.
+◇ Test respacesAfterPaste() started.
+◇ Test punctuationRules() started.
+◇ Test webAndElectronEditorsCountWhenWritable() started.
+◇ Test passwordsAreNeverEditable() started.
+◇ Test ordinaryTextRolesAreEditable() started.
+◇ Test accessibilityNudges() started.
+◇ Test timerRunsOnWhileRecordingAndStopsWhenPaused() started.
+◇ Test settableControlsThatAreNotTextAreIgnored() started.
+◇ Test failedLiveFallsBackToBatch() started.
+◇ Test commandRoundTrips() started.
+◇ Test placeholderClassification() started.
+◇ Test slowLiveStartsBatchAndFirstAnswerWins() started.
+◇ Test fastLiveWins() started.
+◇ Test spacing() started.
+◇ Test batchErrorWaitsForLateLive() started.
+◇ Test deliveryIsTakenOnceAndOnlyWhileFresh() started.
+◇ Test staleHeartbeatReadsAsOff() started.
+◇ Test carbonToggleSpoilsAModifierHold() started.
+✔ Test readsTheMacEntry() passed after 0.036 seconds.
+✔ Test serverErrorBecomesInvalidKey() passed after 0.036 seconds.
+✔ Test comparesVersions() passed after 0.036 seconds.
+✔ Test errorMessagesMatchAndroidConstants() passed after 0.036 seconds.
+✔ Test finishWithoutASocketMeansFallback() passed after 0.036 seconds.
+✔ Test audioIsBase64Pcm16At16k() passed after 0.036 seconds.
+✔ Test noBundleIsInTwoCategories() passed after 0.036 seconds.
+✔ Test setupMatchesAndroid() passed after 0.036 seconds.
+✔ Test macAppsMapLikeAndroidPackages() passed after 0.037 seconds.
+✔ Test unicodeTextSurvivesVeryCasual() passed after 0.037 seconds.
+✔ Test capitalisesAtSentenceStarts() passed after 0.037 seconds.
+✔ Test blankInputStaysBlank() passed after 0.037 seconds.
+✔ Test correctsOnlyNearMisses() passed after 0.037 seconds.
+✔ Test emailWithoutGreetingOrSignOffIsNotRestructured() passed after 0.037 seconds.
+✔ Test fixesContractionsAndLoneI() passed after 0.037 seconds.
+✔ Test styleOnlyTouchesCapsAndPunctuation() passed after 0.037 seconds.
+✔ Test findsTheWordBeingTyped() passed after 0.037 seconds.
+✔ Test abbreviationsAndEllipsesKeepTheirDots() passed after 0.037 seconds.
+✔ Test casualEmailKeepsGreetingInline() passed after 0.037 seconds.
+✔ Test editDistance() passed after 0.037 seconds.
+✔ Test doubleSpaceMakesAFullStop() passed after 0.037 seconds.
+✔ Test excitedOnlyChangesClosingFullStop() passed after 0.037 seconds.
+✔ Test formalEmailIsLaidOut() passed after 0.037 seconds.
+✔ Test emailLayoutOnlyInEmailApps() passed after 0.037 seconds.
+✔ Test holdStartsOnlyAfterTheDelayAndWithoutOtherKeys() passed after 0.037 seconds.
+✔ Test engineHoldsOnRightOptionAndIgnoresShortcuts() passed after 0.037 seconds.
+✔ Test existingLineBreaksSurvive() passed after 0.037 seconds.
+✔ Test everyCategoryDefaultIsOneOfItsStyles() passed after 0.037 seconds.
+✔ Test casualDropsIntroCommaAndFinalPeriod() passed after 0.037 seconds.
+✔ Test recorderCapturesCombos() passed after 0.037 seconds.
+✔ Test engineCarbonHoldAndToggle() passed after 0.037 seconds.
+✔ Test veryCasualLowercasesAndStripsButKeepsQuestions() passed after 0.037 seconds.
+✔ Test casualKeepsNumbersAndNamedGreetings() passed after 0.037 seconds.
+✔ Test sameModifiersTapTogglesHoldTalks() passed after 0.037 seconds.
+✔ Test engineModifierTapToggles() passed after 0.037 seconds.
+✔ Test formalLeavesSmartTranscriptAlone() passed after 0.037 seconds.
+✔ Test defaultsAndStyleRules() passed after 0.038 seconds.
+✔ Test combosLabelAndRoundTrip() passed after 0.037 seconds.
+✔ Test veryCasualKeepsPronounAcronymsAndInTokenPunctuation() passed after 0.037 seconds.
+✔ Test shiftThenRightOptionIsNotAHold() passed after 0.037 seconds.
+✔ Test excitedEmailExclaimsBodyNotSignOff() passed after 0.037 seconds.
+✔ Test emailGreetingNeverSwallowsPronounI() passed after 0.037 seconds.
+✔ Test sidesDoNotMatterWithAnOrdinaryKey() passed after 0.037 seconds.
+✔ Test mapsErrors() passed after 0.037 seconds.
+✔ Test requestMatchesAndroidShape() passed after 0.037 seconds.
+✔ Test extractsTextFromEveryResponseShape() passed after 0.037 seconds.
+✔ Test smartModeIsAPlainStringAndEmptyVocabularyIsOmitted() passed after 0.037 seconds.
+✔ Test legacySettingsCarryOver() passed after 0.038 seconds.
+✔ Test shortcutSettingsPersist() passed after 0.038 seconds.
+✔ Test snooze() passed after 0.037 seconds.
+✔ Test bubbleVisibilityRules() passed after 0.037 seconds.
+✔ Test oneLineFieldGetsTheBubbleOnItsRight() passed after 0.037 seconds.
+✔ Test tallFieldGetsItInsideTheBottomRight() passed after 0.037 seconds.
+✔ Test sizesAreClamped() passed after 0.038 seconds.
+✔ Test flipsToAppKit() passed after 0.037 seconds.
+✔ Test staysOnScreenAndHonoursTheDragOffset() passed after 0.037 seconds.
+✔ Test selectionIsReplacedAndOffsetsAreUTF16() passed after 0.037 seconds.
+✔ Test landedOnlyWhenTheValueMoved() passed after 0.037 seconds.
+✔ Test addsSpaceAfterAWordAndBeforeTheNext() passed after 0.037 seconds.
+✔ Test respacesAfterPaste() passed after 0.037 seconds.
+✔ Test punctuationRules() passed after 0.037 seconds.
+✔ Test webAndElectronEditorsCountWhenWritable() passed after 0.037 seconds.
+✔ Test passwordsAreNeverEditable() passed after 0.037 seconds.
+✔ Test ordinaryTextRolesAreEditable() passed after 0.037 seconds.
+✔ Test accessibilityNudges() passed after 0.037 seconds.
+✔ Test timerRunsOnWhileRecordingAndStopsWhenPaused() passed after 0.037 seconds.
+✔ Test settableControlsThatAreNotTextAreIgnored() passed after 0.037 seconds.
+✔ Test placeholderClassification() passed after 0.037 seconds.
+✔ Test headerIsValid() passed after 0.038 seconds.
+✔ Test spacing() passed after 0.037 seconds.
+✔ Test commandRoundTrips() passed after 0.038 seconds.
+✔ Test staleHeartbeatReadsAsOff() passed after 0.037 seconds.
+✔ Test deliveryIsTakenOnceAndOnlyWhileFresh() passed after 0.038 seconds.
+✔ Test carbonToggleSpoilsAModifierHold() passed after 0.038 seconds.
+✔ Suite UpdatesTests passed after 0.039 seconds.
+✔ Suite GeminiLiveClientTests passed after 0.039 seconds.
+✔ Suite StyleFormatterTests passed after 0.039 seconds.
+✔ Suite StyleCategoryTests passed after 0.040 seconds.
+✔ Suite TypingRulesTests passed after 0.040 seconds.
+✔ Suite SettingsTests passed after 0.040 seconds.
+✔ Suite ShortcutTests passed after 0.040 seconds.
+✔ Suite ReviewFixTests passed after 0.040 seconds.
+✔ Suite GeminiClientTests passed after 0.040 seconds.
+✔ Suite MacSettingsTests passed after 0.040 seconds.
+✔ Suite InsertionRulesTests passed after 0.040 seconds.
+✔ Suite SnapshotTimerTests passed after 0.040 seconds.
+✔ Suite WAVTests passed after 0.040 seconds.
+✔ Suite HandoffTests passed after 0.040 seconds.
+✔ Suite HoldSpoilTests passed after 0.040 seconds.
+✔ Suite BubblePlacementTests passed after 0.040 seconds.
+✔ Suite FieldDetectionTests passed after 0.040 seconds.
+✔ Test fastLiveWins() passed after 0.059 seconds.
+✔ Test failedLiveFallsBackToBatch() passed after 0.070 seconds.
+✔ Test testConnectionHitsTheModel() passed after 0.073 seconds.
+✔ Test verbatimModeIsAnObject() passed after 0.073 seconds.
+✔ Test sendsTheAndroidRequestAndReadsTheTranscript() passed after 0.073 seconds.
+✔ Test serverErrorsBecomeTheAndroidMessages() passed after 0.076 seconds.
+✔ Suite GeminiMockServerTests passed after 0.077 seconds.
+✔ Test slowLiveStartsBatchAndFirstAnswerWins() passed after 0.865 seconds.
+✔ Test addDeleteAndCap() passed after 1.254 seconds.
+✔ Suite HistoryTests passed after 1.255 seconds.
+✔ Test batchErrorWaitsForLateLive() passed after 1.352 seconds.
+✔ Suite TranscriptRaceTests passed after 1.353 seconds.
+✔ Test run with 83 tests in 20 suites passed after 1.354 seconds.
