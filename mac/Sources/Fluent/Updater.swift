@@ -2,6 +2,7 @@ import AppKit
 import CryptoKit
 import FluentMacKit
 import Foundation
+import Security
 @preconcurrency import UserNotifications
 
 /// Settings → Updates and the "new version" notice. Reads the website's updates.json at launch and
@@ -156,7 +157,28 @@ final class Updater {
         try run("/usr/bin/hdiutil", ["attach", "-nobrowse", "-readonly", "-noautoopen", "-mountpoint", mount.path, dmg.path])
         defer { _ = try? run("/usr/bin/hdiutil", ["detach", mount.path, "-force"]) }
         try run("/usr/bin/ditto", [mount.appendingPathComponent("Fluent.app").path, staged.path])
-        try run("/usr/bin/codesign", ["--verify", "--deep", staged.path])
+        // A valid signature is not enough: any app signs validly. When this copy is signed with Fluent's
+        // certificate, the new one must be signed with the same certificate (its designated requirement).
+        if let requirement = stableRequirement() {
+            try run("/usr/bin/codesign", ["--verify", "--deep", "-R=\(requirement)", staged.path])
+        } else {
+            try run("/usr/bin/codesign", ["--verify", "--deep", staged.path])
+        }
+    }
+
+    /// The running app's designated requirement, unless it is ad-hoc signed (a local build), whose
+    /// requirement is its own cdhash and so would refuse every new version.
+    nonisolated static func stableRequirement() -> String? {
+        var code: SecCode?
+        guard SecCodeCopySelf([], &code) == errSecSuccess, let code else { return nil }
+        var staticCode: SecStaticCode?
+        guard SecCodeCopyStaticCode(code, [], &staticCode) == errSecSuccess, let staticCode else { return nil }
+        var requirement: SecRequirement?
+        guard SecCodeCopyDesignatedRequirement(staticCode, [], &requirement) == errSecSuccess, let requirement else { return nil }
+        var text: CFString?
+        guard SecRequirementCopyString(requirement, [], &text) == errSecSuccess, let text else { return nil }
+        let string = text as String
+        return string.contains("cdhash") ? nil : string
     }
 
     /// Writes a script that waits for Fluent to quit, swaps the app (keeping the old one if the copy
