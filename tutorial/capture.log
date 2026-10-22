@@ -1,0 +1,23 @@
+08:36:46 resolution 1920x1080: result 0; screen now {Width=1920, Height=1080}
+08:36:53 edge window: Fluent — say it however it comes out - Profile 1 - Microsoft​ Edge
+08:36:57 hero windows link: Download Fluent for Windows Installer · 68 MB
+08:37:00 clicked download
+08:37:03 edge warning: Fluent-Setup-1.0.0.exe isn't commonly downloaded. Make sure you trust Fluent-Setup-1.0.0.exe before you open it.
+08:37:06 more actions: True
+08:37:08 keep: True
+08:37:11 dialog delete button: Delete Open menu {X=1670,Y=491,Width=86,Height=32}
+08:37:13 keep anyway: True
+08:37:14 downloaded: C:\Users\runneradmin\Downloads\Fluent-Setup-1.0.0.exe
+08:37:16 'Open file' in Edge: True
+08:37:30 smartscreen: 
+08:37:35 installer: Setup - Fluent 1.0.0
+08:37:44 finish: True
+08:37:45 fluent window after install: True
+08:37:57 key box: type=Edit class=PasswordBox enabled=True focusable=True rect={X=661,Y=482,Width=300,Height=48} fw={X=460,Y=156,Width=1000,Height=720}
+08:37:57 element under the click point: Edit class=PasswordBox name='Gemini API key'
+08:37:57 after UIA SetFocus: True
+08:37:57 key box focused: True; focused element: Edit 'Gemini API key'
+08:37:58 after paste: Save key enabled = True
+08:38:05 bubble: [1568,858,58,58]
+08:38:19 notepad text: Hey, are you free for lunch tomorrow? Let's do 12 if that works.
+08:38:19 capture done
