@@ -1,0 +1,5 @@
+Albert              en_US    # Hello! My name is Albert.
+Alice               it_IT    # Ciao! Mi chiamo Alice.
+Soumya              kn_IN    # Hello! My name is Soumya.
+Alva                sv_SE    # Hej! Jag heter Alva.
+Aman                en_IN    # Hello! My name is Aman.

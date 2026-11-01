@@ -1,0 +1,25 @@
+{
+  "appFocusedRole" : "AXTextArea",
+  "field" : {
+    "app" : "TextEdit",
+    "bundleID" : "com.apple.TextEdit",
+    "frame" : [
+      79,
+      88,
+      656,
+      384
+    ],
+    "kind" : "editable",
+    "role" : "AXTextArea",
+    "selectedTextSettable" : true,
+    "subrole" : "",
+    "valueSettable" : true
+  },
+  "focusedWindowRole" : "AXWindow",
+  "frontmost" : "com.apple.TextEdit",
+  "lookups" : 1,
+  "mode" : "key",
+  "sent" : true,
+  "systemFocusedRole" : "AXTextArea",
+  "trusted" : true
+}

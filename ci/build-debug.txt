@@ -1,0 +1,60 @@
+Building for debugging...
+[0/18] Write fluent-cli-entitlement.plist
+[0/18] Write sources
+[2/18] Write PasteOnlyHost-entitlement.plist
+[4/18] Write sources
+[6/18] Write Fluent-entitlement.plist
+[7/18] Write sources
+[8/18] Write swift-version-7974D3F7F03D5E95.txt
+[10/27] Compiling FluentCore Handoff.swift
+[11/27] Compiling FluentCore HistoryStore.swift
+[12/27] Compiling FluentCore Settings.swift
+[13/27] Emitting module FluentCore
+[14/27] Compiling FluentCore Constants.swift
+[15/27] Compiling FluentCore GeminiClient.swift
+[16/27] Compiling FluentCore GeminiLiveClient.swift
+[17/30] Compiling FluentCore TypingRules.swift
+[18/30] Compiling FluentCore WAV.swift
+[19/30] Compiling FluentCore WritingStyle.swift
+[20/37] Emitting module FluentMacKit
+[21/39] Compiling FluentMacKit AppCategories.swift
+[22/39] Compiling FluentMacKit BubblePlacement.swift
+[23/39] Compiling FluentMacKit FieldClassifier.swift
+[24/39] Compiling FluentMacKit TranscriptRace.swift
+[25/39] Compiling FluentMacKit Updates.swift
+[26/39] Compiling FluentMacKit InsertionRules.swift
+[27/39] Compiling FluentMacKit MacSettings.swift
+[28/39] Compiling FluentMacKit Shortcuts.swift
+[29/54] Emitting module fluent_cli
+[30/54] Compiling fluent_cli main.swift
+[30/54] Write Objects.LinkFileList
+[31/54] Linking fluent-cli
+[32/54] Applying fluent-cli
+[34/54] Compiling PasteOnlyHost main.swift
+[35/54] Emitting module PasteOnlyHost
+[35/54] Write Objects.LinkFileList
+[36/54] Linking PasteOnlyHost
+[37/54] Applying PasteOnlyHost
+[39/54] Emitting module Fluent
+[40/60] Compiling Fluent OverlayViews.swift
+[41/60] Compiling Fluent Overlays.swift
+[42/60] Compiling Fluent Recorder.swift
+[43/60] Compiling Fluent RootViews.swift
+[44/60] Compiling Fluent ScreenViews.swift
+[45/60] Compiling Fluent SelfTest.swift
+[46/60] Compiling Fluent AX.swift
+[47/60] Compiling Fluent App.swift
+[48/60] Compiling Fluent AppModel.swift
+[49/60] Compiling Fluent Components.swift
+[50/60] Compiling Fluent Demo.swift
+[51/60] Compiling Fluent DictationController.swift
+[52/60] Compiling Fluent Services.swift
+[53/60] Compiling Fluent SettingsView.swift
+[54/60] Compiling Fluent TextInserter.swift
+[55/60] Compiling Fluent Theme.swift
+[56/60] Compiling Fluent Updater.swift
+[57/60] Compiling Fluent main.swift
+[57/60] Write Objects.LinkFileList
+[58/60] Linking Fluent
+[59/60] Applying Fluent
+Build complete! (16.32s)
